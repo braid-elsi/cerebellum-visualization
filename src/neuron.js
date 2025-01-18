@@ -1,4 +1,4 @@
-import Axon from "./axon";
+import Axon from "./axon.js";
 
 export default class Neuron {
     constructor(x, y, w, color = [255, 0, 0]) {
@@ -9,8 +9,8 @@ export default class Neuron {
     }
 
     render(p) {
-        p.stroke(...this.color);
-        this.p.fill(...this.color);
-        this.p.ellipse(this.x, this.y, this.w, this.w);
+        p.stroke(0, 0, 0);
+        p.fill(...this.color);
+        p.ellipse(this.x, this.y, this.w, this.w);
     }
 }

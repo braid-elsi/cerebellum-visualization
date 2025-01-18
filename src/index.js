@@ -1,5 +1,7 @@
 import p5 from "p5";
 import MossyFiberNeuron from "./mossy-fiber-neuron.js";
+import Neuron from "./neuron.js";
+import Layer from "./layer.js";
 
 // Create a new p5 instance
 const sketch = (p) => {
@@ -13,22 +15,82 @@ const sketch = (p) => {
 };
 new p5(sketch);
 
-let signalPos = 0;
-const neurons = [];
+const mfNeurons = [];
+const granuleCells = [];
+const layers = {};
+let screenW;
+let screenH;
 
 function setup(p) {
-    p.createCanvas(800, 600);
+    // screenW = window.innerWidth;
+    // screenH = window.innerHeight;
+    screenW = Math.max(
+        document.documentElement.clientWidth || 0,
+        window.innerWidth || 0
+    );
+    screenH = Math.max(
+        document.documentElement.clientHeight || 0,
+        window.innerHeight || 0
+    );
+    p.createCanvas(screenW, screenH);
+
+    drawLayers();
+
+    const granuleLayer = layers["Granule layer"];
+    const granuleBounds = granuleLayer.getBounds();
     for (let i = 0; i < 10; i++) {
-        neurons.push(
-            new MossyFiberNeuron(p, 150 + i * 50, 550, 400, 450, Math.random())
+        granuleCells.push(
+            new Neuron(
+                i * 30 + granuleBounds.x1,
+                (granuleBounds.y2 - granuleBounds.y1) / 2 + granuleBounds.y1,
+                20,
+                [255, 0, 0]
+            )
         );
     }
+
+    const mfLayer = layers["Brainstem / Spinal Cord"];
+    const mfBounds = mfLayer.getBounds();
+    console.log(mfBounds);
+    for (let i = 0; i < 10; i++) {
+        mfNeurons.push(
+            new MossyFiberNeuron(
+                150 + i * 30 + mfBounds.x1,
+                (mfBounds.y2 - mfBounds.y1) / 2 + mfBounds.y1,
+                400,
+                450,
+                Math.random()
+            )
+        );
+    }
+}
+
+function drawLayers() {
+    // Draw layers:
+    let layerHeight = screenH / 5;
+    const layerLabels = [
+        "Molecular layer",
+        "Purkinje layer",
+        "Granule layer",
+        "White matter",
+        "Brainstem / Spinal Cord",
+    ];
+    layerLabels.reverse().forEach((label, i) => {
+        layers[label] = new Layer(
+            screenH - i * layerHeight,
+            screenW,
+            layerHeight,
+            label
+        );
+    });
 }
 
 function draw(p) {
     p.background(240);
     drawCircuit(p);
-    for (const neuron of neurons) {
+
+    // the animation:
+    for (const neuron of mfNeurons) {
         if (neuron.signalPos > 1) {
             neuron.signalPos = 0;
         }
@@ -52,8 +114,18 @@ function drawCircuit(p) {
     // Draw Purkinje cell dendrites (tall branching structure)
     drawDendrites(p, 400, 450, 100, -90, 7); // Starting at soma
 
-    for (const neuron of neurons) {
-        neuron.render();
+    for (const key in layers) {
+        const layer = layers[key];
+        console.log(layer.getBounds(), layer.label);
+        layer.render(p);
+    }
+
+    for (const neuron of mfNeurons) {
+        neuron.render(p);
+    }
+
+    for (const neuron of granuleCells) {
+        neuron.render(p);
     }
 
     // Draw climbing fiber wrapping around dendrites

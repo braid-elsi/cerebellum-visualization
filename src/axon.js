@@ -8,7 +8,7 @@
  *   branches extensively, allowing it to connect with many granule cells and other targets in the cerebellum.
  */
 
-import Pulse from "./pulse";
+import Pulse from "./pulse.js";
 
 export default class Axon {
     constructor(x1, y1, x2, y2, color = [255, 150, 0]) {

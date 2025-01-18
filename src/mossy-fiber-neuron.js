@@ -1,4 +1,4 @@
-import Axon from "./axon";
+import Axon from "./axon.js";
 
 export default class MossyFiberNeuron {
     /**
@@ -12,7 +12,6 @@ export default class MossyFiberNeuron {
      */
 
     constructor(
-        p,
         x1,
         y1,
         x2 = 400,
@@ -22,7 +21,6 @@ export default class MossyFiberNeuron {
         colorSoma = [50, 200, 50],
         colorMossyFiber = [200, 50, 50]
     ) {
-        this.p = p;
         this.x1 = x1;
         this.y1 = y1;
         this.x2 = x2;
@@ -32,14 +30,13 @@ export default class MossyFiberNeuron {
         this.colorMossyFiber = colorMossyFiber;
         this.signalPos = signalPos;
         this.axon = new Axon(x1, y1, x2, y2, colorMossyFiber, signalPos);
-        this.render();
     }
 
-    render() {
-        this.p.stroke(...this.colorSoma);
-        this.p.fill(...this.colorSoma);
-        this.p.ellipse(this.x1, this.y1, this.w, this.w); // Granule cell bodies
+    render(p) {
+        p.stroke(...this.colorSoma);
+        p.fill(...this.colorSoma);
+        p.ellipse(this.x1, this.y1, this.w, this.w); // Granule cell bodies
 
-        this.axon.render(this.p);
+        this.axon.render(p);
     }
 }
