@@ -20,23 +20,28 @@ export default class Layer {
         return this.bounds;
     }
 
-    render(p) {
+    render(p5) {
         // draw the rectangle:
-        p.strokeWeight(1);
-        p.stroke(200);
-        p.fill(245);
-        p.rect(this.x, this.y, this.width, this.height);
+        p5.strokeWeight(0);
+        p5.fill(...this.color);
+        p5.rect(this.x, this.y, this.width, this.height);
+
+        // draw the line:
+        // p5.strokeWeight(1);
+        // p5.stroke(0);
+        // p5.line(this.x, this.y, this.x + this.width, this.y);
 
         // draw the label:
-        p.fill(0);
-        p.strokeWeight(0);
-        p.textAlign(p.CENTER);
-        p.textSize(20);
-        p.push();
-        p.translate(this.x + this.padding, this.y + this.height);
-        p.rotate(-p.PI / 2);
+        p5.fill(0);
+        p5.strokeWeight(0);
+        p5.textAlign(p5.CENTER);
+        p5.textSize(14);
+        p5.textFont("Montserrat");
+        p5.push();
+        p5.translate(this.x + this.padding, this.y + this.height);
+        p5.rotate(-p5.PI / 2);
         let padding = 15;
-        p.text(this.label, padding, 10, this.height - padding * 2);
-        p.pop();
+        p5.text(this.label, padding, 10, this.height - padding * 2);
+        p5.pop();
     }
 }
