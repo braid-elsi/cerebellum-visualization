@@ -1,5 +1,5 @@
-import GranuleDentriteReceptor from "./granuleDentriteReceptor";
-import ParallelFiber from "./parallelFiber";
+import GranuleDentriteReceptor from "./granule-cell-receptor";
+import ParallelFiber from "./granule-cell-parallel-fiber";
 
 export default class GranuleCell {
     constructor({ x, y, w, numReceptors = 4, color = [98, 104, 190] }) {
@@ -20,7 +20,7 @@ export default class GranuleCell {
                     this.x,
                     this.y - w / 4,
                     (7 / 8) * Math.PI - i * interval,
-                    this.w * 1.5,
+                    this.w * 1.3,
                     this.w / 2
                 )
             );

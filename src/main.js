@@ -1,7 +1,7 @@
 import p5Lib from "p5";
 import MossyFiberNeuron from "./mossy-fiber-neuron.js";
-import GranuleCellList from "./granuleCellList.js";
-import LayerList from "./layerList.js";
+import GranuleCellList from "./granule-cell-list.js";
+import LayerList from "./layer-list.js";
 
 // Create a new p5 instance
 new p5Lib(function (p5) {
