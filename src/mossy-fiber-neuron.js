@@ -17,9 +17,9 @@ export default class MossyFiberNeuron {
         x2 = 400,
         y2 = 450,
         signalPos = 0,
-        w = 5,
-        colorSoma = [50, 200, 50],
-        colorMossyFiber = [200, 50, 50]
+        w = 15,
+        colorSoma = [44,201,255,255],
+        colorMossyFiber = [44,201,255,255]
     ) {
         this.x1 = x1;
         this.y1 = y1;

@@ -21,8 +21,8 @@ export default class Axon {
     }
 
     render(p) {
+        p.strokeWeight(3);
         p.stroke(...this.color);
-        p.strokeWeight(1);
         p.line(this.x1, this.y1, this.x2, this.y2);
     }
 }

@@ -9,7 +9,7 @@ export default class Neuron {
     }
 
     render(p) {
-        p.stroke(0, 0, 0);
+        p.stroke(...this.color);
         p.fill(...this.color);
         p.ellipse(this.x, this.y, this.w, this.w);
     }
