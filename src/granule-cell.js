@@ -2,23 +2,24 @@ import GranuleDentriteReceptor from "./granule-cell-receptor";
 import ParallelFiber from "./granule-cell-parallel-fiber";
 
 export default class GranuleCell {
-    constructor({ x, y, w, numReceptors = 4, color = [98, 104, 190] }) {
+    constructor({ id, x, y, w, layer, numReceptors = 4, color = [98, 104, 190] }) {
+        this.id = id;
         this.x = x;
         this.y = y;
         this.w = w;
+        this.layer = layer;
         this.color = color;
         this.receptors = [];
 
         let start = (7 / 8) * Math.PI;
         let end = (1 / 8) * Math.PI;
         let interval = Math.abs(start - end) / (numReceptors - 1);
-        console.log(interval);
+        // console.log(interval);
 
         for (let i = 0; i < numReceptors; i++) {
             this.receptors.push(
                 new GranuleDentriteReceptor(
-                    this.x,
-                    this.y - w / 4,
+                    this,
                     (7 / 8) * Math.PI - i * interval,
                     this.w * 1.3,
                     this.w / 2
@@ -28,7 +29,7 @@ export default class GranuleCell {
     }
 
     addParallelFiber(molecularLayer) {
-        console.log(molecularLayer.getBounds());
+        // console.log(molecularLayer.getBounds());
         this.parallelFiber = new ParallelFiber(this, molecularLayer);
     }
 

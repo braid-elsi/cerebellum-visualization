@@ -1,7 +1,8 @@
 import p5Lib from "p5";
-import MossyFiberNeuron from "./mossy-fiber-neuron.js";
+import MossyFiberNeuronList from "./mossy-fiber-neuron-list.js";
 import GranuleCellList from "./granule-cell-list.js";
 import LayerList from "./layer-list.js";
+import PurkinjeCell from "./purkinje-cell.js";
 
 // Create a new p5 instance
 new p5Lib(function (p5) {
@@ -13,6 +14,8 @@ new p5Lib(function (p5) {
 const mfNeurons = [];
 const granuleCells = [];
 let granuleCellList;
+let mossyFiberNeuronList;
+let purkinjeCell;
 let layerList;
 let screenW;
 let screenH;
@@ -36,6 +39,15 @@ function setup(p5) {
         layerList.granuleLayer,
         layerList.molecularLayer
     );
+    mossyFiberNeuronList = new MossyFiberNeuronList(
+        layerList.brainstemLayer,
+        granuleCellList
+    );
+
+    purkinjeCell = new PurkinjeCell({
+        x: 900,
+        y: 290,
+    });
 
     // for (let i = 0; i < 6; i++) {
     //     let w = 30;
@@ -108,7 +120,10 @@ function drawCircuit(p5) {
     //     neuron.render(p5);
     // }
 
+    mossyFiberNeuronList.render(p5);
     granuleCellList.render(p5);
+
+    purkinjeCell.render(p5);
 
     // Draw climbing fiber wrapping around dendrites
     // stroke(255, 150, 0);

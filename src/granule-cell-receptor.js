@@ -1,10 +1,11 @@
 // import Axon from "./axon.js";
 
 export default class GranuleDentriteReceptor {
-    constructor(x, y, angle, length, receptorLength, color = [98, 104, 190]) {
-        console.log(x, y, angle, length);
-        this.x = x;
-        this.y = y;
+    constructor(gc, angle, length, receptorLength, color = [98, 104, 190]) {
+        // console.log(x, y, angle, length);
+        this.gc = gc;
+        this.x = gc.x + length * Math.cos(angle);
+        this.y = gc.y + length * Math.sin(angle);
         this.angle = angle;
         this.length = length;
         this.receptorLength = receptorLength;
@@ -12,13 +13,16 @@ export default class GranuleDentriteReceptor {
     }
 
     render(p5) {
-        let x1 = this.x + this.length * Math.cos(this.angle);
-        let y1 = this.y + this.length * Math.sin(this.angle);
         p5.stroke(...this.color);
         p5.fill(...this.color);
-        console.log(this.x, this.y, x1, y1);
-        p5.line(this.x, this.y, x1, y1);
+        // console.log(this.x, this.y, x1, y1);
+        p5.line(this.gc.x, this.gc.y, this.x, this.y);
 
-        p5.ellipse(x1, y1, this.receptorLength, this.receptorLength / 4);
+        p5.ellipse(
+            this.x,
+            this.y,
+            this.receptorLength,
+            this.receptorLength / 4
+        );
     }
 }

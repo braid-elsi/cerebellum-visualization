@@ -1,4 +1,4 @@
-import Axon from "./axon.js";
+import MossyFiberAxon from "./mossy-fiber-axon.js";
 
 export default class MossyFiberNeuron {
     /**
@@ -11,31 +11,32 @@ export default class MossyFiberNeuron {
      * Mossy fibers "project diffusely" onto a large number of granule cells.
      */
 
-    constructor(
-        x1,
-        y1,
-        x2 = 400,
-        y2 = 450,
-        signalPos = 0,
-        w = 15,
-        colorSoma = [44,201,255,255],
-        colorMossyFiber = [44,201,255,255]
-    ) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
+    signalPos = 0;
+
+    constructor({
+        id,
+        x,
+        y,
+        w,
+        connectsTo,
+        granuleCellList,
+        color = [44, 201, 255],
+    }) {
+        // console.log("MFN:", id, x, y, w, color);
+        this.id = id;
+        this.x = x;
+        this.y = y;
         this.w = w;
-        this.colorSoma = colorSoma;
-        this.colorMossyFiber = colorMossyFiber;
-        this.signalPos = signalPos;
-        this.axon = new Axon(x1, y1, x2, y2, colorMossyFiber, signalPos);
+        this.connectsTo = connectsTo;
+        this.granuleCellList = granuleCellList;
+        this.color = color;
+        this.axon = new MossyFiberAxon(this, this.granuleCellList);
     }
 
     render(p) {
-        p.stroke(...this.colorSoma);
-        p.fill(...this.colorSoma);
-        p.ellipse(this.x1, this.y1, this.w, this.w); // Granule cell bodies
+        p.stroke(...this.color);
+        p.fill(...this.color);
+        p.ellipse(this.x, this.y, this.w, this.w); // Granule cell bodies
 
         this.axon.render(p);
     }

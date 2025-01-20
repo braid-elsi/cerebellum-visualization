@@ -1,55 +1,38 @@
 import MossyFiberNeuron from "./mossy-fiber-neuron.js";
 import config from "./config.js";
 
-function getRandomInt(a, b) {
-    return Math.floor(Math.random() * (b - a + 1)) + a;
-}
-
 export default class MossyFiberNeuronList {
-    cells = [];
-    constructor(brainstemLayer, granuleLayer) {
-        let {
-            minWidth,
-            maxWidth,
-            distanceBetweenCells,
-            color,
-            minReceptors,
-            maxReceptors,
-            numCells,
-        } = config.mfCells;
-        const granuleBounds = granuleLayer.getBounds();
-        for (let i = 0; i < numCells; i++) {
-            const width = getRandomInt(minWidth, maxWidth);
-            let offset = 100;
-            let x =
-                i * (width + distanceBetweenCells) + granuleBounds.x1 + offset;
-            let y =
-                (granuleBounds.y2 - granuleBounds.y1) / 4 + granuleBounds.y1;
-            let xRandom = getRandomInt(
-                granuleBounds.x1 + width,
-                granuleBounds.x2 - (width * 3) / 2
-            );
-            let yRandom = getRandomInt(
-                granuleBounds.y1 + width,
-                granuleBounds.y2 - (width * 3) / 2
-            );
+    mfNeurons = [];
+    constructor(brainstemLayer, granuleCellList) {
+        console.log(granuleCellList);
+        let { color, cellParams } = config.mossyFiberCells;
+        const bounds = brainstemLayer.getBounds();
+        for (const props of cellParams) {
+            let { id, x, y, width, connectsTo } = props;
+            y = bounds.y1 + y * (bounds.y2 - bounds.y1);
+
             const opts = {
+                id: id,
                 x: x,
                 y: y,
                 w: width,
-                numReceptors: getRandomInt(minReceptors, maxReceptors),
+                connectsTo: connectsTo,
+                granuleCellList: granuleCellList,
                 color: color,
             };
             const mfNeuron = new MossyFiberNeuron(opts);
-            this.cells.push(mfNeuron);
+            this.mfNeurons.push(mfNeuron);
         }
     }
 
     getCells() {
-        return this.cells;
+        return this.mfNeurons;
     }
 
     render(p5) {
-        this.cells.forEach((gc) => gc.render(p5));
+        console.log(this.mfNeurons);
+        this.mfNeurons.forEach((mfNeuron) => {
+            mfNeuron.render(p5);
+        });
     }
 }
