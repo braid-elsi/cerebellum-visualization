@@ -25,17 +25,17 @@ export default class GranuleCellList {
                 i * (width + distanceBetweenCells) + granuleBounds.x1 + offset;
             let y =
                 (granuleBounds.y2 - granuleBounds.y1) / 4 + granuleBounds.y1;
-            // let xRandom = getRandomInt(
-            //     granuleBounds.x1 + width,
-            //     granuleBounds.x2 - (width * 3) / 2
-            // );
+            let xRandom = getRandomInt(
+                granuleBounds.x1 + width,
+                granuleBounds.x2 - (width * 3) / 2
+            );
             let yRandom = getRandomInt(
                 granuleBounds.y1 + width,
                 granuleBounds.y2 - (width * 3) / 2
             );
             const opts = {
                 x: x,
-                y: yRandom,
+                y: y,
                 w: width,
                 numReceptors: getRandomInt(minReceptors, maxReceptors),
                 color: color,

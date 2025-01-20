@@ -1,42 +1,55 @@
-import Axon from "./axon.js";
+import MossyFiberNeuron from "./mossy-fiber-neuron.js";
+import config from "./config.js";
 
-export default class MossyFiberNeuron {
-    /**
-     * https://www.youtube.com/watch?v=QUkwqAaSrUg
-     * Mossy fibers (dendrites that come from the motor cortex and the spinal cord).
-     * The carry to kinds of relevant signals:
-     *  1. Motor commands that have just been issued to the muscles
-     *  2. Sensory feedback from the muscles and other sensory organs
-     * Mossy fibers synapse onto granule cells and onto "deep cerebellar nuclei".
-     * Mossy fibers "project diffusely" onto a large number of granule cells.
-     */
+function getRandomInt(a, b) {
+    return Math.floor(Math.random() * (b - a + 1)) + a;
+}
 
-    constructor(
-        x1,
-        y1,
-        x2 = 400,
-        y2 = 450,
-        signalPos = 0,
-        w = 15,
-        colorSoma = [44,201,255,255],
-        colorMossyFiber = [44,201,255,255]
-    ) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-        this.w = w;
-        this.colorSoma = colorSoma;
-        this.colorMossyFiber = colorMossyFiber;
-        this.signalPos = signalPos;
-        this.axon = new Axon(x1, y1, x2, y2, colorMossyFiber, signalPos);
+export default class MossyFiberNeuronList {
+    cells = [];
+    constructor(brainstemLayer, granuleLayer) {
+        let {
+            minWidth,
+            maxWidth,
+            distanceBetweenCells,
+            color,
+            minReceptors,
+            maxReceptors,
+            numCells,
+        } = config.mfCells;
+        const granuleBounds = granuleLayer.getBounds();
+        for (let i = 0; i < numCells; i++) {
+            const width = getRandomInt(minWidth, maxWidth);
+            let offset = 100;
+            let x =
+                i * (width + distanceBetweenCells) + granuleBounds.x1 + offset;
+            let y =
+                (granuleBounds.y2 - granuleBounds.y1) / 4 + granuleBounds.y1;
+            let xRandom = getRandomInt(
+                granuleBounds.x1 + width,
+                granuleBounds.x2 - (width * 3) / 2
+            );
+            let yRandom = getRandomInt(
+                granuleBounds.y1 + width,
+                granuleBounds.y2 - (width * 3) / 2
+            );
+            const opts = {
+                x: x,
+                y: y,
+                w: width,
+                numReceptors: getRandomInt(minReceptors, maxReceptors),
+                color: color,
+            };
+            const mfNeuron = new MossyFiberNeuron(opts);
+            this.cells.push(mfNeuron);
+        }
     }
 
-    render(p) {
-        p.stroke(...this.colorSoma);
-        p.fill(...this.colorSoma);
-        p.ellipse(this.x1, this.y1, this.w, this.w); // Granule cell bodies
+    getCells() {
+        return this.cells;
+    }
 
-        this.axon.render(p);
+    render(p5) {
+        this.cells.forEach((gc) => gc.render(p5));
     }
 }

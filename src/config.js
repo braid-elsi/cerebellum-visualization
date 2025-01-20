@@ -29,10 +29,16 @@ export default {
     granuleCells: {
         numCells: 5,
         distanceBetweenCells: 110,
-        minWidth: 10,
-        maxWidth: 50,
+        minWidth: 40,
+        maxWidth: 40,
         minReceptors: 3,
         maxReceptors: 6,
         color: [98, 104, 190],
     },
+    mfCells: {
+        numCells: 5,
+        distanceBetweenCells: 110,
+        width: 20,
+        color: [44,201,255],
+    }
 };
