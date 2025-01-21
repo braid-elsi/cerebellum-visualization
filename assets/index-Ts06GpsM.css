@@ -1,0 +1,1 @@
+html,body{margin:0;overflow-x:hidden}#pause-play{position:fixed;z-index:1;right:10px;top:10px;width:80px;height:40px;background-color:#000;color:#fff;border:0;border-radius:4px;font-weight:700}.loading{top:calc(50vh - 60px);left:calc(50vw - 60px);position:fixed;font-family:Arial,Helvetica,sans-serif;font-size:1.5em}
