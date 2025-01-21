@@ -23,12 +23,10 @@ export default class MossyFiberAxon {
         const connectedCells = this.granuleCellList.getCells().filter((gc) => {
             return this.mossyFiberNeuron.connectsTo.includes(gc.id);
         });
-        console.log(connectedCells);
 
         for (const cell of connectedCells) {
             const bounds = cell.layer.getBounds();
             let y2 = Math.min(bounds.y2, cell.y + 3 * cell.w);
-            console.log(y2)
             p.line(
                 this.mossyFiberNeuron.x,
                 this.mossyFiberNeuron.y,

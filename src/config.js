@@ -28,6 +28,11 @@ export default {
     },
     granuleCells: {
         color: [98, 104, 190],
+        label: {
+            text: "Granule Cell",
+            x: 660,
+            y: 0.3,
+        },
         cellParams: [
             {
                 id: "gc1",
@@ -39,14 +44,14 @@ export default {
             {
                 id: "gc2",
                 x: 400,
-                y: 0.1,
+                y: 0.7,
                 width: 20,
                 numReceptors: 3,
             },
             {
                 id: "gc3",
                 x: 460,
-                y: 0.3,
+                y: 0.4,
                 width: 20,
                 numReceptors: 4,
             },
@@ -68,6 +73,11 @@ export default {
     },
     mossyFiberCells: {
         color: [44, 201, 255],
+        label: {
+            text: "Mossy Fiber",
+            x: 250,
+            y: 0.2,
+        },
         cellParams: [
             {
                 id: "mf1",
@@ -77,33 +87,37 @@ export default {
                 connectsTo: ["gc1"],
             },
             {
-                id: "mf2",
-                x: 400,
-                y: 0.5,
-                width: 20,
-                connectsTo: ["gc2"],
-            },
-            {
-                id: "mf3",
-                x: 460,
-                y: 0.5,
-                width: 20,
-                connectsTo: ["gc3"],
-            },
-            {
-                id: "mf4",
+                id: "mf5",
                 x: 520,
                 y: 0.5,
                 width: 20,
-                connectsTo: ["gc4"],
-            },
-            {
-                id: "mf5",
-                x: 580,
-                y: 0.5,
-                width: 20,
-                connectsTo: ["gc5"],
+                connectsTo: ["gc2", "gc3", "gc4", "gc5"],
             },
         ],
+    },
+    inferiorOlive: {
+        id: "olive",
+        label: {
+            text: "Inferior Olive",
+            x: 800,
+            y: 0.5,
+        },
+        x: 900,
+        y: 0.5,
+        color: [139, 123, 188],
+        height: 60,
+    },
+    cerebellarNuclei: {
+        id: "cerebellarNuclei",
+        label: {
+            text: "Cerebellar Nuclei",
+            x: 700,
+            y: 0.5,
+            width: 100,
+        },
+        x: 700,
+        y: 0.5,
+        color: [222, 156, 145],
+        height: 60,
     },
 };

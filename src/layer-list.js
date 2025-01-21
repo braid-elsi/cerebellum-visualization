@@ -2,6 +2,12 @@ import Layer from "./layer.js";
 import config from "./config.js";
 
 export default class LayerList {
+    molecularLayer = null;
+    purkinjeLayer = null;
+    granuleLayer = null;
+    whiteMatterLayer = null;
+    brainstemLayer = null;
+
     constructor(screenW, screenH) {
         let y = screenH;
         let w = screenW;

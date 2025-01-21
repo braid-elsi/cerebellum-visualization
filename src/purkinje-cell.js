@@ -1,7 +1,8 @@
 export default class PurkinjeCell {
-    constructor({ x, y, color = [254, 82, 0] }) {
+    constructor({ x, y, id, color = [254, 82, 0] }) {
         this.x = x;
         this.y = y;
+        this.id = id;
         this.color = color;
         this.angleDiff = Math.PI / 4;
     }
@@ -34,7 +35,7 @@ export default class PurkinjeCell {
 
         // Base case: Stop drawing when the branch is too short
         if (iteration > 5) {
-            p5.strokeWeight(2);
+            p5.strokeWeight(3);
             p5.noFill();
             p5.ellipse(x, y, 10, 10);
             return;
@@ -43,7 +44,8 @@ export default class PurkinjeCell {
         // Calculate the endpoint of the current branch
         let xEnd = x + newLen * Math.cos(curvyAngle);
         let yEnd = y + newLen * Math.sin(curvyAngle);
-        p5.strokeWeight(Math.max(4 - (iteration + 1) * 0.6, 1));
+        // p5.strokeWeight(Math.max(4 - (iteration + 1) * 0.6, 1));
+        p5.strokeWeight(3);
         p5.line(x, y, xEnd, yEnd);
         // p5.circle(x, y, 10);
 
@@ -55,7 +57,7 @@ export default class PurkinjeCell {
             x: xEnd,
             y: yEnd,
             len: newLen,
-            angle: curvyAngle +  this.angleDiff * mulTest1,
+            angle: curvyAngle + this.angleDiff * mulTest1,
             iteration: iteration + 1,
             p5: p5,
         };
@@ -63,7 +65,7 @@ export default class PurkinjeCell {
             x: xEnd,
             y: yEnd,
             len: newLen,
-            angle: curvyAngle +  this.angleDiff * mulTest2,
+            angle: curvyAngle + this.angleDiff * mulTest2,
             iteration: iteration + 1,
             p5: p5,
         };
