@@ -7,10 +7,20 @@ import InferiorOlive from "./inferior-olive.js";
 import CerebellarNuclei from "./cerebellar-nuclei.js";
 
 // Create a new p5 instance
-new p5Lib(function (p5) {
-    p5.setup = () => setup(p5);
-    p5.draw = () => draw(p5);
-});
+(function initializeApp() {
+    document
+        .querySelector("body")
+        .insertAdjacentHTML("beforeend", `<p class="loading">Loading...</p>`);
+
+    // adding an artificial delay to wait for the Google font to load:
+    setTimeout(function () {
+        new p5Lib(function (p5) {
+            p5.setup = () => setup(p5);
+            p5.draw = () => draw(p5);
+        });
+        document.querySelector(".loading").style.display = "none";
+    }, 500);
+})();
 
 // global variables:
 const mfNeurons = [];
@@ -69,6 +79,12 @@ function setup(p5) {
 }
 
 function initControls(p5) {
+    document
+        .querySelector("body")
+        .insertAdjacentHTML(
+            "beforeend",
+            `<button id="pause-play">Play</button>`
+        );
     const el = document.querySelector("#pause-play");
     el.addEventListener("click", () => {
         if (el.innerHTML === "Pause") {
