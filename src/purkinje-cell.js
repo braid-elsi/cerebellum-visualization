@@ -14,7 +14,7 @@ export default class PurkinjeCell {
         this.color = color;
         this.angleDiff = Math.PI / 6;
         this.finalPoints = [];
-        this.treeDepth = 3;
+        this.treeDepth = 4;
     }
 
     render(p5) {
