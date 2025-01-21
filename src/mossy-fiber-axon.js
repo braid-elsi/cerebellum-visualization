@@ -9,6 +9,7 @@
  */
 
 import Pulse from "./pulse.js";
+import { getRandomFloat } from "./utils.js";
 
 export default class MossyFiberAxon {
     constructor(mossyFiberNeuron, granuleCellList, color = [44, 201, 255]) {
@@ -25,8 +26,12 @@ export default class MossyFiberAxon {
         });
 
         for (const cell of connectedCells) {
-            const bounds = cell.layer.getBounds();
-            let y2 = Math.min(bounds.y2, cell.y + 3 * cell.w);
+            let rando = getRandomFloat(1, 1.005);
+            // console.log(rando);
+            // rando = 1; // comment this out if you want more random looking connections
+            let y2 = (cell.y + 3 * cell.w) * rando;
+
+            // vertical line:
             p.line(
                 this.mossyFiberNeuron.x,
                 this.mossyFiberNeuron.y,
@@ -34,8 +39,14 @@ export default class MossyFiberAxon {
                 y2
             );
             for (const receptor of cell.receptors) {
-                p.line(this.mossyFiberNeuron.x, y2, receptor.x, y2)
-                p.line(receptor.x, y2, receptor.x, receptor.y);
+                // horizontal line:
+                let x2 =
+                    ((cell.x - this.mossyFiberNeuron.x) / 5) * 4 +
+                    this.mossyFiberNeuron.x;
+                p.line(this.mossyFiberNeuron.x, y2 + cell.w, x2, y2);
+
+                //vertical line
+                p.line(x2, y2, receptor.x, receptor.y);
                 p.ellipse(
                     receptor.x,
                     receptor.y + receptor.receptorLength / 4,

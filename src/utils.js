@@ -2,8 +2,14 @@ export function getRandomInt(a, b) {
     return Math.floor(Math.random() * (b - a + 1)) + a;
 }
 
+export function getRandomFloat(min, max) {
+    // min and max included
+    return Math.random() * (max - min) + min;
+}
+
 export function getYPositionAbs(yRel, layer) {
     let bounds = layer.getBounds();
+    console.log(bounds);
     return bounds.y1 + yRel * (bounds.y2 - bounds.y1);
 }
 

@@ -27,7 +27,7 @@ const globals = {
 };
 
 function setup(p5) {
-    // p5.frameRate(80);
+    p5.frameRate(5);
 
     // screen initialization:
     p5.noLoop();
@@ -52,11 +52,7 @@ function setup(p5) {
 
     cerebellarNuclei = new CerebellarNuclei(globals.layers.whiteMatterLayer);
 
-    purkinjeCell = new PurkinjeCell({
-        x: 900,
-        y: 290,
-        id: "purkinjeCell",
-    });
+    purkinjeCell = new PurkinjeCell(globals);
 
     const allCells = [
         ...granuleCellList.getCells(),
