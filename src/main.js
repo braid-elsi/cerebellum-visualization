@@ -1,10 +1,12 @@
 import p5Lib from "p5";
 import MossyFiberNeuronList from "./mossy-fiber-neuron-list.js";
 import GranuleCellList from "./granule-cell-list.js";
+import GranuleCell from "./granule-cell.js";
 import LayerList from "./layer-list.js";
 import PurkinjeCell from "./purkinje-cell.js";
 import InferiorOlive from "./inferior-olive.js";
 import CerebellarNuclei from "./cerebellar-nuclei.js";
+import { getRandomInt } from "./utils.js";
 
 // Create a new p5 instance
 (function initializeApp() {
@@ -37,7 +39,7 @@ const globals = {
 };
 
 function setup(p5) {
-    p5.frameRate(5);
+    // p5.frameRate(5);
 
     // screen initialization:
     p5.noLoop();
@@ -53,6 +55,8 @@ function setup(p5) {
         globals.layers.granuleLayer,
         globals.layers.molecularLayer
     );
+
+    const backgroundGranuleCells = getBackgroundGCs();
     mossyFiberNeuronList = new MossyFiberNeuronList(
         globals.layers.brainstemLayer,
         granuleCellList
@@ -64,6 +68,7 @@ function setup(p5) {
 
     purkinjeCell = new PurkinjeCell(globals);
 
+    globals.backgroundCells = [...backgroundGranuleCells];
     const allCells = [
         ...granuleCellList.getCells(),
         ...mossyFiberNeuronList.getCells(),
@@ -71,7 +76,6 @@ function setup(p5) {
         cerebellarNuclei,
         purkinjeCell,
     ];
-    console.log(allCells);
     allCells.forEach((cell) => {
         globals.cellLookup[cell.id] = cell;
     });
@@ -101,8 +105,6 @@ function draw(p5) {
     p5.clear();
     // p5.background(240);
 
-    globals.layers.render(p5);
-
     // the animation:
     // for (const neuron of mfNeurons) {
     //     if (neuron.signalPos > 1) {
@@ -120,18 +122,21 @@ function draw(p5) {
 }
 
 function drawCircuit(p5) {
-    // const cells = Object.values(globals.cellLookup);
-    // console.log(cells);
-    // cells.forEach((cell) => {
-    //     console.log("rendering...", cell);
-    //     cell.render(p5);
-    // });
-    mossyFiberNeuronList.render(p5);
-    granuleCellList.render(p5);
-    inferiorOlive.render(p5);
-    cerebellarNuclei.render(p5);
+    // draw layers:
+    drawLayers(p5);
 
-    purkinjeCell.render(p5);
+    // background cells:
+    drawBackgroundCells(p5);
+
+    // active cells
+    drawForegroundCells(p5);
+
+    // mossyFiberNeuronList.render(p5);
+    // granuleCellList.render(p5);
+    // inferiorOlive.render(p5);
+    // cerebellarNuclei.render(p5);
+
+    // purkinjeCell.render(p5);
 
     // Draw climbing fiber wrapping around dendrites
     // stroke(255, 150, 0);
@@ -174,3 +179,53 @@ function drawCircuit(p5) {
 //     drawClimbingFiber(x2, y2, length * 0.7, angle - 30, depth - 1);
 //     drawClimbingFiber(x2, y2, length * 0.7, angle + 30, depth - 1);
 // }
+
+function drawLayers(p5) {
+    globals.layers.render(p5);
+}
+
+function drawBackgroundCells(p5) {
+    globals.backgroundCells.forEach((cell) => {
+        cell.render(p5);
+    });
+}
+
+function drawForegroundCells(p5) {
+    const cells = Object.values(globals.cellLookup);
+    cells.forEach((cell) => {
+        cell.render(p5);
+    });
+}
+
+function getBackgroundGCs() {
+    const cells = [];
+    const granuleBounds = globals.layers.granuleLayer.getBounds();
+    [
+        { color: [241, 241, 241], count: 100, minW: 10, maxW: 20 },
+        { color: [226, 226, 243], count: 150, minW: 20, maxW: 25 },
+        { color: [226, 226, 243], count: 100, minW: 25, maxW: 30 },
+        { color: [212, 212, 237], count: 40, minW: 30, maxW: 35 },
+    ].forEach((specs) => {
+        const { color, count, minW, maxW } = specs;
+        for (let i = 0; i < count; i++) {
+            const w = getRandomInt(minW, maxW);
+            let y = getRandomInt(granuleBounds.y1, granuleBounds.y2);
+            y = Math.min(y, granuleBounds.y2 - 2 * w);
+            y = Math.max(y, granuleBounds.y1 + w / 2);
+
+            const gc = new GranuleCell({
+                id: `gc${i}`,
+                x: getRandomInt(granuleBounds.x1, granuleBounds.x2),
+                y: y,
+                layer: globals.layers.granuleLayer,
+                w: w,
+                color: color,
+                fiberWeight: 1,
+            });
+            gc.addParallelFiber(globals.layers.molecularLayer);
+            cells.push(gc);
+        }
+    });
+
+    return cells;
+}

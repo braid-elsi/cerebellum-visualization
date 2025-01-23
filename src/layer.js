@@ -27,9 +27,9 @@ export default class Layer {
         p5.rect(this.x, this.y, this.width, this.height);
 
         // draw the line:
-        // p5.strokeWeight(1);
-        // p5.stroke(0);
-        // p5.line(this.x, this.y, this.x + this.width, this.y);
+        p5.strokeWeight(1);
+        p5.stroke(240);
+        p5.line(this.x, this.y, this.x + this.width, this.y);
 
         // draw the label:
         p5.fill(0);

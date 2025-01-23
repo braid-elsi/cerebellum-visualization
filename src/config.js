@@ -3,27 +3,27 @@ export default {
         brainstemLayer: {
             heightFraction: 0.15,
             label: "Brainstem / Spinal Cord",
-            color: [249, 242, 250],
+            color: [248],
         },
         whiteMatterLayer: {
             heightFraction: 0.1,
             label: "White matter",
-            color: [255, 255, 255],
+            color: [255],
         },
         granuleLayer: {
             heightFraction: 0.3,
             label: "Granule layer",
-            color: [249, 242, 250],
+            color: [248],
         },
         purkinjeLayer: {
             heightFraction: 0.1,
             label: "Purkinje layer",
-            color: [255, 255, 255],
+            color: [255],
         },
         molecularLayer: {
             heightFraction: 0.35,
             label: "Molecular layer",
-            color: [249, 242, 250],
+            color: [248],
         },
     },
     granuleCells: {
