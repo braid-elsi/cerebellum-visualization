@@ -1,5 +1,5 @@
 import config from "./config.js";
-import { drawLabel, getYPositionAbs } from "./utils.js";
+import { getYPositionAbs } from "./utils.js";
 
 export default class InferiorOlive {
     constructor(brainstemLayer) {
@@ -21,6 +21,5 @@ export default class InferiorOlive {
         p5.stroke(...this.color);
         p5.fill(...this.color);
         p5.ellipse(this.x, y, this.width, this.height);
-        drawLabel(p5, this.label, this.layer);
     }
 }

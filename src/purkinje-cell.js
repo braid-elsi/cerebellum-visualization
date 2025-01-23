@@ -3,7 +3,7 @@ import { getYPositionAbs } from "./utils.js";
 
 export default class PurkinjeCell {
     constructor(globals) {
-        const { x, y, yEnd, width, label, color } = config.PurkinjeCell;
+        const { x, y, yEnd, width, label, color } = config.purkinjeCell;
         this.layer = globals.layers.purkinjeLayer;
         this.molecularLayer = globals.layers.molecularLayer;
         this.x = x;

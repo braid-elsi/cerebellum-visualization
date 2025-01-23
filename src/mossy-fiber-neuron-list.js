@@ -1,6 +1,6 @@
 import MossyFiberNeuron from "./mossy-fiber-neuron.js";
 import config from "./config.js";
-import { drawLabel, getYPositionAbs } from "./utils.js";
+import { getYPositionAbs } from "./utils.js";
 
 export default class MossyFiberNeuronList {
     mfNeurons = [];
@@ -34,6 +34,5 @@ export default class MossyFiberNeuronList {
         this.mfNeurons.forEach((mfNeuron) => {
             mfNeuron.render(p5);
         });
-        drawLabel(p5, this.label, this.layer);
     }
 }

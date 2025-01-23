@@ -6,7 +6,8 @@ import LayerList from "./layer-list.js";
 import PurkinjeCell from "./purkinje-cell.js";
 import InferiorOlive from "./inferior-olive.js";
 import CerebellarNuclei from "./cerebellar-nuclei.js";
-import { getRandomInt } from "./utils.js";
+import { getRandomInt, drawLabel } from "./utils.js";
+import config from "./config.js";
 
 // Create a new p5 instance
 (function initializeApp() {
@@ -56,7 +57,7 @@ function setup(p5) {
         globals.layers.molecularLayer
     );
 
-    const backgroundGranuleCells = getBackgroundGCs();
+    const backgroundGranuleCells = createBackgroundGCs();
     mossyFiberNeuronList = new MossyFiberNeuronList(
         globals.layers.brainstemLayer,
         granuleCellList
@@ -125,60 +126,15 @@ function drawCircuit(p5) {
     // draw layers:
     drawLayers(p5);
 
-    // background cells:
+    // draw background cells:
     drawBackgroundCells(p5);
 
-    // active cells
+    // draw active cells
     drawForegroundCells(p5);
 
-    // mossyFiberNeuronList.render(p5);
-    // granuleCellList.render(p5);
-    // inferiorOlive.render(p5);
-    // cerebellarNuclei.render(p5);
-
-    // purkinjeCell.render(p5);
-
-    // Draw climbing fiber wrapping around dendrites
-    // stroke(255, 150, 0);
-    // strokeWeight(2);
-    // drawClimbingFiber(p, 400, 450, 100, -200, 5); // Climbing fiber wrapping dendrites
+    // draw labels:
+    drawLabels(p5);
 }
-
-// function drawDendrites(p, x, y, length, angle, depth) {
-//     if (depth === 0) return;
-
-//     // Calculate the end point of the branch
-//     let x2 = x + length * p5.cos(p5.radians(angle));
-//     let y2 = y + length * p5.sin(p5.radians(angle));
-
-//     // Draw the branch
-//     p5.stroke(0, 100, 200);
-//     p5.strokeWeight(depth);
-//     p5.line(x, y, x2, y2);
-
-//     // Recursively draw smaller branches
-//     drawDendrites(p, x2, y2, length * 0.7, angle - 30, depth - 1);
-//     drawDendrites(p, x2, y2, length * 0.7, angle + 30, depth - 1);
-// }
-
-// function drawClimbingFiber(p, x, y, length, angle, depth) {
-//     // return;
-//     if (depth === 0) return;
-
-//     // Calculate the end point of the climbing fiber
-//     let x2 = x + length * p5.cos(p5.radians(angle));
-//     let y2 = y + length * p5.sin(p5.radians(angle));
-
-//     // Draw the climbing fiber wrapping around
-//     p5.stroke(255, 150, 0);
-//     p5.strokeWeight(1.5);
-//     p5.line(x - 5, y, x2 - 5, y2); // Slight offset for wrapping effect
-//     p5.line(x + 5, y, x2 + 5, y2);
-
-//     // Recursively wrap around the dendrites
-//     drawClimbingFiber(x2, y2, length * 0.7, angle - 30, depth - 1);
-//     drawClimbingFiber(x2, y2, length * 0.7, angle + 30, depth - 1);
-// }
 
 function drawLayers(p5) {
     globals.layers.render(p5);
@@ -197,7 +153,37 @@ function drawForegroundCells(p5) {
     });
 }
 
-function getBackgroundGCs() {
+function drawLabels(p5) {
+    const specs = [
+        {
+            label: config.granuleCells.label,
+            layer: globals.layers.granuleLayer,
+        },
+        {
+            label: config.mossyFiberCells.label,
+            layer: globals.layers.brainstemLayer,
+        },
+        {
+            label: config.inferiorOlive.label,
+            layer: globals.layers.brainstemLayer,
+        },
+        {
+            label: config.cerebellarNuclei.label,
+            layer: globals.layers.whiteMatterLayer,
+        },
+        {
+            label: config.purkinjeCell.label,
+            layer: globals.layers.purkinjeLayer,
+        },
+    ];
+    specs.forEach((spec) => {
+        const { label, layer } = spec;
+        drawLabel(p5, label, layer);
+    });
+    globals.layers.renderLabels(p5);
+}
+
+function createBackgroundGCs() {
     const cells = [];
     const granuleBounds = globals.layers.granuleLayer.getBounds();
     [
@@ -205,8 +191,8 @@ function getBackgroundGCs() {
         { color: [226, 226, 243], count: 150, minW: 20, maxW: 25 },
         { color: [226, 226, 243], count: 100, minW: 25, maxW: 30 },
         { color: [212, 212, 237], count: 40, minW: 30, maxW: 35 },
-    ].forEach((specs) => {
-        const { color, count, minW, maxW } = specs;
+    ].forEach((spec) => {
+        const { color, count, minW, maxW } = spec;
         for (let i = 0; i < count; i++) {
             const w = getRandomInt(minW, maxW);
             let y = getRandomInt(granuleBounds.y1, granuleBounds.y2);

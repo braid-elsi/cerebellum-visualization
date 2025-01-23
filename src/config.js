@@ -120,7 +120,7 @@ export default {
         color: [222, 156, 145],
         height: 60,
     },
-    PurkinjeCell: {
+    purkinjeCell: {
         id: "purkinjeCell",
         x: 800,
         y: 0.5,

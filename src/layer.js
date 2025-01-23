@@ -8,8 +8,8 @@ export default class Layer {
         this.color = color;
         // console.log(this.y, this.width, this.height, this.label);
         this.bounds = {
-            x1: this.x + 100,
-            x2: this.width - 100,
+            x1: this.x, //+ 100,
+            x2: this.width, //- 100,
             y1: this.y,
             y2: y,
         };
@@ -30,19 +30,35 @@ export default class Layer {
         p5.strokeWeight(1);
         p5.stroke(240);
         p5.line(this.x, this.y, this.x + this.width, this.y);
+    }
+
+    renderLabel(p5) {
+        p5.push();
+        p5.translate(this.x, this.y + this.height);
+        p5.rotate(-p5.PI / 2);
+
+        // draw the background rectangle:
+        p5.rectMode(p5.CENTER);
+        p5.fill(255);
+        p5.stroke(0);
+        p5.strokeWeight(1);
+        p5.rect(
+            this.height / 2,
+            30,
+            Math.min(this.height - 20, this.label.length * 11),
+            40
+        );
 
         // draw the label:
-        p5.fill(0);
         p5.strokeWeight(0);
+        p5.fill(0);
         p5.textAlign(p5.CENTER, p5.CENTER);
         p5.textSize(14);
         p5.textStyle(p5.NORMAL);
         p5.textFont("Montserrat");
-        p5.push();
-        p5.translate(this.x, this.y + this.height);
-        p5.rotate(-p5.PI / 2);
-        let padding = 15;
+        p5.rectMode(p5.CORNER);
         p5.text(this.label, 10, 30, this.height - 10 * 2);
+
         p5.pop();
     }
 }

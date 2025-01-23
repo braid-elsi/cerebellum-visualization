@@ -1,6 +1,6 @@
 import GranuleCell from "./granule-cell.js";
 import config from "./config.js";
-import { drawLabel, getYPositionAbs } from "./utils.js";
+import {getYPositionAbs } from "./utils.js";
 
 export default class GranuleCellList {
     gcs = [];
@@ -33,6 +33,5 @@ export default class GranuleCellList {
 
     render(p5) {
         this.gcs.forEach((gc) => gc.render(p5));
-        drawLabel(p5, this.label, this.layer);
     }
 }

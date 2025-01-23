@@ -29,7 +29,11 @@ export default class LayerList {
         ];
     }
 
-    render(p) {
-        this.getLayers().forEach((layer) => layer.render(p));
+    render(p5) {
+        this.getLayers().forEach((layer) => layer.render(p5));
+    }
+
+    renderLabels(p5) {
+        this.getLayers().forEach((layer) => layer.renderLabel(p5));
     }
 }
