@@ -1,17 +1,21 @@
 import config from "./config.js";
+import PurkinjeCellDendrite from "./purkinje-cell-dendrite.js";
 import { getYPositionAbs } from "./utils.js";
 
 export default class PurkinjeCell {
     constructor(globals) {
-        const { x, y, yEnd, width, label, color } = config.purkinjeCell;
+        const { id, x, y, yEnd, width, label, color, connectsTo } =
+            config.purkinjeCell;
         this.layer = globals.layers.purkinjeLayer;
         this.molecularLayer = globals.layers.molecularLayer;
+        this.id = id;
         this.x = x;
         this.y = getYPositionAbs(y, this.layer);
         this.yEnd = getYPositionAbs(yEnd, this.molecularLayer);
         this.label = label;
         this.width = width;
         this.color = color;
+        this.connectsTo = connectsTo;
         this.angleDiff = Math.PI / 6;
         this.finalPoints = [];
         this.treeDepth = 4;
@@ -35,6 +39,21 @@ export default class PurkinjeCell {
 
         this.drawBranch(opts);
         this.drawTenticles(p5);
+        this.dendrite.render(p5);
+    }
+
+    createConnections(globals) {
+        console.log("creating connections...");
+        const key = this.connectsTo[0];
+        console.log(key);
+        this.cerebellarNuclei = globals.cellLookup[key];
+        console.log(globals.cellLookup);
+        console.log(this.cerebellarNuclei);
+        this.dendrite = new PurkinjeCellDendrite({
+            cell: this,
+            target: this.cerebellarNuclei,
+            color: this.color,
+        });
     }
 
     drawTenticles(p5) {

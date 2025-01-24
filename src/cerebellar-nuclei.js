@@ -14,12 +14,12 @@ export default class CerebellarNuclei {
         this.height = Math.min(height, maxHeight);
         this.width = this.height * 1.8;
         this.layer = whiteMatterLayer;
+        this.yAbs = getYPositionAbs(this.y, this.layer);
     }
 
     render(p5) {
-        let y = getYPositionAbs(this.y, this.layer);
         p5.stroke(...this.color);
         p5.fill(...this.color);
-        p5.ellipse(this.x, y, this.width, this.height);
+        p5.ellipse(this.x, this.yAbs, this.width, this.height);
     }
 }

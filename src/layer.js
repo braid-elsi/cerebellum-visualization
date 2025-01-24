@@ -40,7 +40,7 @@ export default class Layer {
         // draw the background rectangle:
         p5.rectMode(p5.CENTER);
         p5.fill(255);
-        p5.stroke(0);
+        p5.stroke(230);
         p5.strokeWeight(1);
         p5.rect(
             this.height / 2,

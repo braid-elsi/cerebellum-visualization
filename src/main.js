@@ -80,6 +80,11 @@ function setup(p5) {
     allCells.forEach((cell) => {
         globals.cellLookup[cell.id] = cell;
     });
+    allCells.forEach((cell) => {
+        if (cell.createConnections) {
+            cell.createConnections(globals);
+        }
+    });
     console.log(globals);
 }
 
@@ -132,6 +137,9 @@ function drawCircuit(p5) {
     // draw active cells
     drawForegroundCells(p5);
 
+    // draw connections
+    drawConnections(p5);
+
     // draw labels:
     drawLabels(p5);
 }
@@ -150,6 +158,15 @@ function drawForegroundCells(p5) {
     const cells = Object.values(globals.cellLookup);
     cells.forEach((cell) => {
         cell.render(p5);
+    });
+}
+
+function drawConnections(p5) {
+    const cells = Object.values(globals.cellLookup);
+    cells.forEach((cell) => {
+        if (cell.drawConnections) {
+            cell.drawConnections(p5);
+        }
     });
 }
 

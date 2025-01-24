@@ -22,7 +22,13 @@ export default class ParallelFiber {
         p5.strokeWeight(this.fiberWeight);
         p5.stroke(...this.color);
         p5.fill(...this.color);
+        //vertical line:
         p5.line(this.gc.x, this.gc.y, this.gc.x, this.yEnd);
+        const tSize = this.fiberWeight * 3;
+        const topLeft = [this.gc.x - tSize, this.yEnd];
+        const topRight = [this.gc.x + tSize, this.yEnd];
+        const bottom = [this.gc.x, this.yEnd + tSize * Math.sqrt(2)];
+        p5.triangle(...topLeft, ...topRight, ...bottom);
         p5.line(this.bounds.x1, this.yEnd, this.bounds.x2, this.yEnd);
     }
 }

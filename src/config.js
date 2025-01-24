@@ -127,5 +127,6 @@ export default {
         yEnd: 0.05,
         width: 40,
         color: [254, 82, 0],
+        connectsTo: ["cerebellarNuclei"],
     },
 };
