@@ -11,18 +11,16 @@ import config from "./config.js";
 
 // Create a new p5 instance
 (function initializeApp() {
-    document
-        .querySelector("body")
-        .insertAdjacentHTML("beforeend", `<p class="loading">Loading...</p>`);
-
-    // adding an artificial delay to wait for the Google font to load:
-    setTimeout(function () {
-        new p5Lib(function (p5) {
-            p5.setup = () => setup(p5);
-            p5.draw = () => draw(p5);
-        });
-        document.querySelector(".loading").style.display = "none";
-    }, 500);
+    new p5Lib(function (p5) {
+        p5.setup = () => setup(p5);
+        p5.draw = () => draw(p5);
+        // this is a lame hack to handle the delay in the Google fonts loading.
+        // when the app initializes, it redraws for 10ms and then stops so that when
+        // Monteserrat loads, it appears on the screen. The 10ms is arbirary.
+        setTimeout(function () {
+            p5.noLoop();
+        }, 10);
+    });
 })();
 
 // global variables:
@@ -43,7 +41,6 @@ function setup(p5) {
     // p5.frameRate(5);
 
     // screen initialization:
-    p5.noLoop();
     screenW = document.documentElement.clientWidth;
     screenH = document.documentElement.clientHeight * 1.5;
     p5.createCanvas(screenW, screenH);
