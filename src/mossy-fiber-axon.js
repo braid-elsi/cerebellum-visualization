@@ -8,28 +8,22 @@
  *   branches extensively, allowing it to connect with many granule cells and other targets in the cerebellum.
  */
 
-import Pulse from "./pulse.js";
-import { getRandomFloat } from "./utils.js";
-
 export default class MossyFiberAxon {
-    constructor(mossyFiberNeuron, granuleCellList, color = [44, 201, 255]) {
+    constructor(mossyFiberNeuron, granuleCellList) {
         this.mossyFiberNeuron = mossyFiberNeuron;
         this.granuleCellList = granuleCellList;
-        this.color = color;
     }
 
     render(p) {
+        const color = this.mossyFiberNeuron.getColor();
         p.strokeWeight(3);
-        p.stroke(...this.color);
+        p.stroke(...color);
         const connectedCells = this.granuleCellList.getCells().filter((gc) => {
             return this.mossyFiberNeuron.connectsTo.includes(gc.id);
         });
 
         for (const cell of connectedCells) {
-            //let rando = getRandomFloat(1, 1.005);
-            // console.log(rando);
-            // rando = 1; // comment this out if you want more random looking connections
-            let y2 = (cell.y + 3 * cell.width); // * rando;
+            let y2 = (cell.y + 3 * cell.width);
 
             // vertical line:
             p.line(

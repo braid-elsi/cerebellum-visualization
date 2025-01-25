@@ -21,6 +21,14 @@ export default class Cell {
         this.height = height;
         this.color = color;
         this.layer = this.layer;
+        this.isActive = false;
+    }
+
+    getColor() {
+        if (this.isActive) {
+            return [99, 255, 0];
+        }
+        return this.color;
     }
 
     intersects(x, y) {
@@ -30,8 +38,8 @@ export default class Cell {
     }
 
     render(p5) {
-        p5.stroke(...this.color);
-        p5.fill(...this.color);
+        p5.stroke(...this.getColor());
+        p5.fill(...this.getColor());
         p5.ellipse(this.x, this.y, this.width, this.height);
     }
 }

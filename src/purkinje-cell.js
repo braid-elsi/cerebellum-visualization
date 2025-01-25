@@ -113,9 +113,20 @@ export default class PurkinjeCell extends Cell {
         this.generateBranch(optsRight);
     }
 
+    createConnections(globals) {
+        const key = this.connectsTo[0];
+        this.cerebellarNuclei = globals.cellLookup[key];
+        this.axon = new PurkinjeCellAxon({
+            source: this,
+            target: this.cerebellarNuclei,
+            color: this.color,
+        });
+    }
+
     render(p5) {
-        p5.fill(...this.color);
-        p5.stroke(...this.color);
+        const color = this.getColor();
+        p5.fill(...color);
+        p5.stroke(...color);
         p5.strokeWeight(2);
 
         // Draw the cell body (soma)
@@ -136,15 +147,5 @@ export default class PurkinjeCell extends Cell {
 
         // Draw the axon
         this.axon.render(p5);
-    }
-
-    createConnections(globals) {
-        const key = this.connectsTo[0];
-        this.cerebellarNuclei = globals.cellLookup[key];
-        this.axon = new PurkinjeCellAxon({
-            source: this,
-            target: this.cerebellarNuclei,
-            color: this.color,
-        });
     }
 }

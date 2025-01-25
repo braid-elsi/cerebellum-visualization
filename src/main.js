@@ -79,7 +79,7 @@ function setup(p5) {
         globals.cellLookup[cell.id] = cell;
     });
     allCells.forEach((cell) => {
-        if (cell.createConnections) {
+        if ("createConnections" in cell) {
             cell.createConnections(globals);
         }
     });
@@ -131,10 +131,14 @@ function mouseClicked(p5) {
         // if the cell has an intersects method, check if there's an intersection:
         if ("intersects" in cell) {
             if (cell.intersects(p5.mouseX, p5.mouseY)) {
-                console.log(cell.id, "Intersects!");
+                cell.isActive = !cell.isActive;
+            } else {
+                cell.isActive = false;
             }
         }
     });
+    p5.clear();
+    drawCircuit(p5);
 }
 
 function drawCircuit(p5) {
@@ -230,7 +234,7 @@ function createBackgroundGCs() {
                 id: `gc${i}`,
                 cellType: "gc",
                 x: getRandomInt(granuleBounds.x1, granuleBounds.x2),
-                y: Math.random() * 0.8 + .1,
+                y: Math.random() * 0.85 + 0.04,
                 layer: globals.layers.granuleLayer,
                 width: w,
                 height: w,

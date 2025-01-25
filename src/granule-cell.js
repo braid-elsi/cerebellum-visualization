@@ -33,8 +33,7 @@ export default class GranuleCell extends Cell {
                     this,
                     (7 / 8) * Math.PI - i * interval,
                     this.width * 1.3,
-                    this.height / 2,
-                    this.color
+                    this.height / 2
                 )
             );
         }
@@ -44,15 +43,15 @@ export default class GranuleCell extends Cell {
         this.parallelFiber = new ParallelFiber({
             granuleCell: this,
             layer: molecularLayer,
-            color: this.color,
             fiberWeight: this.fiberWeight,
         });
     }
 
     render(p5) {
+        const color = this.getColor();
         p5.strokeWeight(this.fiberWeight);
-        p5.stroke(...this.color);
-        p5.fill(...this.color);
+        p5.stroke(...color);
+        p5.fill(...color);
         p5.ellipse(this.x, this.y, this.width, this.height);
         this.receptors.forEach((receptor) => receptor.render(p5));
 

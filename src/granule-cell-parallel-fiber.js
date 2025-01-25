@@ -7,21 +7,22 @@ export default class ParallelFiber {
     constructor({
         granuleCell,
         layer,
-        color = [98, 104, 190],
+        // color = [98, 104, 190],
         fiberWeight = 3,
     }) {
         this.gc = granuleCell;
         this.molecularLayer = layer;
-        this.color = color;
+        // this.color = color;
         this.fiberWeight = fiberWeight;
         this.bounds = this.molecularLayer.getBounds();
         this.yEnd = getRandomInt(this.bounds.y1 + 5, this.bounds.y2 - 5);
     }
 
     render(p5) {
+        const color = this.gc.getColor();
         p5.strokeWeight(this.fiberWeight);
-        p5.stroke(...this.color);
-        p5.fill(...this.color);
+        p5.stroke(...color);
+        p5.fill(...color);
         //vertical line:
         p5.line(this.gc.x, this.gc.y, this.gc.x, this.yEnd);
         const tSize = this.fiberWeight * 3;
