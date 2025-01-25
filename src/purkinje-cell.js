@@ -17,100 +17,135 @@ export default class PurkinjeCell {
         this.color = color;
         this.connectsTo = connectsTo;
         this.angleDiff = Math.PI / 6;
-        this.finalPoints = [];
         this.treeDepth = 4;
+
+        // Precomputed tree and tentacle coordinates
+        this.precomputedBranches = [];
+        this.precomputedTentacles = [];
+        this.precomputeTree();
     }
 
-    render(p5) {
-        this.finalPoints = [];
-        p5.fill(...this.color);
-        p5.stroke(...this.color);
-        p5.strokeWeight(2);
-        p5.ellipse(this.x, this.y, this.width, this.width);
-
+    // Precompute the tree coordinates
+    precomputeTree() {
         const opts = {
             x: this.x,
             y: this.y,
             len: 80,
             angle: -Math.PI / 2,
             iteration: 0,
-            p5: p5,
         };
 
-        this.drawBranch(opts);
-        this.drawTenticles(p5);
+        // Generate the tree branches
+        this.generateBranch(opts);
+
+        // Generate tentacles for each branch endpoint
+        this.precomputedBranches.forEach((point, i) => {
+            const tentaclePath = [];
+            let { xEnd, yEnd, angle, iteration } = point;
+            let x = xEnd;
+            let y = yEnd;
+            const length = 15;
+
+            // Add safety checks to ensure valid coordinates
+            while (y > this.yEnd) {
+                // Add small variations to the angle
+                angle += Math.sin(Math.PI / 4 + i);
+
+                const newX = x + (length * Math.cos(angle)) / 3;
+                const newY = y - length;
+                console.log(length, angle, x, y, newX, newY);
+
+                // Ensure calculated values are valid
+                if (isNaN(newX) || isNaN(newY)) break;
+
+                // Store the segment
+
+                tentaclePath.push({ x, y, newX, newY });
+
+                // Update for the next segment
+                x = newX;
+                y = newY;
+            }
+
+            // Store this tentacle path if it has valid segments
+            // only add segments starting where the top of the tree ends
+            if (tentaclePath.length > 0 && iteration > 2) {
+                this.precomputedTentacles.push(tentaclePath);
+            }
+        });
+
+        // Debugging output
+        console.log("Tentacle paths generated:", this.precomputedTentacles);
+    }
+
+    // Generate tree branches recursively and store their coordinates
+    generateBranch({ x, y, len, angle, iteration }) {
+        if (iteration > this.treeDepth) {
+            // Stop recursion if the maximum depth is reached
+            return;
+        }
+
+        // Calculate the endpoint of the current branch
+        const xEnd = x + len * Math.cos(angle);
+        const yEnd = y + len * Math.sin(angle);
+
+        // Store the start and end points of this branch
+        console.log("branch:", x, y, xEnd, yEnd);
+        this.precomputedBranches.push({ x, y, xEnd, yEnd, angle, iteration });
+
+        // Recursively generate the left and right branches
+        const optsLeft = {
+            x: xEnd,
+            y: yEnd,
+            len: len * 0.8, // Slightly shorter for child branches
+            angle: angle + this.angleDiff, // Rotate counterclockwise
+            iteration: iteration + 1,
+        };
+
+        const optsRight = {
+            x: xEnd,
+            y: yEnd,
+            len: len * 0.8, // Slightly shorter for child branches
+            angle: angle - this.angleDiff, // Rotate clockwise
+            iteration: iteration + 1,
+        };
+
+        this.generateBranch(optsLeft);
+        this.generateBranch(optsRight);
+    }
+
+    render(p5) {
+        p5.fill(...this.color);
+        p5.stroke(...this.color);
+        p5.strokeWeight(2);
+
+        // Draw the cell body (soma)
+        p5.ellipse(this.x, this.y, this.width, this.width);
+
+        // Draw the precomputed tree branches
+        p5.strokeWeight(3);
+        this.precomputedBranches.forEach(({ x, y, xEnd, yEnd }) => {
+            p5.line(x, y, xEnd, yEnd);
+        });
+
+        // Draw the precomputed tentacles
+        this.precomputedTentacles.forEach((tentacle) => {
+            tentacle.forEach(({ x, y, newX, newY }) => {
+                p5.line(x, y, newX, newY);
+            });
+        });
+
+        // Draw the axon
         this.axon.render(p5);
     }
 
     createConnections(globals) {
         const key = this.connectsTo[0];
-        console.log(key);
         this.cerebellarNuclei = globals.cellLookup[key];
         this.axon = new PurkinjeCellAxon({
             source: this,
             target: this.cerebellarNuclei,
             color: this.color,
         });
-    }
-
-    drawTenticles(p5) {
-        this.finalPoints.forEach((point, i) => {
-            // const point = this.finalPoints[0];
-            let { x, y, angle } = point;
-            let length = 15;
-            // console.log("It's a go!", angle);
-            while (y > this.yEnd) {
-                angle = angle + Math.sin(Math.PI / 4 + i);
-                let newX = x + (length * Math.cos(angle)) / 3;
-                let newY = y - length;
-                p5.line(x, y, newX, newY);
-                x = newX;
-                y = newY;
-            }
-        });
-    }
-
-    drawBranch({ x, y, len, angle, iteration, p5 }) {
-        // Randomize the angle to create curvy branches
-        let angleVariation = p5.random(-Math.PI / 12, Math.PI / 12); // Smaller angle variation for curvy effect
-        let curvyAngle = angle + Math.sin(iteration * 0.2) * angleVariation; // Sine function adds a smooth curve
-
-        // Randomize the branch length slightly for variety
-        let lenVariation = p5.random(0.7, 0.9); // Length multiplier between 70% and 90%
-        let newLen = len * lenVariation;
-
-        // Calculate the endpoint of the current branch
-        let xEnd = x + newLen * Math.cos(curvyAngle);
-        let yEnd = y + newLen * Math.sin(curvyAngle);
-
-        // Base case: Stop drawing when the branch is too short
-        if (iteration > this.treeDepth) {
-            p5.strokeWeight(3);
-            p5.noFill();
-            this.finalPoints.push({ x: x, y: y, angle: angle });
-            return;
-        }
-
-        p5.strokeWeight(3);
-        p5.line(x, y, xEnd, yEnd);
-        // Recursively draw the two branches with smaller lengths and different curvy angles
-        const optsLeft = {
-            x: xEnd,
-            y: yEnd,
-            len: newLen,
-            angle: curvyAngle + this.angleDiff,
-            iteration: iteration + 1,
-            p5: p5,
-        };
-        const optsRight = {
-            x: xEnd,
-            y: yEnd,
-            len: newLen,
-            angle: curvyAngle - this.angleDiff,
-            iteration: iteration + 1,
-            p5: p5,
-        };
-        this.drawBranch(optsLeft);
-        this.drawBranch(optsRight);
     }
 }

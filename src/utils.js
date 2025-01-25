@@ -9,7 +9,6 @@ export function getRandomFloat(min, max) {
 
 export function getYPositionAbs(yRel, layer) {
     let bounds = layer.getBounds();
-    console.log(bounds);
     return bounds.y1 + yRel * (bounds.y2 - bounds.y1);
 }
 

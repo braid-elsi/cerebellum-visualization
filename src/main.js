@@ -16,10 +16,10 @@ import config from "./config.js";
         p5.draw = () => draw(p5);
         // this is a lame hack to handle the delay in the Google fonts loading.
         // when the app initializes, it redraws for 10ms and then stops so that when
-        // Monteserrat loads, it appears on the screen. The 10ms is arbirary.
+        // Monteserrat loads, it appears on the screen. The timeout time is arbirary.
         setTimeout(function () {
             p5.noLoop();
-        }, 10);
+        }, 500);
     });
 })();
 
