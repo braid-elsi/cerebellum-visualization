@@ -2,17 +2,17 @@ import { getYPositionAbs } from "./utils.js";
 
 export default class Cell {
     constructor({ id, x, y, cellType, width, height, color, layer }) {
-        console.log(
-            "Cell base constructor:",
-            id,
-            x,
-            y,
-            cellType,
-            width,
-            height,
-            color,
-            layer
-        );
+        // console.log(
+        //     "Cell base constructor:",
+        //     id,
+        //     x,
+        //     y,
+        //     cellType,
+        //     width,
+        //     height,
+        //     color,
+        //     layer
+        // );
         this.id = id;
         this.cellType = cellType;
         this.x = x;

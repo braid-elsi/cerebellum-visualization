@@ -43,7 +43,7 @@ function setup(p5) {
 
     // screen initialization:
     screenW = document.documentElement.clientWidth;
-    screenH = document.documentElement.clientHeight * 1.5;
+    screenH = Math.max(document.documentElement.clientHeight * 1.5, 1000);
     p5.createCanvas(screenW, screenH);
     initControls(p5);
 
@@ -56,6 +56,7 @@ function setup(p5) {
     );
 
     const backgroundGranuleCells = createBackgroundGCs();
+    const backgroundDCNs = createBackgroundDCNs();
     mossyFiberNeuronList = new MossyFiberNeuronList(
         globals.layers.brainstemLayer,
         granuleCellList
@@ -63,11 +64,22 @@ function setup(p5) {
 
     inferiorOlive = new InferiorOlive(globals.layers.brainstemLayer);
 
-    cerebellarNuclei = new CerebellarNuclei(globals.layers.whiteMatterLayer);
+    const { id, x, y, width, height, cellType, color } =
+        config.cerebellarNuclei;
+    cerebellarNuclei = new CerebellarNuclei({
+        id,
+        x,
+        y,
+        width,
+        height,
+        cellType,
+        color,
+        layer: globals.layers.whiteMatterLayer,
+    });
 
     purkinjeCell = new PurkinjeCell(globals);
 
-    globals.backgroundCells = [...backgroundGranuleCells];
+    globals.backgroundCells = [...backgroundGranuleCells, ...backgroundDCNs];
     const allCells = [
         ...granuleCellList.getCells(),
         ...mossyFiberNeuronList.getCells(),
@@ -214,9 +226,38 @@ function drawLabels(p5) {
     globals.layers.renderLabels(p5);
 }
 
+function createBackgroundDCNs() {
+    const cells = [];
+    const layer = globals.layers.whiteMatterLayer;
+    [
+        { color: [250, 241, 239], count: 30, minW: 10, maxW: 20 },
+        { color: [245, 228, 234], count: 10, minW: 20, maxW: 25 },
+        { color: [245, 228, 234], count: 5, minW: 25, maxW: 35 }, //[240, 215, 209]
+    ].forEach((spec) => {
+        const { color, count, minW, maxW } = spec;
+        for (let i = 0; i < count; i++) {
+            const w = getRandomInt(minW, maxW);
+
+            const dcn = new CerebellarNuclei({
+                id: `dcn${i}`,
+                cellType: "dcn",
+                x: getRandomInt(0, screenW),
+                y: Math.random() * 0.85 + 0.04,
+                layer: layer,
+                width: w,
+                height: w,
+                color: color,
+            });
+            cells.push(dcn);
+        }
+    });
+
+    return cells;
+}
+
 function createBackgroundGCs() {
     const cells = [];
-    const granuleBounds = globals.layers.granuleLayer.getBounds();
+    const layer = globals.layers.granuleLayer;
     [
         { color: [241, 241, 241], count: 100, minW: 10, maxW: 20 },
         { color: [226, 226, 243], count: 150, minW: 20, maxW: 25 },
@@ -226,19 +267,15 @@ function createBackgroundGCs() {
         const { color, count, minW, maxW } = spec;
         for (let i = 0; i < count; i++) {
             const w = getRandomInt(minW, maxW);
-            let y = getRandomInt(granuleBounds.y1, granuleBounds.y2);
-            y = Math.min(y, granuleBounds.y2 - 2 * w);
-            y = Math.max(y, granuleBounds.y1 + w / 2);
 
             const gc = new GranuleCell({
                 id: `gc${i}`,
                 cellType: "gc",
-                x: getRandomInt(granuleBounds.x1, granuleBounds.x2),
+                x: getRandomInt(0, screenW),
                 y: Math.random() * 0.85 + 0.04,
-                layer: globals.layers.granuleLayer,
+                layer: layer,
                 width: w,
                 height: w,
-                layer: globals.layers.granuleLayer,
                 color: color,
                 fiberWeight: 1,
             });

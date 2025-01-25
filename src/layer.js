@@ -6,7 +6,6 @@ export default class Layer {
         this.width = Math.round(width);
         this.label = label;
         this.color = color;
-        // console.log(this.y, this.width, this.height, this.label);
         this.bounds = {
             x1: this.x, //+ 100,
             x2: this.width, //- 100,

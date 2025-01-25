@@ -119,7 +119,6 @@ export default class PurkinjeCell extends Cell {
         this.axon = new PurkinjeCellAxon({
             source: this,
             target: this.cerebellarNuclei,
-            color: this.color,
         });
     }
 

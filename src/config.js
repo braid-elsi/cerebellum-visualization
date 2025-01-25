@@ -120,7 +120,7 @@ export default {
     },
     cerebellarNuclei: {
         id: "cerebellarNuclei",
-        cellType: "cn",
+        cellType: "dcn",
         label: {
             text: "Cerebellar Nuclei",
             x: 800,

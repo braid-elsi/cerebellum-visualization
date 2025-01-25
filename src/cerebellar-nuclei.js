@@ -1,23 +1,10 @@
 import Cell from "./cell.js";
-import config from "./config.js";
 
 export default class CerebellarNuclei extends Cell {
-    constructor(whiteMatterLayer) {
+    constructor({ id, x, y, cellType, width, height, color, layer }) {
+        super({ id, x, y, cellType, width, height, color, layer });
 
-        const { id, x, y, width, height, cellType, color } =
-            config.cerebellarNuclei;
-        super({
-            id,
-            x,
-            y,
-            height,
-            width,
-            cellType,
-            color,
-            layer: whiteMatterLayer,
-        });
-
-        let bounds = whiteMatterLayer.getBounds();
+        let bounds = layer.getBounds();
         let maxHeight = bounds.y2 - bounds.y1 - 10;
 
         // adjust height based on bounds of layer:
