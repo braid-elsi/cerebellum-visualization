@@ -1,22 +1,27 @@
 import config from "./config.js";
+import Cell from "./cell.js";
 import PurkinjeCellAxon from "./purkinje-cell-axon.js";
 import { getYPositionAbs } from "./utils.js";
 
-export default class PurkinjeCell {
+export default class PurkinjeCell extends Cell {
     constructor(globals) {
-        const { id, x, y, yEnd, width, label, color, connectsTo } =
+        const { id, x, y, yEnd, width, height, cellType, color, connectsTo } =
             config.purkinjeCell;
-        this.layer = globals.layers.purkinjeLayer;
+        super({
+            id,
+            x,
+            y,
+            height,
+            width,
+            cellType,
+            color,
+            layer: globals.layers.purkinjeLayer,
+        });
+
         this.molecularLayer = globals.layers.molecularLayer;
-        this.id = id;
-        this.x = x;
-        this.y = getYPositionAbs(y, this.layer);
         this.yEnd = getYPositionAbs(yEnd, this.molecularLayer);
-        this.label = label;
-        this.width = width;
-        this.color = color;
         this.connectsTo = connectsTo;
-        this.angleDiff = Math.PI / 6;
+        this.angleDiff = Math.PI / 7;
         this.treeDepth = 4;
 
         // Precomputed tree and tentacle coordinates
@@ -25,7 +30,6 @@ export default class PurkinjeCell {
         this.precomputeTree();
     }
 
-    // Precompute the tree coordinates
     precomputeTree() {
         const opts = {
             x: this.x,
@@ -44,7 +48,7 @@ export default class PurkinjeCell {
             let { xEnd, yEnd, angle, iteration } = point;
             let x = xEnd;
             let y = yEnd;
-            const length = 15;
+            const length = 10;
 
             // Add safety checks to ensure valid coordinates
             while (y > this.yEnd) {
@@ -53,7 +57,6 @@ export default class PurkinjeCell {
 
                 const newX = x + (length * Math.cos(angle)) / 3;
                 const newY = y - length;
-                console.log(length, angle, x, y, newX, newY);
 
                 // Ensure calculated values are valid
                 if (isNaN(newX) || isNaN(newY)) break;
@@ -69,13 +72,10 @@ export default class PurkinjeCell {
 
             // Store this tentacle path if it has valid segments
             // only add segments starting where the top of the tree ends
-            if (tentaclePath.length > 0 && iteration > 2) {
+            if (tentaclePath.length > 0 && iteration >= this.treeDepth) {
                 this.precomputedTentacles.push(tentaclePath);
             }
         });
-
-        // Debugging output
-        console.log("Tentacle paths generated:", this.precomputedTentacles);
     }
 
     // Generate tree branches recursively and store their coordinates
@@ -90,7 +90,6 @@ export default class PurkinjeCell {
         const yEnd = y + len * Math.sin(angle);
 
         // Store the start and end points of this branch
-        console.log("branch:", x, y, xEnd, yEnd);
         this.precomputedBranches.push({ x, y, xEnd, yEnd, angle, iteration });
 
         // Recursively generate the left and right branches

@@ -1,25 +1,23 @@
 import MossyFiberNeuron from "./mossy-fiber-neuron.js";
 import config from "./config.js";
-import { getYPositionAbs } from "./utils.js";
 
 export default class MossyFiberNeuronList {
     mfNeurons = [];
     constructor(brainstemLayer, granuleCellList) {
-        let { color, cellParams, label } = config.mossyFiberCells;
-        this.label = label;
-        this.layer = brainstemLayer;
+        let { color, cellType, cellParams } = config.mossyFiberCells;
         for (const props of cellParams) {
-            let { id, x, y, width, connectsTo } = props;
-            y = getYPositionAbs(y, this.layer);
-
+            let { id, x, y, width, height, connectsTo } = props;
             const opts = {
-                id: id,
-                x: x,
-                y: y,
-                w: width,
-                connectsTo: connectsTo,
-                granuleCellList: granuleCellList,
+                id,
+                x,
+                y,
+                width,
+                height,
                 color: color,
+                cellType: cellType,
+                layer: brainstemLayer,
+                granuleCellList: granuleCellList,
+                connectsTo,
             };
             const mfNeuron = new MossyFiberNeuron(opts);
             this.mfNeurons.push(mfNeuron);
@@ -30,9 +28,4 @@ export default class MossyFiberNeuronList {
         return this.mfNeurons;
     }
 
-    render(p5) {
-        this.mfNeurons.forEach((mfNeuron) => {
-            mfNeuron.render(p5);
-        });
-    }
 }

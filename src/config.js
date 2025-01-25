@@ -28,6 +28,7 @@ export default {
     },
     granuleCells: {
         color: [98, 104, 190],
+        cellType: "gc",
         label: {
             text: "Granule Cell",
             x: 660,
@@ -39,6 +40,7 @@ export default {
                 x: 200,
                 y: 0.4,
                 width: 20,
+                height: 20,
                 numReceptors: 3,
             },
             {
@@ -46,6 +48,7 @@ export default {
                 x: 400,
                 y: 0.7,
                 width: 20,
+                height: 20,
                 numReceptors: 3,
             },
             {
@@ -53,6 +56,7 @@ export default {
                 x: 460,
                 y: 0.4,
                 width: 20,
+                height: 20,
                 numReceptors: 4,
             },
             {
@@ -60,6 +64,7 @@ export default {
                 x: 520,
                 y: 0.1,
                 width: 20,
+                height: 20,
                 numReceptors: 4,
             },
             {
@@ -67,12 +72,14 @@ export default {
                 x: 580,
                 y: 0.3,
                 width: 20,
+                height: 20,
                 numReceptors: 5,
             },
         ],
     },
     mossyFiberCells: {
         color: [44, 201, 255],
+        cellType: "mf",
         label: {
             text: "Mossy Fiber",
             x: 250,
@@ -84,6 +91,7 @@ export default {
                 x: 200,
                 y: 0.5,
                 width: 20,
+                height: 20,
                 connectsTo: ["gc1", "gc2"],
             },
             {
@@ -91,12 +99,14 @@ export default {
                 x: 520,
                 y: 0.5,
                 width: 20,
+                height: 20,
                 connectsTo: ["gc2", "gc3", "gc4", "gc5"],
             },
         ],
     },
     inferiorOlive: {
         id: "olive",
+        cellType: "olive",
         label: {
             text: "Inferior Olive",
             x: 900,
@@ -106,9 +116,11 @@ export default {
         y: 0.5,
         color: [139, 123, 188],
         height: 60,
+        width: 100,
     },
     cerebellarNuclei: {
         id: "cerebellarNuclei",
+        cellType: "cn",
         label: {
             text: "Cerebellar Nuclei",
             x: 800,
@@ -119,13 +131,16 @@ export default {
         y: 0.5,
         color: [222, 156, 145],
         height: 60,
+        width: 85,
     },
     purkinjeCell: {
         id: "purkinjeCell",
         x: 800,
         y: 0.5,
         yEnd: 0.05,
+        cellType: "pk",
         width: 40,
+        height: 40,
         color: [254, 82, 0],
         connectsTo: ["cerebellarNuclei"],
     },

@@ -1,6 +1,7 @@
+import Cell from "./cell.js";
 import MossyFiberAxon from "./mossy-fiber-axon.js";
 
-export default class MossyFiberNeuron {
+export default class MossyFiberNeuron extends Cell {
     /**
      * https://www.youtube.com/watch?v=QUkwqAaSrUg
      * Mossy fibers (dendrites that come from the motor cortex and the spinal cord).
@@ -15,29 +16,33 @@ export default class MossyFiberNeuron {
 
     constructor({
         id,
+        cellType,
         x,
         y,
-        w,
+        width,
+        height,
+        color = [44, 201, 255],
+        layer,
         connectsTo,
         granuleCellList,
-        color = [44, 201, 255],
     }) {
-        // console.log("MFN:", id, x, y, w, color);
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.w = w;
+        super({
+            id,
+            x,
+            y,
+            height,
+            width,
+            cellType,
+            color,
+            layer,
+        });
         this.connectsTo = connectsTo;
         this.granuleCellList = granuleCellList;
-        this.color = color;
         this.axon = new MossyFiberAxon(this, this.granuleCellList);
     }
 
-    render(p) {
-        p.stroke(...this.color);
-        p.fill(...this.color);
-        p.ellipse(this.x, this.y, this.w, this.w); // Granule cell bodies
-
-        this.axon.render(p);
+    render(p5) {
+        super.render(p5);
+        this.axon.render(p5);
     }
 }

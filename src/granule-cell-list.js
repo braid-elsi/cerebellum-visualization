@@ -1,23 +1,22 @@
 import GranuleCell from "./granule-cell.js";
 import config from "./config.js";
-import {getYPositionAbs } from "./utils.js";
 
 export default class GranuleCellList {
     gcs = [];
     constructor(granuleLayer, molecularLayer) {
-        let { color, cellParams, label } = config.granuleCells;
+        let { color, cellType, cellParams } = config.granuleCells;
 
-        this.label = label;
-        this.layer = granuleLayer;
 
         for (const props of cellParams) {
-            let { id, x, y, width, numReceptors } = props;
+            let { id, x, y, width, height, numReceptors } = props;
             const opts = {
                 id: id,
+                cellType: cellType,
                 layer: granuleLayer,
                 x: x,
-                y: getYPositionAbs(y, this.layer),
-                w: width,
+                y: y,
+                width: width,
+                height: height,
                 numReceptors: numReceptors,
                 color: color,
             };
@@ -31,7 +30,4 @@ export default class GranuleCellList {
         return this.gcs;
     }
 
-    render(p5) {
-        this.gcs.forEach((gc) => gc.render(p5));
-    }
 }

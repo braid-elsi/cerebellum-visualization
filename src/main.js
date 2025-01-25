@@ -14,6 +14,7 @@ import config from "./config.js";
     new p5Lib(function (p5) {
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5);
+        p5.mouseClicked = () => mouseClicked(p5);
         // this is a lame hack to handle the delay in the Google fonts loading.
         // when the app initializes, it redraws for 10ms and then stops so that when
         // Monteserrat loads, it appears on the screen. The timeout time is arbirary.
@@ -124,6 +125,18 @@ function draw(p5) {
     drawCircuit(p5);
 }
 
+function mouseClicked(p5) {
+    const cells = Object.values(globals.cellLookup);
+    cells.forEach((cell) => {
+        // if the cell has an intersects method, check if there's an intersection:
+        if ("intersects" in cell) {
+            if (cell.intersects(p5.mouseX, p5.mouseY)) {
+                console.log(cell.id, "Intersects!");
+            }
+        }
+    });
+}
+
 function drawCircuit(p5) {
     // draw layers:
     drawLayers(p5);
@@ -215,10 +228,13 @@ function createBackgroundGCs() {
 
             const gc = new GranuleCell({
                 id: `gc${i}`,
+                cellType: "gc",
                 x: getRandomInt(granuleBounds.x1, granuleBounds.x2),
-                y: y,
+                y: Math.random() * 0.8 + .1,
                 layer: globals.layers.granuleLayer,
-                w: w,
+                width: w,
+                height: w,
+                layer: globals.layers.granuleLayer,
                 color: color,
                 fiberWeight: 1,
             });

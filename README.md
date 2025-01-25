@@ -1,5 +1,7 @@
 # Notes on the Cerebellum
 
+See [Google Doc](https://docs.google.com/document/d/12uU8koAb03qjG18a2PyhRT3iFcxGvbLhpFZsUj24f6A/edit?usp=sharing)
+
 ## How the Cerebellum Works
 
 

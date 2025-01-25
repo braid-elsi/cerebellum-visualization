@@ -1,25 +1,27 @@
+import Cell from "./cell.js";
 import config from "./config.js";
-import { getYPositionAbs } from "./utils.js";
 
-export default class CerebellarNuclei {
+export default class CerebellarNuclei extends Cell {
     constructor(whiteMatterLayer) {
-        let { id, x, y, color, height, label } = config.cerebellarNuclei;
+
+        const { id, x, y, width, height, cellType, color } =
+            config.cerebellarNuclei;
+        super({
+            id,
+            x,
+            y,
+            height,
+            width,
+            cellType,
+            color,
+            layer: whiteMatterLayer,
+        });
+
         let bounds = whiteMatterLayer.getBounds();
         let maxHeight = bounds.y2 - bounds.y1 - 10;
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.label = label;
-        this.height = Math.min(height, maxHeight);
-        this.width = this.height * 1.8;
-        this.layer = whiteMatterLayer;
-        this.yAbs = getYPositionAbs(this.y, this.layer);
-    }
 
-    render(p5) {
-        p5.stroke(...this.color);
-        p5.fill(...this.color);
-        p5.ellipse(this.x, this.yAbs, this.width, this.height);
+        // adjust height based on bounds of layer:
+        this.height = Math.min(this.height, maxHeight);
+        this.width = this.height * 1.8;
     }
 }
