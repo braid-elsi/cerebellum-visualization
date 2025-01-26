@@ -45,8 +45,15 @@ export default class MossyFiberNeuron extends Cell {
             targetCells.push(cell);
         });
         console.log(targetCells);
-        this.axon = new MossyFiberAxon(this, targetCells);
+        this.axon = new MossyFiberAxon({ source: this, targetCells });
     }
+
+    // intersects(x, y) {
+    //     const somaIntersects = super.intersects(x, y);
+    //     const axonIntersects = this.axon.intersects(x, y);
+    //     // console.log(somaIntersects, axonIntersects);
+    //     return somaIntersects || axonIntersects;
+    // }
 
     render(p5) {
         super.render(p5);

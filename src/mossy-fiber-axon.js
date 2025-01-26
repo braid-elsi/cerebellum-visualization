@@ -8,72 +8,96 @@
  *   branches extensively, allowing it to connect with many granule cells and other targets in the cerebellum.
  */
 
-export default class MossyFiberAxon {
-    constructor(mossyFiberNeuron, targetCells) {
-        this.mossyFiberNeuron = mossyFiberNeuron;
-        this.targetCells = targetCells;
+import Axon from "./axon.js";
+
+export default class MossyFiberAxon extends Axon {
+    constructor({ source, targetCells=[], axonWidth = 3 }) {
+        super({
+            source,
+            targetCells,
+            axonWidth,
+        });
+        this.generateSynapses();
     }
 
-    render(p5) {
-        const color = this.mossyFiberNeuron.getColor();
-        p5.strokeWeight(3);
-        p5.stroke(...color);
-
-        this.renderGranuleConnections(p5);
-        this.renderDCNConnection(p5);
+    generateSynapses() {
+        this.generateGranuleSynapses();
+        this.generateDCNSynapses();
     }
 
-    renderGranuleConnections(p5) {
+    generateGranuleSynapses() {
         const granuleCells = this.targetCells.filter(
             (cell) => cell.cellType === "gc"
         );
         for (const cell of granuleCells) {
-            let y2 = cell.y + 3 * cell.width;
-
-            // vertical line:
-            p5.line(
-                this.mossyFiberNeuron.x,
-                this.mossyFiberNeuron.y,
-                this.mossyFiberNeuron.x,
-                y2
-            );
             for (const receptor of cell.receptors) {
-                // horizontal line:
-                let x2 =
-                    ((cell.x - this.mossyFiberNeuron.x) / 5) * 4 +
-                    this.mossyFiberNeuron.x;
-                p5.line(this.mossyFiberNeuron.x, y2 + cell.width, x2, y2);
+                const polyline = [];
+                const mfX = this.source.x;
+                const mfY = this.source.y;
+                const y2 = cell.y + 3 * cell.width;
 
-                //vertical line
-                p5.line(x2, y2, receptor.x, receptor.y);
-                p5.ellipse(
-                    receptor.x,
-                    receptor.y + receptor.receptorLength / 4,
-                    receptor.receptorLength,
-                    receptor.receptorLength / 4
-                );
+                // vertical line:
+                polyline.push({
+                    start: { x: mfX, y: mfY },
+                    end: { x: mfX, y: y2 },
+                });
+
+                // angled line to cell:
+                let x2 = ((cell.x - mfX) / 5) * 4 + mfX;
+                polyline.push({
+                    start: { x: mfX, y: y2 + cell.width },
+                    end: { x: x2, y: y2 },
+                });
+
+                // angled line to receptor:
+                polyline.push({
+                    start: { x: x2, y: y2 },
+                    end: {
+                        x: receptor.x,
+                        y: receptor.y + receptor.receptorLength / 2,
+                    },
+                });
+                this.polylines.push(polyline);
+
+                this.receptors.push({
+                    x: receptor.x,
+                    y: receptor.y + receptor.receptorLength / 2,
+                    width: receptor.length / 2.3,
+                    height: receptor.length / 9,
+                });
             }
         }
     }
 
-    renderDCNConnection(p5) {
+    generateDCNSynapses() {
         const dcnCells = this.targetCells.filter(
             (cell) => cell.cellType === "dcn"
         );
         for (const cell of dcnCells) {
-            // vertical line:
-            p5.line(
-                this.mossyFiberNeuron.x,
-                this.mossyFiberNeuron.y,
-                this.mossyFiberNeuron.x,
-                cell.y
-            );
+            const polyline = [];
+            const mfX = this.source.x;
+            const mfY = this.source.y;
+            polyline.push({
+                start: { x: mfX, y: mfY },
+                end: { x: mfX, y: cell.y },
+            });
 
             // horizontal line:
             const xEnd = cell.x - cell.width / 2 - 5;
-            p5.line(this.mossyFiberNeuron.x, cell.y, xEnd, cell.y);
+            polyline.push({
+                start: { x: mfX, y: cell.y },
+                end: { x: xEnd, y: cell.y },
+            });
 
-            p5.ellipse(xEnd, cell.y, 5, 12);
+            this.polylines.push(polyline);
+
+            this.receptors.push({
+                x: xEnd,
+                y: cell.y,
+                width: this.axonWidth * 2,
+                height: this.axonWidth * 4,
+            });
         }
     }
+
 }

@@ -2,17 +2,6 @@ import { getYPositionAbs } from "./utils.js";
 
 export default class Cell {
     constructor({ id, x, y, cellType, width, height, color, layer }) {
-        // console.log(
-        //     "Cell base constructor:",
-        //     id,
-        //     x,
-        //     y,
-        //     cellType,
-        //     width,
-        //     height,
-        //     color,
-        //     layer
-        // );
         this.id = id;
         this.cellType = cellType;
         this.x = x;
@@ -21,6 +10,8 @@ export default class Cell {
         this.height = height;
         this.color = color;
         this.layer = this.layer;
+        this.axon = null;
+        this.receptors = [];
         this.isActive = false;
     }
 
@@ -34,10 +25,23 @@ export default class Cell {
     intersects(x, y) {
         let dx = (x - this.x) / (this.width / 2);
         let dy = (y - this.y) / (this.height / 2);
-        return dx * dx + dy * dy <= 1;
+        const somaIntersects = dx * dx + dy * dy <= 1;
+        let axonIntersects = false;
+        if (this.axon && this.axon.intersects) {
+            axonIntersects = this.axon.intersects(x, y);
+        }
+        return somaIntersects || axonIntersects;
     }
 
     render(p5) {
+        if (this.receptors) {
+            this.receptors.forEach((receptor) => receptor.render(p5));
+        }
+
+        if (this.axon) {
+            this.axon.render(p5);
+        }
+
         p5.stroke(...this.getColor());
         p5.fill(...this.getColor());
         p5.ellipse(this.x, this.y, this.width, this.height);

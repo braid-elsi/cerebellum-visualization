@@ -6,7 +6,6 @@ export default class GranuleCellList {
     constructor(granuleLayer, molecularLayer) {
         let { color, cellType, cellParams } = config.granuleCells;
 
-
         for (const props of cellParams) {
             let { id, x, y, width, height, numReceptors } = props;
             const opts = {
@@ -21,7 +20,7 @@ export default class GranuleCellList {
                 color: color,
             };
             const gc = new GranuleCell(opts);
-            gc.addParallelFiber(molecularLayer);
+            gc.addAxon(molecularLayer);
             this.gcs.push(gc);
         }
     }
@@ -29,5 +28,4 @@ export default class GranuleCellList {
     getCells() {
         return this.gcs;
     }
-
 }

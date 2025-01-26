@@ -15,6 +15,7 @@ import config from "./config.js";
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5);
         p5.mouseClicked = () => mouseClicked(p5);
+        p5.mouseMoved = () => mouseMoved(p5);
         // this is a lame hack to handle the delay in the Google fonts loading.
         // when the app initializes, it redraws for 10ms and then stops so that when
         // Monteserrat loads, it appears on the screen. The timeout time is arbirary.
@@ -137,12 +138,20 @@ function draw(p5) {
 }
 
 function mouseClicked(p5) {
+    // select(p5, "clicked");
+    alert("clicked!");
+}
+
+function mouseMoved(p5) {
+    select(p5);
+}
+
+function select(p5) {
     const cells = Object.values(globals.cellLookup);
     cells.forEach((cell) => {
-        // if the cell has an intersects method, check if there's an intersection:
         if ("intersects" in cell) {
             if (cell.intersects(p5.mouseX, p5.mouseY)) {
-                cell.isActive = !cell.isActive;
+                cell.isActive = true;
             } else {
                 cell.isActive = false;
             }
@@ -276,9 +285,9 @@ function createBackgroundGCs() {
                 width: w,
                 height: w,
                 color: color,
-                fiberWeight: 1,
+                axonWidth: 1,
             });
-            gc.addParallelFiber(globals.layers.molecularLayer);
+            gc.addAxon(globals.layers.molecularLayer);
             cells.push(gc);
         }
     });
