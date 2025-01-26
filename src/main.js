@@ -1,11 +1,11 @@
 import p5Lib from "p5";
-import MossyFiberNeuronList from "./mossy-fiber-neuron-list.js";
-import GranuleCellList from "./granule-cell-list.js";
-import GranuleCell from "./granule-cell.js";
-import LayerList from "./layer-list.js";
-import PurkinjeCell from "./purkinje-cell.js";
-import InferiorOlive from "./inferior-olive.js";
-import CerebellarNuclei from "./cerebellar-nuclei.js";
+import MossyFiberNeuronList from "./list-cell-mf.js";
+import GranuleCellList from "./list-cell-gc.js";
+import GranuleCell from "./cell-gc.js";
+import LayerList from "./list-layer.js";
+import PurkinjeCell from "./cell-pk.js";
+import InferiorOlive from "./cell-inferior-olive.js";
+import CerebellarNuclei from "./cell-dcn.js";
 import { getRandomInt, drawLabel } from "./utils.js";
 import config from "./config.js";
 
@@ -95,7 +95,6 @@ function setup(p5) {
             cell.createConnections(globals);
         }
     });
-    console.log(globals);
 }
 
 function initControls(p5) {

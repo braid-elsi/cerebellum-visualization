@@ -1,6 +1,6 @@
 import Cell from "./cell.js";
-import GranuleDentriteReceptor from "./granule-cell-receptor";
-import GranuleCellAxon from "./granule-cell-axon.js";
+import GranuleDentriteReceptor from "./dendrites-gc.js";
+import GranuleCellAxon from "./axon-gc.js";
 
 export default class GranuleCell extends Cell {
     constructor({
@@ -48,6 +48,6 @@ export default class GranuleCell extends Cell {
 
     // render(p5) {
     //     super.render(p5);
-        
+
     // }
 }

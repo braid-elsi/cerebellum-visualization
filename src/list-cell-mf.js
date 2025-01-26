@@ -1,4 +1,4 @@
-import MossyFiberNeuron from "./mossy-fiber-neuron.js";
+import MossyFiberNeuron from "./cell-mf.js";
 import config from "./config.js";
 
 export default class MossyFiberNeuronList {

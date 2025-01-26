@@ -1,4 +1,4 @@
-import GranuleCell from "./granule-cell.js";
+import GranuleCell from "./cell-gc.js";
 import config from "./config.js";
 
 export default class GranuleCellList {

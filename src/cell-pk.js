@@ -1,6 +1,6 @@
 import config from "./config.js";
 import Cell from "./cell.js";
-import PurkinjeCellAxon from "./purkinje-cell-axon.js";
+import PurkinjeCellAxon from "./axon-pk.js";
 import { getYPositionAbs } from "./utils.js";
 
 export default class PurkinjeCell extends Cell {
