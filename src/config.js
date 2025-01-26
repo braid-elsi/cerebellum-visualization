@@ -100,7 +100,7 @@ export default {
                 y: 0.5,
                 width: 20,
                 height: 20,
-                connectsTo: ["gc2", "gc3", "gc4", "gc5"],
+                connectsTo: ["gc2", "gc3", "gc4", "gc5", "cerebellarNuclei"],
             },
         ],
     },

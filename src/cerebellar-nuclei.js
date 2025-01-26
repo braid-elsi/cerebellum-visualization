@@ -5,7 +5,7 @@ export default class CerebellarNuclei extends Cell {
         super({ id, x, y, cellType, width, height, color, layer });
 
         let bounds = layer.getBounds();
-        let maxHeight = bounds.y2 - bounds.y1 - 10;
+        let maxHeight = bounds.bottom - bounds.top - 10;
 
         // adjust height based on bounds of layer:
         this.height = Math.min(this.height, maxHeight);

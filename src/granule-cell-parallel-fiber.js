@@ -15,7 +15,7 @@ export default class ParallelFiber {
         // this.color = color;
         this.fiberWeight = fiberWeight;
         this.bounds = this.molecularLayer.getBounds();
-        this.yEnd = getRandomInt(this.bounds.y1 + 5, this.bounds.y2 - 5);
+        this.yEnd = getRandomInt(this.bounds.top + 5, this.bounds.bottom - 5);
     }
 
     render(p5) {
@@ -30,6 +30,6 @@ export default class ParallelFiber {
         const topRight = [this.gc.x + tSize, this.yEnd];
         const bottom = [this.gc.x, this.yEnd + tSize * Math.sqrt(2)];
         p5.triangle(...topLeft, ...topRight, ...bottom);
-        p5.line(this.bounds.x1, this.yEnd, this.bounds.x2, this.yEnd);
+        p5.line(this.bounds.left, this.yEnd, this.bounds.right, this.yEnd);
     }
 }

@@ -18,7 +18,7 @@ export default class InferiorOlive extends Cell {
 
         // minor customizations:
         let bounds = brainstemLayer.getBounds();
-        let maxHeight = bounds.y2 - bounds.y1 - 10;
+        let maxHeight = bounds.bottom - bounds.top - 10;
         this.height = Math.min(height, maxHeight);
         this.width = this.height * 1.6;
     }

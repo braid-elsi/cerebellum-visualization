@@ -7,10 +7,10 @@ export default class Layer {
         this.label = label;
         this.color = color;
         this.bounds = {
-            x1: this.x, //+ 100,
-            x2: this.width, //- 100,
-            y1: this.y,
-            y2: y,
+            left: this.x,
+            right: this.width,
+            top: this.y,
+            bottom: y,
         };
     }
 

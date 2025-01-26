@@ -9,24 +9,29 @@
  */
 
 export default class MossyFiberAxon {
-    constructor(mossyFiberNeuron, granuleCellList) {
+    constructor(mossyFiberNeuron, targetCells) {
         this.mossyFiberNeuron = mossyFiberNeuron;
-        this.granuleCellList = granuleCellList;
+        this.targetCells = targetCells;
     }
 
-    render(p) {
+    render(p5) {
         const color = this.mossyFiberNeuron.getColor();
-        p.strokeWeight(3);
-        p.stroke(...color);
-        const connectedCells = this.granuleCellList.getCells().filter((gc) => {
-            return this.mossyFiberNeuron.connectsTo.includes(gc.id);
-        });
+        p5.strokeWeight(3);
+        p5.stroke(...color);
 
-        for (const cell of connectedCells) {
-            let y2 = (cell.y + 3 * cell.width);
+        this.renderGranuleConnections(p5);
+        this.renderDCNConnection(p5);
+    }
+
+    renderGranuleConnections(p5) {
+        const granuleCells = this.targetCells.filter(
+            (cell) => cell.cellType === "gc"
+        );
+        for (const cell of granuleCells) {
+            let y2 = cell.y + 3 * cell.width;
 
             // vertical line:
-            p.line(
+            p5.line(
                 this.mossyFiberNeuron.x,
                 this.mossyFiberNeuron.y,
                 this.mossyFiberNeuron.x,
@@ -37,17 +42,38 @@ export default class MossyFiberAxon {
                 let x2 =
                     ((cell.x - this.mossyFiberNeuron.x) / 5) * 4 +
                     this.mossyFiberNeuron.x;
-                p.line(this.mossyFiberNeuron.x, y2 + cell.width, x2, y2);
+                p5.line(this.mossyFiberNeuron.x, y2 + cell.width, x2, y2);
 
                 //vertical line
-                p.line(x2, y2, receptor.x, receptor.y);
-                p.ellipse(
+                p5.line(x2, y2, receptor.x, receptor.y);
+                p5.ellipse(
                     receptor.x,
                     receptor.y + receptor.receptorLength / 4,
                     receptor.receptorLength,
                     receptor.receptorLength / 4
                 );
             }
+        }
+    }
+
+    renderDCNConnection(p5) {
+        const dcnCells = this.targetCells.filter(
+            (cell) => cell.cellType === "dcn"
+        );
+        for (const cell of dcnCells) {
+            // vertical line:
+            p5.line(
+                this.mossyFiberNeuron.x,
+                this.mossyFiberNeuron.y,
+                this.mossyFiberNeuron.x,
+                cell.y
+            );
+
+            // horizontal line:
+            const xEnd = cell.x - cell.width / 2 - 5;
+            p5.line(this.mossyFiberNeuron.x, cell.y, xEnd, cell.y);
+
+            p5.ellipse(xEnd, cell.y, 5, 12);
         }
     }
 }

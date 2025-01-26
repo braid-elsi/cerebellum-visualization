@@ -58,8 +58,7 @@ function setup(p5) {
     const backgroundGranuleCells = createBackgroundGCs();
     const backgroundDCNs = createBackgroundDCNs();
     mossyFiberNeuronList = new MossyFiberNeuronList(
-        globals.layers.brainstemLayer,
-        granuleCellList
+        globals.layers.brainstemLayer
     );
 
     inferiorOlive = new InferiorOlive(globals.layers.brainstemLayer);

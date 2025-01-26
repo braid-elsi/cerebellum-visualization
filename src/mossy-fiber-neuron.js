@@ -24,7 +24,6 @@ export default class MossyFiberNeuron extends Cell {
         color = [44, 201, 255],
         layer,
         connectsTo,
-        granuleCellList,
     }) {
         super({
             id,
@@ -37,8 +36,16 @@ export default class MossyFiberNeuron extends Cell {
             layer,
         });
         this.connectsTo = connectsTo;
-        this.granuleCellList = granuleCellList;
-        this.axon = new MossyFiberAxon(this, this.granuleCellList);
+    }
+
+    createConnections(globals) {
+        const targetCells = [];
+        this.connectsTo.forEach((key) => {
+            const cell = globals.cellLookup[key];
+            targetCells.push(cell);
+        });
+        console.log(targetCells);
+        this.axon = new MossyFiberAxon(this, targetCells);
     }
 
     render(p5) {

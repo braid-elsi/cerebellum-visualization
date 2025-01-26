@@ -3,7 +3,7 @@ import config from "./config.js";
 
 export default class MossyFiberNeuronList {
     mfNeurons = [];
-    constructor(brainstemLayer, granuleCellList) {
+    constructor(brainstemLayer) {
         let { color, cellType, cellParams } = config.mossyFiberCells;
         for (const props of cellParams) {
             let { id, x, y, width, height, connectsTo } = props;
@@ -16,7 +16,6 @@ export default class MossyFiberNeuronList {
                 color: color,
                 cellType: cellType,
                 layer: brainstemLayer,
-                granuleCellList: granuleCellList,
                 connectsTo,
             };
             const mfNeuron = new MossyFiberNeuron(opts);
@@ -27,5 +26,4 @@ export default class MossyFiberNeuronList {
     getCells() {
         return this.mfNeurons;
     }
-
 }
