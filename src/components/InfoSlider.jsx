@@ -69,7 +69,7 @@ export default function InfoSlider({ neuron, isOpen, globals }) {
     async function getInfo() {
         const url = DOCUMENTS[neuron.cellType];
         if (url) {
-            const response = await fetch(`./src/markdown-files/${url}`);
+            const response = await fetch(`./markdown-files/${url}`);
             const text = await response.text();
             setContent(text);
         } else {
