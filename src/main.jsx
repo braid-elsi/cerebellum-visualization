@@ -160,9 +160,9 @@ function drawCircuit(p5, advance = true) {
     drawLabels(p5);
 
     // draw pulses:
-    for (const pulse of globals.pulses) {
-        pulse.render(p5, advance);
-    }
+    // for (const pulse of globals.pulses) {
+    //     pulse.render(p5, advance);
+    // }
 }
 
 function drawLayers(p5) {
