@@ -1,7 +1,7 @@
-import Cell from "./cell.js";
+import Neuron from "./neuron.js";
 import config from "./config.js";
 
-export default class InferiorOlive extends Cell {
+export default class InferiorOlive extends Neuron {
     constructor(brainstemLayer) {
         const { id, x, y, width, height, cellType, color } =
             config.inferiorOlive;

@@ -1,7 +1,7 @@
-import Cell from "./cell.js";
+import Neuron from "./neuron.js";
 import MossyFiberAxon from "./axon-mf.js";
 
-export default class MossyFiberNeuron extends Cell {
+export default class MossyFiberNeuron extends Neuron {
     /**
      * https://www.youtube.com/watch?v=QUkwqAaSrUg
      * Mossy fibers (dendrites that come from the motor cortex and the spinal cord).

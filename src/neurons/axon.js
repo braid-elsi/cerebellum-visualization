@@ -1,4 +1,5 @@
 import { isPointNearLine } from "./utils.js";
+import Receptor from "./receptor.js";
 
 export default class Axon {
     constructor({ source, targetCells, axonWidth = 3 }) {

@@ -1,4 +1,4 @@
-import GranuleCell from "./cell-gc.js";
+import GranuleCell from "./neuron-gc.js";
 import config from "./config.js";
 
 export default class GranuleCellList {

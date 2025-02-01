@@ -1,13 +1,13 @@
 import p5Lib from "p5";
-import MossyFiberNeuronList from "./list-cell-mf.js";
-import GranuleCellList from "./list-cell-gc.js";
-import GranuleCell from "./cell-gc.js";
-import LayerList from "./list-layer.js";
-import PurkinjeCell from "./cell-pk.js";
-import InferiorOlive from "./cell-inferior-olive.js";
-import CerebellarNuclei from "./cell-dcn.js";
-import { getRandomInt, drawLabel } from "./utils.js";
-import config from "./config.js";
+import MossyFiberNeuronList from "./neurons/list-neuron-mf.js";
+import GranuleCellList from "./neurons/list-neuron-gc.js";
+import GranuleCell from "./neurons/neuron-gc.js";
+import LayerList from "./neurons/list-layer.js";
+import PurkinjeCell from "./neurons/neuron-pk.js";
+import InferiorOlive from "./neurons/neuron-inferior-olive.js";
+import CerebellarNuclei from "./neurons/neuron-dcn.js";
+import { getRandomInt, drawLabel } from "./neurons/utils.js";
+import config from "./neurons/config.js";
 
 // Create a new p5 instance
 (function initializeApp() {

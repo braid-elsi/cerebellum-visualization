@@ -7,11 +7,11 @@
  * - A single neuron has one mossy fiber. However, that one mossy fiber
  *   branches extensively, allowing it to connect with many granule cells and other targets in the cerebellum.
  */
-
+import Receptor from "./receptor.js";
 import Axon from "./axon.js";
 
 export default class MossyFiberAxon extends Axon {
-    constructor({ source, targetCells=[], axonWidth = 3 }) {
+    constructor({ source, targetCells = [], axonWidth = 3 }) {
         super({
             source,
             targetCells,
@@ -30,7 +30,8 @@ export default class MossyFiberAxon extends Axon {
             (cell) => cell.cellType === "gc"
         );
         for (const cell of granuleCells) {
-            for (const receptor of cell.receptors) {
+            const receptors = cell.dendrites.receptors;
+            for (const receptor of receptors) {
                 const polyline = [];
                 const mfX = this.source.x;
                 const mfY = this.source.y;
@@ -99,5 +100,4 @@ export default class MossyFiberAxon extends Axon {
             });
         }
     }
-
 }

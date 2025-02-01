@@ -1,9 +1,9 @@
 import config from "./config.js";
-import Cell from "./cell.js";
+import Neuron from "./neuron.js";
 import PurkinjeCellAxon from "./axon-pk.js";
 import { getYPositionAbs } from "./utils.js";
 
-export default class PurkinjeCell extends Cell {
+export default class PurkinjeCell extends Neuron {
     constructor(globals) {
         const { id, x, y, yEnd, width, height, cellType, color, connectsTo } =
             config.purkinjeCell;

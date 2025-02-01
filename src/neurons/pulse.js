@@ -20,7 +20,7 @@ Factors Affecting Signal Transmission Along Mossy Fibers:
 */
 
 export default class Pulse {
-    constructor(x1, y1, x2, y2, color = [255, 0, 0], signalPos) {
+    constructor(neuron) {
         this.x1 = x1;
         this.x2 = x2;
         this.y1 = y1;

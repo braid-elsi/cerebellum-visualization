@@ -1,8 +1,9 @@
-import Cell from "./cell.js";
-import GranuleDentriteReceptor from "./dendrites-gc.js";
+import Neuron from "./neuron.js";
+import Receptor from "./receptor.js";
 import GranuleCellAxon from "./axon-gc.js";
+import Dendrites from "./dendrites.js";
 
-export default class GranuleCell extends Cell {
+export default class GranuleCell extends Neuron {
     constructor({
         id,
         cellType,
@@ -19,21 +20,23 @@ export default class GranuleCell extends Cell {
         super({ id, x, y, height, width, cellType, color, layer });
 
         // Additional Logic:
-        this.receptors = [];
         this.axonWidth = axonWidth;
 
         let start = (7 / 8) * Math.PI;
         let end = (1 / 8) * Math.PI;
         let interval = Math.abs(start - end) / (numReceptors - 1);
+        this.dendrites = new Dendrites({ neuron: this });
 
         for (let i = 0; i < numReceptors; i++) {
-            this.receptors.push(
-                new GranuleDentriteReceptor(
-                    this,
-                    (7 / 8) * Math.PI - i * interval,
-                    this.width * 1.3,
-                    this.height / 2
-                )
+            this.dendrites.addReceptor(
+                new Receptor({
+                    x: this.x,
+                    y: this.y,
+                    angle: (7 / 8) * Math.PI - i * interval,
+                    length: this.width * 1.3,
+                    receptorLength: this.height / 2,
+                    color: this.getColor(),
+                })
             );
         }
     }
@@ -45,9 +48,4 @@ export default class GranuleCell extends Cell {
             axonWidth: this.axonWidth,
         });
     }
-
-    // render(p5) {
-    //     super.render(p5);
-
-    // }
 }

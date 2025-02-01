@@ -13,6 +13,16 @@ export default class Cell {
         this.axon = null;
         this.receptors = [];
         this.isActive = false;
+        this.axon = null;
+        this.dendrites = null;
+    }
+
+    getAxon() {
+        return this.axon;
+    }
+
+    getDendrites() {
+        return this.dentrites;
     }
 
     getColor() {
@@ -34,8 +44,9 @@ export default class Cell {
     }
 
     render(p5) {
-        if (this.receptors) {
-            this.receptors.forEach((receptor) => receptor.render(p5));
+        if (this.dendrites) {
+            // this.receptors.forEach((receptor) => receptor.render(p5));
+            this.dendrites.render(p5);
         }
 
         if (this.axon) {

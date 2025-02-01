@@ -1,6 +1,6 @@
-import Cell from "./cell.js";
+import Neuron from "./neuron.js";
 
-export default class CerebellarNuclei extends Cell {
+export default class CerebellarNuclei extends Neuron {
     constructor({ id, x, y, cellType, width, height, color, layer }) {
         super({ id, x, y, cellType, width, height, color, layer });
 
