@@ -54,13 +54,13 @@ function setup(p5) {
 
     granuleCellList = new GranuleCellList(
         globals.layers.granuleLayer,
-        globals.layers.molecularLayer
+        globals.layers.molecularLayer,
     );
 
     const backgroundGranuleCells = createBackgroundGCs();
     const backgroundDCNs = createBackgroundDCNs();
     mossyFiberNeuronList = new MossyFiberNeuronList(
-        globals.layers.brainstemLayer
+        globals.layers.brainstemLayer,
     );
 
     inferiorOlive = new InferiorOlive(globals.layers.brainstemLayer);
@@ -111,7 +111,7 @@ function initControls(p5) {
         .querySelector("body")
         .insertAdjacentHTML(
             "beforeend",
-            `<button id="pause-play">Play</button>`
+            `<button id="pause-play">Play</button>`,
         );
     const el = document.querySelector("#pause-play");
     el.addEventListener("click", (ev) => {

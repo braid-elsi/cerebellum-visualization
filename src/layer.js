@@ -45,7 +45,7 @@ export default class Layer {
             this.height / 2,
             30,
             Math.min(this.height - 20, this.label.length * 11),
-            40
+            40,
         );
 
         // draw the label:

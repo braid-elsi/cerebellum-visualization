@@ -1,5 +1,5 @@
 /**
- * Currently not used. Need to 
+ * Currently not used. Need to
  */
 export default class Terminal {
     constructor({ x, y, angle, length, terminalLength, color }) {
@@ -21,7 +21,7 @@ export default class Terminal {
             this.x,
             this.y,
             this.terminalLength,
-            this.terminalLength / 4
+            this.terminalLength / 4,
         );
     }
 }

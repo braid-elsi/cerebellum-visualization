@@ -25,8 +25,8 @@ function drawBranch(x, y, length, angle, depth) {
     if (depth === 0) return; // Stop recursion at maximum depth
 
     // Calculate the endpoint of the branch
-    let xEnd = x + cos(angle) * length / 2;
-    let yEnd = y + sin(angle) * length / 2;
+    let xEnd = x + (cos(angle) * length) / 2;
+    let yEnd = y + (sin(angle) * length) / 2;
 
     // Draw the branch (line)
     stroke(0);
@@ -44,25 +44,7 @@ function drawBranch(x, y, length, angle, depth) {
 
     // Recursive call to draw smaller branches
     // Randomize the angles and lengths for each new branch
-    drawBranch(
-        xEnd,
-        yEnd,
-        length * 0.7,
-        -PI / 4,
-        depth - 1
-    ); // Left branch
-    drawBranch(
-        xEnd,
-        yEnd,
-        length * 0.7,
-        -PI/2,
-        depth - 1
-    );
-    drawBranch(
-        xEnd,
-        yEnd,
-        length * 0.7,
-        -PI + PI / 4,
-        depth - 1
-    ); // Right branch
+    drawBranch(xEnd, yEnd, length * 0.7, -PI / 4, depth - 1); // Left branch
+    drawBranch(xEnd, yEnd, length * 0.7, -PI / 2, depth - 1);
+    drawBranch(xEnd, yEnd, length * 0.7, -PI + PI / 4, depth - 1); // Right branch
 }

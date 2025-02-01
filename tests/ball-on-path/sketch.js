@@ -55,7 +55,7 @@ function draw() {
                     path[currentPointIndex].x,
                     path[currentPointIndex].y,
                     path[currentPointIndex + 1].x,
-                    path[currentPointIndex + 1].y
+                    path[currentPointIndex + 1].y,
                 );
             }
         }

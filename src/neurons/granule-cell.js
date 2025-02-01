@@ -34,7 +34,7 @@ export default class GranuleCell extends Neuron {
                     angle: (7 / 8) * Math.PI - i * interval,
                     length: this.width * 1.3,
                     receptorLength: this.height / 2,
-                })
+                }),
             );
         }
     }

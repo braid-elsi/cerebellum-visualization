@@ -31,7 +31,7 @@ function draw() {
             radius * 2,
             radius * 2 * (1 - animationProgress), // Flatten the height of the arch
             animatedStartAngle,
-            animatedEndAngle
+            animatedEndAngle,
         );
     }
 

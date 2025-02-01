@@ -61,7 +61,7 @@ export function isPointNearLine(px, py, line, buffer) {
 
     // Compute the distance from the point to the closest point
     const distance = Math.sqrt(
-        (closestPoint.x - px) ** 2 + (closestPoint.y - py) ** 2
+        (closestPoint.x - px) ** 2 + (closestPoint.y - py) ** 2,
     );
 
     // Check if the distance is within the buffer

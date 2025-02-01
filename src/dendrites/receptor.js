@@ -22,7 +22,7 @@ export default class Receptor {
             this.x,
             this.y,
             this.receptorLength,
-            this.receptorLength / 4
+            this.receptorLength / 4,
         );
     }
 }

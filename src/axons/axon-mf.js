@@ -27,7 +27,7 @@ export default class MossyFiberAxon extends Axon {
 
     generateGranuleSynapses() {
         const granuleCells = this.targetCells.filter(
-            (cell) => cell.cellType === "gc"
+            (cell) => cell.cellType === "gc",
         );
         for (const cell of granuleCells) {
             const receptors = cell.dendrites.receptors;
@@ -72,7 +72,7 @@ export default class MossyFiberAxon extends Axon {
 
     generateDCNSynapses() {
         const dcnCells = this.targetCells.filter(
-            (cell) => cell.cellType === "dcn"
+            (cell) => cell.cellType === "dcn",
         );
         for (const cell of dcnCells) {
             const polyline = [];
