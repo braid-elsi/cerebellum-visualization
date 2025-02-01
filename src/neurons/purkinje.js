@@ -1,6 +1,6 @@
-import config from "./config.js";
+import config from "../config.js";
 import Neuron from "./neuron.js";
-import PurkinjeCellAxon from "./axon-pk.js";
+import PurkinjeCellAxon from "../axons/axon-pk.js";
 import { getYPositionAbs } from "./utils.js";
 
 export default class PurkinjeCell extends Neuron {

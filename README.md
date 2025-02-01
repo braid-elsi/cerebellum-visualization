@@ -27,3 +27,10 @@ Source: [https://www.researchgate.net/figure/Simplified-scheme-of-cerebellar-neu
 
 ### Inferior Olive
 The "inferior olive" refers to a specific brain structure called the "inferior olivary nucleus," which is located in the medulla oblongata, not directly within the cerebellum, and there are two inferior olives, one on each side of the brainstem; it's not a type of cell, but rather a collection of neurons forming a distinct nucleus crucial for motor coordination and learning by sending signals to the cerebellum via climbing fibers. 
+
+
+## Notes on the code
+* To build documentation, I've been experimenting with jsdoc, using the `jsdoc.json` config file. To build documentation:
+  ```
+  npx jsdoc ./src/neurons/neuron.js -c jsdoc.json
+  ```

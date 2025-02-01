@@ -1,5 +1,5 @@
-import { isPointNearLine } from "./utils.js";
-import Receptor from "./receptor.js";
+import { isPointNearLine } from "../neurons/utils.js";
+import Receptor from "../dendrites/receptor.js";
 
 export default class Axon {
     constructor({ source, targetCells, axonWidth = 3 }) {
@@ -13,6 +13,7 @@ export default class Axon {
 
     render(p5) {
         const color = this.source.getColor();
+        console.log(color);
         p5.strokeWeight(this.axonWidth);
         p5.stroke(...color);
 
@@ -24,11 +25,13 @@ export default class Axon {
             });
         });
 
+        // TODO: replace with Terminal objects (see Dendrites)
         // draw receptors:
         p5.strokeWeight(this.receptorWeight);
         this.receptors.forEach((receptor) => {
             p5.ellipse(receptor.x, receptor.y, receptor.width, receptor.height);
         });
+        // End TODO
     }
 
     intersects(x, y) {

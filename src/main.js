@@ -1,17 +1,19 @@
 import p5Lib from "p5";
-import MossyFiberNeuronList from "./neurons/list-neuron-mf.js";
-import GranuleCellList from "./neurons/list-neuron-gc.js";
-import GranuleCell from "./neurons/neuron-gc.js";
-import LayerList from "./neurons/list-layer.js";
-import PurkinjeCell from "./neurons/neuron-pk.js";
-import InferiorOlive from "./neurons/neuron-inferior-olive.js";
-import CerebellarNuclei from "./neurons/neuron-dcn.js";
+import MossyFiberNeuronList from "./list-neuron-mf.js";
+import GranuleCellList from "./list-neuron-gc.js";
+import GranuleCell from "./neurons/granule-cell.js";
+import LayerList from "./list-layer.js";
+import PurkinjeCell from "./neurons/purkinje.js";
+import InferiorOlive from "./neurons/inferior-olive.js";
+import CerebellarNuclei from "./neurons/cerebellar-nuclei.js";
 import { getRandomInt, drawLabel } from "./neurons/utils.js";
-import config from "./neurons/config.js";
-
+import Pulse from "./pulses/pulse.js";
+import config from "./config.js";
 // Create a new p5 instance
 (function initializeApp() {
     new p5Lib(function (p5) {
+        p5.frameRate(40);
+        p5.noLoop();
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5);
         p5.mouseClicked = () => mouseClicked(p5);
@@ -19,9 +21,9 @@ import config from "./neurons/config.js";
         // this is a lame hack to handle the delay in the Google fonts loading.
         // when the app initializes, it redraws for 10ms and then stops so that when
         // Monteserrat loads, it appears on the screen. The timeout time is arbirary.
-        setTimeout(function () {
-            p5.noLoop();
-        }, 500);
+        // setTimeout(function () {
+        //     p5.noLoop();
+        // }, 500);
     });
 })();
 
@@ -37,11 +39,10 @@ let screenH;
 const globals = {
     cellLookup: {},
     layers: {},
+    pulses: [],
 };
 
 function setup(p5) {
-    // p5.frameRate(5);
-
     // screen initialization:
     screenW = document.documentElement.clientWidth;
     screenH = Math.max(document.documentElement.clientHeight * 1.5, 1000);
@@ -95,6 +96,14 @@ function setup(p5) {
             cell.createConnections(globals);
         }
     });
+
+    // for (const cell of mossyFiberNeuronList.getCells()) {
+    for (const cell of allCells) {
+        const pulse = new Pulse({ neuron: cell });
+        globals.pulses.push(pulse);
+    }
+    // const gc1 = granuleCellList.getCells()[0];
+    // console.log(gc1);
 }
 
 function initControls(p5) {
@@ -105,7 +114,7 @@ function initControls(p5) {
             `<button id="pause-play">Play</button>`
         );
     const el = document.querySelector("#pause-play");
-    el.addEventListener("click", () => {
+    el.addEventListener("click", (ev) => {
         if (el.innerHTML === "Pause") {
             el.innerHTML = "Play";
             p5.noLoop();
@@ -113,36 +122,24 @@ function initControls(p5) {
             el.innerHTML = "Pause";
             p5.loop();
         }
+        ev.stopPropagation(); // don't interact with underlying canvas
     });
 }
 
 function draw(p5) {
     p5.clear();
-    // p5.background(240);
-
-    // the animation:
-    // for (const neuron of mfNeurons) {
-    //     if (neuron.signalPos > 1) {
-    //         neuron.signalPos = 0;
-    //     }
-    //     p5.stroke(254, 82, 0);
-    //     p5.fill(254, 82, 0);
-    //     let x = p5.lerp(neuron.x1, neuron.x2, neuron.signalPos);
-    //     let y = p5.lerp(neuron.y1, neuron.y2, neuron.signalPos);
-    //     p5.ellipse(x, y, 12, 12);
-    //     neuron.signalPos += 0.015;
-    // }
 
     drawCircuit(p5);
 }
 
 function mouseClicked(p5) {
     // select(p5, "clicked");
-    alert("clicked!");
+    // alert("clicked!");
+    select(p5);
 }
 
 function mouseMoved(p5) {
-    select(p5);
+    // select(p5);
 }
 
 function select(p5) {
@@ -175,6 +172,11 @@ function drawCircuit(p5) {
 
     // draw labels:
     drawLabels(p5);
+
+    // draw pulses:
+    for (const pulse of globals.pulses) {
+        pulse.render(p5);
+    }
 }
 
 function drawLayers(p5) {

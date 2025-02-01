@@ -1,5 +1,5 @@
 import Neuron from "./neuron.js";
-import config from "./config.js";
+import config from "../config.js";
 
 export default class InferiorOlive extends Neuron {
     constructor(brainstemLayer) {

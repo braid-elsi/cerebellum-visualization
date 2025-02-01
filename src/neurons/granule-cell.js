@@ -1,7 +1,7 @@
 import Neuron from "./neuron.js";
-import Receptor from "./receptor.js";
-import GranuleCellAxon from "./axon-gc.js";
-import Dendrites from "./dendrites.js";
+import Receptor from "../dendrites/receptor.js";
+import GranuleCellAxon from "../axons/axon-gc.js";
+import Dendrites from "../dendrites/dendrites.js";
 
 export default class GranuleCell extends Neuron {
     constructor({
@@ -30,12 +30,10 @@ export default class GranuleCell extends Neuron {
         for (let i = 0; i < numReceptors; i++) {
             this.dendrites.addReceptor(
                 new Receptor({
-                    x: this.x,
-                    y: this.y,
+                    neuron: this,
                     angle: (7 / 8) * Math.PI - i * interval,
                     length: this.width * 1.3,
                     receptorLength: this.height / 2,
-                    color: this.getColor(),
                 })
             );
         }

@@ -1,12 +1,15 @@
-export default class Receptor {
-    constructor({ x, y, angle, length, receptorLength, color }) {
+/**
+ * Currently not used. Need to 
+ */
+export default class Terminal {
+    constructor({ x, y, angle, length, terminalLength, color }) {
         this.xStart = x;
         this.yStart = y;
         this.x = x + length * Math.cos(angle);
         this.y = y + length * Math.sin(angle);
         this.angle = angle;
         this.length = length;
-        this.receptorLength = receptorLength;
+        this.terminalLength = terminalLength;
         this.color = color;
     }
 
@@ -17,8 +20,8 @@ export default class Receptor {
         p5.ellipse(
             this.x,
             this.y,
-            this.receptorLength,
-            this.receptorLength / 4
+            this.terminalLength,
+            this.terminalLength / 4
         );
     }
 }

@@ -1,4 +1,4 @@
-import { getRandomInt } from "./utils.js";
+import { getRandomInt } from "../neurons/utils.js";
 import Axon from "./axon.js";
 
 // The Granule Cell Axon is the same thing as the parallel fiber:
