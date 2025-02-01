@@ -1,7 +1,6 @@
 {
   "name": "p5-visualizations",
   "version": "1.0.0",
-  "main": "main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,7 +14,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "p5": "^1.11.2"
+    "antd": "^5.23.3",
+    "p5": "^1.11.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^9.0.3"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",

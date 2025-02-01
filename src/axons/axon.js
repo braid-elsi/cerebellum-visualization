@@ -13,7 +13,6 @@ export default class Axon {
 
     render(p5) {
         const color = this.source.getColor();
-        console.log(color);
         p5.strokeWeight(this.axonWidth);
         p5.stroke(...color);
 

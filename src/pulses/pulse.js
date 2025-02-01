@@ -21,7 +21,7 @@ Factors Affecting Signal Transmission Along Mossy Fibers:
 
 export default class Pulse {
     constructor({ neuron }) {
-        console.log(neuron);
+        this.neuron = neuron;
         this.polylines = neuron.axon ? neuron.axon.polylines : [];
         this.signalPos = 0;
         this.i = 0;
@@ -61,32 +61,40 @@ export default class Pulse {
             this.i = 0;
             this.j = 0;
         }
-        // return this.polylines[this.i][this.j];
     }
 
-    render(p) {
+    render(p5, advance = true) {
         if (!this.isValidAxon()) {
-            console.log("invalid axon");
+            // Inferior Olive and Cerebellar Nuclei are problematic right now.
+            // TODO!
+            // console.log("invalid axon:", this.neuron);
             return;
         }
+        if (advance) {
+            this.move();
+        }
+        this.draw(p5);
+    }
+
+    move() {
         // console.log(this.polylines, this.i, this.j, this.signalPos);
         if (this.signalPos > 1) {
-            console.log("get next line...");
+            console.log("getting next line...");
             this.getNextLine();
             this.signalPos = 0;
         }
-        const line = this.polylines[this.i][this.j];
-
-        const { start, end } = line;
-
         if (this.signalPos > 1) {
             this.signalPos = 0;
         }
-        // p.stroke(...this.color);
-        p.fill(...this.color);
-        let x = p.lerp(start.x, end.x, this.signalPos);
-        let y = p.lerp(start.y, end.y, this.signalPos);
-        p.ellipse(x, y, 15, 15);
         this.signalPos += 0.01;
+    }
+
+    draw(p5) {
+        const line = this.polylines[this.i][this.j];
+        const { start, end } = line;
+        p5.fill(...this.color);
+        let x = p5.lerp(start.x, end.x, this.signalPos);
+        let y = p5.lerp(start.y, end.y, this.signalPos);
+        p5.ellipse(x, y, 15, 15);
     }
 }

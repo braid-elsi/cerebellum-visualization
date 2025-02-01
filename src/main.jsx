@@ -1,3 +1,9 @@
+// react stuff:
+import React from "react";
+import ReactDOM from "react-dom/client";
+import InfoSlider from "./components/InfoSlider.jsx";
+
+// p5 neuron stuff:
 import p5Lib from "p5";
 import MossyFiberNeuronList from "./list-neuron-mf.js";
 import GranuleCellList from "./list-neuron-gc.js";
@@ -9,6 +15,7 @@ import CerebellarNuclei from "./neurons/cerebellar-nuclei.js";
 import { getRandomInt, drawLabel } from "./neurons/utils.js";
 import Pulse from "./pulses/pulse.js";
 import config from "./config.js";
+
 // Create a new p5 instance
 (function initializeApp() {
     new p5Lib(function (p5) {
@@ -17,7 +24,7 @@ import config from "./config.js";
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5);
         p5.mouseClicked = () => mouseClicked(p5);
-        p5.mouseMoved = () => mouseMoved(p5);
+        // p5.mouseMoved = () => mouseMoved(p5);
         // this is a lame hack to handle the delay in the Google fonts loading.
         // when the app initializes, it redraws for 10ms and then stops so that when
         // Monteserrat loads, it appears on the screen. The timeout time is arbirary.
@@ -26,6 +33,10 @@ import config from "./config.js";
         // }, 500);
     });
 })();
+
+// react global variables:
+let reactRoot = null;
+let showComponent = false;
 
 // global variables:
 const mfNeurons = [];
@@ -132,32 +143,7 @@ function draw(p5) {
     drawCircuit(p5);
 }
 
-function mouseClicked(p5) {
-    // select(p5, "clicked");
-    // alert("clicked!");
-    select(p5);
-}
-
-function mouseMoved(p5) {
-    // select(p5);
-}
-
-function select(p5) {
-    const cells = Object.values(globals.cellLookup);
-    cells.forEach((cell) => {
-        if ("intersects" in cell) {
-            if (cell.intersects(p5.mouseX, p5.mouseY)) {
-                cell.isActive = true;
-            } else {
-                cell.isActive = false;
-            }
-        }
-    });
-    p5.clear();
-    drawCircuit(p5);
-}
-
-function drawCircuit(p5) {
+function drawCircuit(p5, advance = true) {
     // draw layers:
     drawLayers(p5);
 
@@ -175,7 +161,7 @@ function drawCircuit(p5) {
 
     // draw pulses:
     for (const pulse of globals.pulses) {
-        pulse.render(p5);
+        pulse.render(p5, advance);
     }
 }
 
@@ -294,4 +280,54 @@ function createBackgroundGCs() {
     });
 
     return cells;
+}
+
+// function mouseMoved(p5) {
+//     select(p5);
+// }
+
+function mouseClicked(p5) {
+    select(p5, false);
+}
+
+function select(p5) {
+    const cells = Object.values(globals.cellLookup);
+    let selectedCell = null;
+    for (const cell of cells) {
+        if ("intersects" in cell) {
+            if (cell.intersects(p5.mouseX, p5.mouseY)) {
+                cell.isActive = true;
+                selectedCell = cell;
+            } else {
+                cell.isActive = false;
+            }
+        }
+    }
+    p5.clear();
+    drawCircuit(p5, false);
+    if (selectedCell && !globals.isDrawerOpen) {
+        showInfo({ neuron: selectedCell });
+    }
+}
+
+// React stuff:
+function showInfo({ neuron }) {
+    if (!reactRoot) {
+        reactRoot = ReactDOM.createRoot(
+            document.body.appendChild(document.createElement("div")),
+        );
+    }
+
+    // Hack to get the Drawer to open each time:
+    // 1. Set the slider to hidden:
+    reactRoot.render(<InfoSlider neuron={neuron} isOpen={false} />);
+    globals.isDrawerOpen = false;
+
+    // 2. Trigger the Drawer to open after a 10ms delay
+    setTimeout(() => {
+        globals.isDrawerOpen = true;
+        reactRoot.render(
+            <InfoSlider neuron={neuron} isOpen={true} globals={globals} />,
+        );
+    }, 10);
 }

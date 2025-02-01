@@ -12,11 +12,9 @@ export default class Receptor {
 
     render(p5) {
         const color = this.neuron.getColor();
-        console.log("receptor color:", color);
         p5.strokeWeight(3);
         p5.stroke(...color);
         p5.fill(...color);
-        console.log(this.xStart, this.yStart, this.x, this.y);
         p5.line(this.xStart, this.yStart, this.x, this.y);
         p5.ellipse(
             this.x,
