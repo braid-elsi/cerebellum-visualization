@@ -36,20 +36,45 @@ const CustomDrawer = styled(Drawer)`
     .ant-drawer-body li {
         margin-bottom: 15px;
     }
+
+    blockquote {
+        background: #f0f0f0;
+        padding: 10px 30px;
+        margin: auto 0;
+    }
 `;
 
-const DOCUMENTS = {
-    pk: "Purkinje.md",
-    gc: "Granule.md",
-    dcn: "CerebellarNuclei.md",
-    olive: "InferiorOlive.md",
-    mf: "MossyFibers.md",
+const REFERENCES = {
+    pk: {
+        docs: "Purkinje.md",
+        title: "Purkinje Cell",
+    },
+    gc: {
+        docs: "Granule.md",
+        title: "Granule Cell",
+    },
+    dcn: {
+        docs: "CerebellarNuclei.md",
+        title: "Deep Cerebellar Nuclei Cell",
+    },
+    olive: {
+        docs: "InferiorOlive.md",
+        title: "Inferior Olive",
+    },
+    mf: {
+        docs: "MossyFibers.md",
+        title: "MossyFibers",
+    },
 };
 
 export default function InfoSlider({ neuron, isOpen, globals }) {
     const [open, setOpen] = useState(isOpen);
     const [content, setContent] = useState("# Hello world 123!");
     const size = "large"; // can be "default" or "large"
+    const disclaimer = `
+> ## Note: Work in Progress
+>These are notes that need to be reworked (and verified) as as to be useful to others.
+    `;
 
     useEffect(() => {
         console.log("setting open:", isOpen);
@@ -67,21 +92,24 @@ export default function InfoSlider({ neuron, isOpen, globals }) {
     };
 
     async function getInfo() {
-        const url = DOCUMENTS[neuron.cellType];
-        if (url) {
+        const entry = REFERENCES[neuron.cellType];
+        if (entry) {
+            const url = entry.docs;
             const response = await fetch(`./markdown-files/${url}`);
             const text = await response.text();
             setContent(text);
         } else {
-            setContent("# Some other Neuron");
+            setContent("# Documentation Not Found");
         }
     }
 
     function getTitle() {
-        if (neuron.cellType === "pk") {
-            return "Purkinje Cell";
+        const entry = REFERENCES[neuron.cellType];
+        if (entry) {
+            return entry.title;
+        } else {
+            return "Cell not found";
         }
-        return "IDK!";
     }
 
     return (
@@ -93,7 +121,7 @@ export default function InfoSlider({ neuron, isOpen, globals }) {
                 onClose={onClose}
                 open={open}
             >
-                <ReactMarkdown>{content}</ReactMarkdown>
+                <ReactMarkdown>{disclaimer + "\n" + content}</ReactMarkdown>
             </CustomDrawer>
         </>
     );
