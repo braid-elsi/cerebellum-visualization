@@ -95,7 +95,7 @@ export default function InfoSlider({ neuron, isOpen, globals }) {
         const entry = REFERENCES[neuron.cellType];
         if (entry) {
             const url = entry.docs;
-            const response = await fetch(`./markdown-files/${url}`);
+            const response = await fetch(`./documentation/${url}`);
             const text = await response.text();
             setContent(text);
         } else {

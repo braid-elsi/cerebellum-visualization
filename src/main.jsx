@@ -52,9 +52,12 @@ const globals = {
     cellLookup: {},
     layers: {},
     pulses: [],
+    fonts: {},
 };
+window.globals = globals;
 
 function setup(p5) {
+    console.log("setup starting...");
     // screen initialization:
     screenW = document.documentElement.clientWidth;
     screenH = Math.max(document.documentElement.clientHeight * 1.5, 1000);
@@ -62,7 +65,11 @@ function setup(p5) {
     initControls(p5);
 
     // initialize neurons and layers:
-    globals.layers = new LayerList(screenW, screenH);
+    globals.layers = new LayerList({
+        screenW,
+        screenH,
+        fontFamily: globals.fonts.montserratMedium,
+    });
 
     granuleCellList = new GranuleCellList(
         globals.layers.granuleLayer,
@@ -145,7 +152,11 @@ function draw(p5) {
 }
 
 function preload(p5) {
-    const montserrat = p5.loadFont('/css/fonts/Montserrat-VariableFont_wght.ttf');
+    const prefix = "/css/fonts/Montserrat";
+    globals.fonts.montserrat = p5.loadFont(`${prefix}-Regular.ttf`);
+    globals.fonts.montserratMedium = p5.loadFont(`${prefix}-Medium.ttf`);
+    globals.fonts.montserratSemiBold = p5.loadFont(`${prefix}-SemiBold.ttf`);
+    console.log("preload complete");
 }
 
 function drawCircuit(p5, advance = true) {
@@ -165,8 +176,10 @@ function drawCircuit(p5, advance = true) {
     drawLabels(p5);
 
     // draw pulses:
-    for (const pulse of globals.pulses) {
-        pulse.render(p5, advance);
+    if (p5.isLooping()) {
+        for (const pulse of globals.pulses) {
+            pulse.render(p5, advance);
+        }
     }
 }
 
@@ -221,7 +234,7 @@ function drawLabels(p5) {
     ];
     specs.forEach((spec) => {
         const { label, layer } = spec;
-        drawLabel(p5, label, layer);
+        drawLabel(p5, label, layer, globals.fonts.montserratMedium);
     });
     globals.layers.renderLabels(p5);
 }

@@ -8,13 +8,21 @@ export default class LayerList {
     whiteMatterLayer = null;
     brainstemLayer = null;
 
-    constructor(screenW, screenH) {
+    constructor({ screenW, screenH, fontFamily }) {
+        console.log(screenW, screenH, fontFamily);
         let y = screenH;
         let w = screenW;
         for (const key in config.layers) {
             const { heightFraction, label, color } = config.layers[key];
             const h = heightFraction * screenH;
-            this[key] = new Layer(y, w, h, label, color);
+            this[key] = new Layer({
+                y,
+                width: w,
+                height: h,
+                label,
+                fontFamily,
+                color,
+            });
             y -= h;
         }
     }

@@ -1,10 +1,18 @@
 export default class Layer {
-    constructor(y, width, height, label, color = [200, 200, 200]) {
+    constructor({
+        y,
+        width,
+        height,
+        label,
+        fontFamily,
+        color = [200, 200, 200],
+    }) {
         this.x = 0;
         this.height = height;
         this.y = Math.round(y - height);
         this.width = Math.round(width);
         this.label = label;
+        this.fontFamily = fontFamily;
         this.color = color;
         this.bounds = {
             left: this.x,
@@ -54,7 +62,7 @@ export default class Layer {
         p5.textAlign(p5.CENTER, p5.CENTER);
         p5.textSize(14);
         p5.textStyle(p5.NORMAL);
-        p5.textFont("Montserrat");
+        p5.textFont(this.fontFamily);
         p5.rectMode(p5.CORNER);
         p5.text(this.label, 10, 30, this.height - 10 * 2);
 

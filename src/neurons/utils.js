@@ -13,7 +13,7 @@ export function getYPositionAbs(yRel, layer) {
     return bounds.top + yRel * (bounds.bottom - bounds.top);
 }
 
-export function drawLabel(p5, label, layer) {
+export function drawLabel(p5, label, layer, fontFamily) {
     if (!label) {
         return;
     }
@@ -22,7 +22,7 @@ export function drawLabel(p5, label, layer) {
     p5.textAlign(p5.CENTER, p5.CENTER);
     p5.textSize(14);
     // p5.textStyle(p5.BOLD);
-    p5.textFont("Montserrat");
+    p5.textFont(fontFamily);
     p5.rectMode(p5.CENTER);
 
     let y = getYPositionAbs(label.y, layer);
