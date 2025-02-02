@@ -152,7 +152,7 @@ function draw(p5) {
 }
 
 function preload(p5) {
-    const prefix = "/css/fonts/Montserrat";
+    const prefix = "./css/fonts/Montserrat";
     globals.fonts.montserrat = p5.loadFont(`${prefix}-Regular.ttf`);
     globals.fonts.montserratMedium = p5.loadFont(`${prefix}-Medium.ttf`);
     globals.fonts.montserratSemiBold = p5.loadFont(`${prefix}-SemiBold.ttf`);
