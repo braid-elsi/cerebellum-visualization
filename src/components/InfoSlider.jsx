@@ -41,7 +41,7 @@ const CustomDrawer = styled(Drawer)`
 const DOCUMENTS = {
     pk: "Purkinje.md",
     gc: "Granule.md",
-    dcn: "DCN.md",
+    dcn: "CerebellarNuclei.md",
     olive: "InferiorOlive.md",
     mf: "MossyFibers.md",
 };

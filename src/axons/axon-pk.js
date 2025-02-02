@@ -20,7 +20,7 @@ export default class PurkinjeCellAxon extends Axon {
                 },
             ]);
 
-            this.receptors.push({
+            this.terminals.push({
                 x: target.x,
                 y: y2,
                 width: this.axonWidth * 3,

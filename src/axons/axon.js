@@ -8,8 +8,17 @@ export default class Axon {
         this.axonWidth = axonWidth;
         this.receptorWeight = 3;
         this.polylines = [];
-        this.receptors = [];
+        this.terminals = [];
     }
+    addTerminal(terminal) {
+        this.terminals.push(terminal);
+    }
+
+    // render(p5) {
+    //     for (const terminal of this.terminals) {
+    //         terminal.render(p5);
+    //     }
+    // }
 
     render(p5) {
         const color = this.source.getColor();
@@ -27,7 +36,7 @@ export default class Axon {
         // TODO: replace with Terminal objects (see Dendrites)
         // draw receptors:
         p5.strokeWeight(this.receptorWeight);
-        this.receptors.forEach((receptor) => {
+        this.terminals.forEach((receptor) => {
             p5.ellipse(receptor.x, receptor.y, receptor.width, receptor.height);
         });
         // End TODO

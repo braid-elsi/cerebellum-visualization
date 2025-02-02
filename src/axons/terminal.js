@@ -2,20 +2,20 @@
  * Currently not used. Need to
  */
 export default class Terminal {
-    constructor({ x, y, angle, length, terminalLength, color }) {
-        this.xStart = x;
-        this.yStart = y;
-        this.x = x + length * Math.cos(angle);
-        this.y = y + length * Math.sin(angle);
+    constructor({ neuron, angle, length, terminalLength }) {
+        this.xStart = neuron.x;
+        this.yStart = neuron.y;
+        this.x = neuron.x + length * Math.cos(angle);
+        this.y = neuron.y + length * Math.sin(angle);
         this.angle = angle;
         this.length = length;
         this.terminalLength = terminalLength;
-        this.color = color;
     }
 
     render(p5) {
-        p5.stroke(...this.color);
-        p5.fill(...this.color);
+        const color = this.neuron.getColor();
+        p5.stroke(...color);
+        p5.fill(...color);
         p5.line(this.xStart, this.yStart, this.x, this.y);
         p5.ellipse(
             this.x,

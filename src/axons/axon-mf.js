@@ -60,7 +60,7 @@ export default class MossyFiberAxon extends Axon {
                 });
                 this.polylines.push(polyline);
 
-                this.receptors.push({
+                this.terminals.push({
                     x: receptor.x,
                     y: receptor.y + receptor.receptorLength / 2,
                     width: receptor.length / 2.3,
@@ -92,7 +92,7 @@ export default class MossyFiberAxon extends Axon {
 
             this.polylines.push(polyline);
 
-            this.receptors.push({
+            this.terminals.push({
                 x: xEnd,
                 y: cell.y,
                 width: this.axonWidth * 2,

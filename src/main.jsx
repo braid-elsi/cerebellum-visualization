@@ -23,6 +23,7 @@ import config from "./config.js";
         p5.noLoop();
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5);
+        p5.preload = () => preload(p5);
         p5.mouseClicked = () => mouseClicked(p5);
         // p5.mouseMoved = () => mouseMoved(p5);
         // this is a lame hack to handle the delay in the Google fonts loading.
@@ -143,6 +144,10 @@ function draw(p5) {
     drawCircuit(p5);
 }
 
+function preload(p5) {
+    const montserrat = p5.loadFont('/css/fonts/Montserrat-VariableFont_wght.ttf');
+}
+
 function drawCircuit(p5, advance = true) {
     // draw layers:
     drawLayers(p5);
@@ -160,9 +165,9 @@ function drawCircuit(p5, advance = true) {
     drawLabels(p5);
 
     // draw pulses:
-    // for (const pulse of globals.pulses) {
-    //     pulse.render(p5, advance);
-    // }
+    for (const pulse of globals.pulses) {
+        pulse.render(p5, advance);
+    }
 }
 
 function drawLayers(p5) {
