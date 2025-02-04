@@ -1,9 +1,9 @@
 class Spike {
-    constructor({ w, x, y, branch, progress, speed = 3, color = [255, 0, 0] }) {
+    constructor({ w, branch, progress, speed = 3, color = [255, 0, 0] }) {
         this.w = w;
-        this.x = x;
-        this.y = y;
         this.branch = branch;
+        this.x = branch.line.start.x;
+        this.y = branch.line.start.y;
         this.progress = progress;
         this.speed = speed;
         this.color = color;

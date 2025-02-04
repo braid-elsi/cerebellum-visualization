@@ -18,8 +18,6 @@ function setup() {
             spikes.push(
                 new Spike({
                     w: 16,
-                    x: branch.line.start.x,
-                    y: branch.line.start.y,
                     branch: branch,
                     progress: 0,
                 }),
@@ -58,46 +56,34 @@ function draw() {
             continue;
         }
 
+        // move spike:
         c.move();
         c.render();
 
+        // create new spikes to follow the child branches:
         if (c.progress >= branch.length) {
             if (branch.branches) {
-                for (let child of branch.branches) {
-                    const { start } = child.line;
+                for (let b of branch.branches) {
                     spikes.push(
-                        new Spike({
-                            w: c.w * 0.9,
-                            x: start.x,
-                            y: start.y,
-                            branch: child,
-                            progress: 0,
-                        }),
+                        new Spike({ w: c.w * 0.9, branch: b, progress: 0 }),
                     );
                 }
             } else {
                 branch.terminal.render([255, 0, 0]);
                 console.log("you have reached the terminal button");
             }
+            // remove expired spike:
             spikes.splice(i, 1);
         }
     }
     ++counter;
 
-    // add new spikes
+    // add new spikes every so often:
     if (counter % 10 === 0) {
         const selectedTrees = getRandomItems(trees, 1);
         for (const tree of selectedTrees) {
-            for (const branch of tree.branches) {
-                spikes.push(
-                    new Spike({
-                        w: 16,
-                        x: branch.x,
-                        y: branch.y,
-                        branch: branch,
-                        progress: 0,
-                    }),
-                );
+            for (const b of tree.branches) {
+                spikes.push(new Spike({ w: 16, branch: b, progress: 0 }));
             }
         }
     }
