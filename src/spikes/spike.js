@@ -19,7 +19,7 @@ Factors Affecting Signal Transmission Along Mossy Fibers:
 
 */
 
-export default class Pulse {
+export default class Spike {
     constructor({ neuron }) {
         this.neuron = neuron;
         this.polylines = neuron.axon ? neuron.axon.polylines : [];

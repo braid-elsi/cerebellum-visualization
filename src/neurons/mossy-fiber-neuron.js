@@ -1,5 +1,5 @@
 import Neuron from "./neuron.js";
-import MossyFiberAxon from "../axons/axon-mf.js";
+import MossyFiberAxon from "../axons/axon-mossy-fibers.js";
 
 export default class MossyFiberNeuron extends Neuron {
     /**

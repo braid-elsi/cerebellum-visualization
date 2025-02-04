@@ -1,6 +1,6 @@
 import Neuron from "./neuron.js";
 import Receptor from "../dendrites/receptor.js";
-import GranuleCellAxon from "../axons/axon-gc.js";
+import GranuleCellAxon from "../axons/axon-granule-cell.js";
 import Dendrites from "../dendrites/dendrites.js";
 
 export default class GranuleCell extends Neuron {

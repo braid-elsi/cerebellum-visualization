@@ -13,7 +13,7 @@ import PurkinjeCell from "./neurons/purkinje.js";
 import InferiorOlive from "./neurons/inferior-olive.js";
 import CerebellarNuclei from "./neurons/cerebellar-nuclei.js";
 import { getRandomInt, drawLabel } from "./neurons/utils.js";
-import Pulse from "./pulses/pulse.js";
+import Spike from "./spikes/spike.js";
 import config from "./config.js";
 
 // Create a new p5 instance
@@ -51,7 +51,7 @@ let screenH;
 const globals = {
     cellLookup: {},
     layers: {},
-    pulses: [],
+    spikes: [],
     fonts: {},
 };
 window.globals = globals;
@@ -118,8 +118,8 @@ function setup(p5) {
 
     // for (const cell of mossyFiberNeuronList.getCells()) {
     for (const cell of allCells) {
-        const pulse = new Pulse({ neuron: cell });
-        globals.pulses.push(pulse);
+        const spike = new Spike({ neuron: cell });
+        globals.spikes.push(spike);
     }
     // const gc1 = granuleCellList.getCells()[0];
     // console.log(gc1);
@@ -175,10 +175,10 @@ function drawCircuit(p5, advance = true) {
     // draw labels:
     drawLabels(p5);
 
-    // draw pulses:
+    // draw spikes:
     if (p5.isLooping()) {
-        for (const pulse of globals.pulses) {
-            pulse.render(p5, advance);
+        for (const spike of globals.spikes) {
+            spike.render(p5, advance);
         }
     }
 }
