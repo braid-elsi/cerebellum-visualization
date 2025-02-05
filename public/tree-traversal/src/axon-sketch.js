@@ -1,29 +1,46 @@
 // Example Usage
 const trees = [];
 let spikes = [];
-let terminals = [];
 let screenW = document.documentElement.clientWidth - 30;
 let screenH = document.documentElement.clientHeight - 20;
 
 function setup() {
+    frameRate(60); // 60 FPS is the max on many machines
     createCanvas(screenW, screenH);
     background(255);
-    stroke(0);
-    let startX = 100;
-    for (let i = 0; i < 6; i++) {
+
+    // init trees
+    let startX = screenW / 2;
+    for (let i = 0; i < 1; i++) {
         const tree = new Tree(getRandomInt(4, 12), 2, startX, height);
         trees.push(tree);
-        drawBranches(tree);
-        for (const branch of tree.branches) {
-            spikes.push(
-                new Spike({
-                    w: 16,
-                    branch: branch,
-                    progress: 0,
-                }),
-            );
-        }
         startX += 200;
+    }
+    // init spikes:
+    for (const tree of trees) {
+        initSpikes(tree);
+    }
+}
+
+function initSpikes(tree) {
+    for (const branch of tree.branches) {
+        spikes.push(
+            new Spike({
+                w: 16,
+                branch: branch,
+                progress: 0,
+            }),
+        );
+    }
+}
+
+function addRandomSpikes() {
+    // pick a few of the trees:
+    const selectedTrees = getRandomItems(trees, 1);
+    for (const tree of selectedTrees) {
+        for (const b of tree.branches) {
+            spikes.push(new Spike({ w: 16, branch: b, progress: 0 }));
+        }
     }
 }
 
@@ -40,32 +57,26 @@ function drawBranches(branch) {
     }
 }
 
-let counter = 0;
-function draw() {
-    background(255);
-    for (const tree of trees) {
-        drawBranches(tree);
-    }
-
+function drawSpikes() {
     strokeWeight(0);
     for (let i = spikes.length - 1; i >= 0; i--) {
-        let c = spikes[i];
-        let branch = c.branch;
+        let spike = spikes[i];
+        let branch = spike.branch;
         if (!branch) {
             spikes.splice(i, 1);
             continue;
         }
 
         // move spike:
-        c.move();
-        c.render();
+        spike.move();
+        spike.render();
 
         // create new spikes to follow the child branches:
-        if (c.progress >= branch.length) {
+        if (spike.progress >= branch.length) {
             if (branch.branches) {
                 for (let b of branch.branches) {
                     spikes.push(
-                        new Spike({ w: c.w * 0.9, branch: b, progress: 0 }),
+                        new Spike({ w: spike.w * 0.9, branch: b, progress: 0 }),
                     );
                 }
             } else {
@@ -77,14 +88,20 @@ function draw() {
         }
     }
     ++counter;
+}
 
-    // add new spikes every so often:
-    if (counter % 10 === 0) {
-        const selectedTrees = getRandomItems(trees, 1);
-        for (const tree of selectedTrees) {
-            for (const b of tree.branches) {
-                spikes.push(new Spike({ w: 16, branch: b, progress: 0 }));
-            }
-        }
+let counter = 0;
+function draw() {
+    background(255);
+    for (const tree of trees) {
+        drawBranches(tree);
+    }
+
+    // draw spikes
+    drawSpikes();
+
+    // introduce new spikes to the system every so often:
+    if (counter % 500 === 0) {
+        addRandomSpikes();
     }
 }

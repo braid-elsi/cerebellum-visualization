@@ -1,27 +1,3 @@
-class Spike {
-    constructor({ w, branch, progress, speed = 3, color = [255, 0, 0] }) {
-        this.w = w;
-        this.branch = branch;
-        this.x = branch.line.start.x;
-        this.y = branch.line.start.y;
-        this.progress = progress;
-        this.speed = speed;
-        this.color = color;
-    }
-
-    move() {
-        this.progress += this.speed;
-        let progressRatio = this.progress / this.branch.length;
-        const { start, end } = this.branch.line;
-        this.x = start.x + progressRatio * (end.x - start.x);
-        this.y = start.y + progressRatio * (end.y - start.y);
-    }
-    render() {
-        fill(...this.color);
-        ellipse(this.x, this.y, this.w, this.w);
-    }
-}
-
 class Terminal {
     constructor({ x, y, w, angle, color = [0, 0, 0] }) {
         this.x = x;
@@ -31,10 +7,13 @@ class Terminal {
         this.color = color;
     }
 
-    render(color = [0, 0, 0]) {
+    render(color) {
+        if (color) {
+            this.color = color;
+        }
         // this.color = color;
         strokeWeight(0);
-        fill(...color);
+        fill(...this.color);
         angleMode(RADIANS);
         push();
         translate(this.x, this.y);
@@ -84,7 +63,7 @@ class Tree {
         let branches = [];
 
         for (let i = 0; i < numBranches; i++) {
-            let newAngle = angle + random(-PI / 6, PI / 6);
+            let newAngle = angle + random(-PI / 4, PI / 4);
             let length = Math.random() * 100 + 20;
             const line = {
                 start: { x: x, y: y },
