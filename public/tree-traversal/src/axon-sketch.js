@@ -1,5 +1,7 @@
 // Example Usage
+const loadFromFile = true;
 const trees = [];
+const treeData = [];
 let spikes = [];
 let screenW = document.documentElement.clientWidth - 30;
 let screenH = document.documentElement.clientHeight - 20;
@@ -9,13 +11,40 @@ function setup() {
     createCanvas(screenW, screenH);
     background(255);
 
+    if (loadFromFile) {
+        loadTreeFromFile();
+    } else {
+        generateTreeRandomly();
+    }
+}
+
+function generateTreeRandomly() {
     // init trees
     let startX = screenW / 2;
     for (let i = 0; i < 1; i++) {
-        const tree = new Tree(getRandomInt(4, 12), 2, startX, height);
+        const tree = new Tree({
+            levels: getRandomInt(4, 12),
+            maxBranches: 2,
+            startX,
+            startY: height,
+        });
+        console.log(tree.toJSON());
         trees.push(tree);
+        treeData.push(tree.toJSON());
         startX += 200;
     }
+    // init spikes:
+    for (const tree of trees) {
+        initSpikes(tree);
+    }
+}
+
+async function loadTreeFromFile() {
+    const response = await fetch("./src/axon.json");
+    const treeJSON = await response.json();
+    const tree = unflattenTree(treeJSON);
+    trees.push(tree);
+
     // init spikes:
     for (const tree of trees) {
         initSpikes(tree);
@@ -46,11 +75,14 @@ function addRandomSpikes() {
 
 function drawBranches(branch) {
     const branches = branch.branches;
-    if (!branches) {
+    if (branch.terminal) {
         branch.terminal.render();
         return;
     }
 
+    if (!branches) {
+        return;
+    }
     for (let branch of branches) {
         branch.render();
         drawBranches(branch);

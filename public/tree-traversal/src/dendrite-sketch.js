@@ -11,7 +11,12 @@ function setup() {
     // init trees
     let startX = screenW / 2;
     for (let i = 0; i < 1; i++) {
-        const tree = new Tree(getRandomInt(4, 12), 2, startX, height);
+        const tree = new Tree({
+            levels: getRandomInt(4, 12),
+            maxBranches: 2,
+            startX,
+            startY: height,
+        });
         trees.push(tree);
         startX += 200;
     }

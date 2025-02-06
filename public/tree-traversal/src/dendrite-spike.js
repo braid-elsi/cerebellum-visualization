@@ -16,7 +16,7 @@ class Spike {
 
         // initialize the x / depending on which direction the
         // current is flowing:
-        const { start, end } = branch.line;
+        const { start, end } = branch;
         if (this.isDendrite) {
             this.x = end.x;
             this.y = end.y;
@@ -38,7 +38,7 @@ class Spike {
         // moves from trunk to branches
         this.progress += this.speed;
         let progressRatio = this.progress / this.branch.length;
-        const { start, end } = this.branch.line;
+        const { start, end } = this.branch;
         this.x = start.x + progressRatio * (end.x - start.x);
         this.y = start.y + progressRatio * (end.y - start.y);
     }
@@ -47,7 +47,7 @@ class Spike {
         // moves from branches to trunk
         this.progress -= this.speed; // Move backward
         let progressRatio = this.progress / this.branch.length;
-        const { start, end } = this.branch.line;
+        const { start, end } = this.branch;
 
         this.x = start.x - progressRatio * (start.x - end.x);
         this.y = start.y - progressRatio * (start.y - end.y);
