@@ -3,7 +3,7 @@ class Spike {
         w,
         branch,
         progress,
-        speed = 1,
+        speed = 4,
         color = [255, 0, 0],
         isDendrite = true,
     }) {

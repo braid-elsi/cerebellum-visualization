@@ -6,43 +6,24 @@ let spikes = [];
 let screenW = document.documentElement.clientWidth - 30;
 let screenH = document.documentElement.clientHeight - 20;
 
-function setup() {
+async function setup() {
     frameRate(60); // 60 FPS is the max on many machines
     createCanvas(screenW, screenH);
     background(255);
 
+    let tree;
     if (loadFromFile) {
-        loadTreeFromFile();
+        tree = await loadTreeFromFile("./src/axon.json");
     } else {
-        generateTreeRandomly();
-    }
-}
-
-function generateTreeRandomly() {
-    // init trees
-    let startX = screenW / 2;
-    for (let i = 0; i < 1; i++) {
-        const tree = new Tree({
-            levels: getRandomInt(4, 12),
-            maxBranches: 2,
-            startX,
+        tree = new Tree({
+            levels: 3, //getRandomInt(4, 12),
+            maxBranches: 3,
+            startX: screenW / 2,
             startY: height,
         });
         console.log(tree.toJSON());
-        trees.push(tree);
-        treeData.push(tree.toJSON());
-        startX += 200;
     }
-    // init spikes:
-    for (const tree of trees) {
-        initSpikes(tree);
-    }
-}
-
-async function loadTreeFromFile() {
-    const response = await fetch("./src/axon.json");
-    const treeJSON = await response.json();
-    const tree = unflattenTree(treeJSON);
+    console.log(tree);
     trees.push(tree);
 
     // init spikes:
