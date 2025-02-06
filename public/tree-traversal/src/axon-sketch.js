@@ -15,15 +15,14 @@ async function setup() {
     if (loadFromFile) {
         tree = await loadTreeFromFile("./src/axon.json");
     } else {
-        tree = new Tree({
-            levels: 3, //getRandomInt(4, 12),
-            maxBranches: 3,
+        tree = Tree.generateRandomTree({
             startX: screenW / 2,
             startY: height,
+            maxLevel: getRandomInt(3, 7),
+            maxBranches: 2,
         });
         console.log(tree.toJSON());
     }
-    console.log(tree);
     trees.push(tree);
 
     // init spikes:

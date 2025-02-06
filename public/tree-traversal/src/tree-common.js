@@ -26,7 +26,6 @@ class Terminal {
 
 class Branch {
     constructor({ start, end, level, branches }) {
-        // console.log(start, end, level, branches);
         this.length = dist(start.x, start.y, end.x, end.y);
         this.angle = atan2(end.y - start.y, end.x - start.x);
         this.start = start;
@@ -63,22 +62,74 @@ class Branch {
 }
 
 class Tree {
-    // there are two paths to creating a tree: from a file or
-    // randomly. I don't think this constructor captures this
-    constructor({ branches, levels, maxBranches, startX, startY }) {
-        this.levels = levels;
-        this.maxBranches = maxBranches;
-        if (branches) {
-            this.branches = branches;
-        } else {
-            this.branches = this.generateBranches(0, -PI / 2, startX, startY);
-        }
+    static generateRandomTree({ startX, startY, maxLevel, maxBranches }) {
+        const tree = new Tree();
+        tree.branches = tree.generateBranches({
+            level: 0,
+            angle: -PI / 2,
+            x: startX,
+            y: startY,
+            maxLevel: maxLevel,
+            maxBranches,
+        });
+        return tree;
     }
 
-    generateBranches(level, angle, x, y) {
-        if (level >= this.levels) return null;
+    static generateTreeFromJSON(branchesJSON) {
+        if (branchesJSON.length === 0) return new Tree(0, 0, []);
 
-        let numBranches = Math.floor(Math.random() * this.maxBranches) + 1;
+        // 1. Group branches by their start positions to figure out
+        //    which branch branches from which source branch:
+        let branchMap = new Map();
+        for (let branch of branchesJSON) {
+            let key = JSON.stringify(branch.start);
+            if (!branchMap.has(key)) {
+                branchMap.set(key, []);
+            }
+            const args = {
+                start: branch.start,
+                end: branch.end,
+                level: branch.level,
+            };
+            branchMap.get(key).push(new Branch(args));
+        }
+
+        // 2. Recursively build the tree
+        function buildTree(branch) {
+            let key = JSON.stringify(branch.end);
+            if (branchMap.has(key)) {
+                branch.branches = branchMap.get(key).map(buildTree);
+                branch.terminal = null;
+            }
+            return branch;
+        }
+
+        // 2. Identify root branches (level 0) and construct the tree
+        const rootBranches = branchesJSON
+            .filter((branch) => branch.level === 0)
+            .map((branch) => {
+                const args = {
+                    start: branch.start,
+                    end: branch.end,
+                    level: branch.level,
+                };
+                return new Branch(args);
+            });
+
+        const branches = rootBranches.map(buildTree);
+        const tree = new Tree(branches);
+        return tree;
+    }
+
+    constructor(branches = []) {
+        this.branches = branches;
+    }
+
+    generateBranches({ level, angle, x, y, maxLevel, maxBranches }) {
+        console.log(level, angle, x, y, maxLevel, maxBranches);
+        if (level >= maxLevel) return null;
+
+        let numBranches = Math.floor(Math.random() * maxBranches) + 1;
         let branches = [];
 
         for (let i = 0; i < numBranches; i++) {
@@ -89,12 +140,14 @@ class Tree {
                 x: Math.round(x + cos(newAngle) * length),
                 y: Math.round(y + sin(newAngle) * length),
             };
-            let childBranches = this.generateBranches(
-                level + 1,
-                newAngle,
-                end.x,
-                end.y,
-            );
+            let childBranches = this.generateBranches({
+                level: level + 1,
+                angle: newAngle,
+                x: end.x,
+                y: end.y,
+                maxLevel,
+                maxBranches,
+            });
             const branch = new Branch({
                 start: start,
                 end: end,
@@ -132,8 +185,6 @@ class Tree {
 
     toJSON() {
         const treeJSON = {
-            levels: this.levels,
-            maxBranches: this.maxBranches,
             branches: this.branches.map((b) => b.toJSON()),
         };
         return this.flatten(treeJSON);

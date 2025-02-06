@@ -16,6 +16,7 @@ class Spike {
         this.x = start.x + progressRatio * (end.x - start.x);
         this.y = start.y + progressRatio * (end.y - start.y);
     }
+
     render() {
         fill(...this.color);
         ellipse(this.x, this.y, this.w, this.w);

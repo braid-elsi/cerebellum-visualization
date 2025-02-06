@@ -1,28 +1,34 @@
 // Example Usage
+const loadFromFile = true;
+
 const trees = [];
 let spikes = [];
 let screenW = document.documentElement.clientWidth - 30;
 let screenH = document.documentElement.clientHeight - 20;
+const initSpikes = initSpikesDendrites;
 
-function setup() {
+async function setup() {
+    frameRate(60); // 60 FPS is the max on many machines
     createCanvas(screenW, screenH);
     background(255);
 
-    // init trees
-    let startX = screenW / 2;
-    for (let i = 0; i < 1; i++) {
-        const tree = new Tree({
-            levels: getRandomInt(4, 12),
-            maxBranches: 2,
-            startX,
+    let tree;
+    if (loadFromFile) {
+        tree = await loadTreeFromFile("./src/axon.json");
+    } else {
+        tree = Tree.generateRandomTree({
+            startX: screenW / 2,
             startY: height,
+            maxLevel: getRandomInt(3, 7),
+            maxBranches: 2,
         });
-        trees.push(tree);
-        startX += 200;
+        console.log(tree.toJSON());
     }
+    trees.push(tree);
+
     // init spikes:
     for (const tree of trees) {
-        initSpikesDendrites(tree);
+        initSpikes(tree);
     }
 }
 
@@ -107,39 +113,6 @@ function drawSpikesDendrites() {
             } else {
                 console.log("Spike reached the root");
             }
-            spikes.splice(i, 1);
-        }
-    }
-    ++counter;
-}
-
-function drawSpikes() {
-    strokeWeight(0);
-    for (let i = spikes.length - 1; i >= 0; i--) {
-        let spike = spikes[i];
-        let branch = spike.branch;
-        if (!branch) {
-            spikes.splice(i, 1);
-            continue;
-        }
-
-        // move spike:
-        spike.move();
-        spike.render();
-
-        // create new spikes to follow the child branches:
-        if (spike.progress >= branch.length) {
-            if (branch.branches) {
-                for (let b of branch.branches) {
-                    spikes.push(
-                        new Spike({ w: spike.w * 0.9, branch: b, progress: 0 }),
-                    );
-                }
-            } else {
-                branch.terminal.render([255, 0, 0]);
-                console.log("you have reached the terminal button");
-            }
-            // remove expired spike:
             spikes.splice(i, 1);
         }
     }
