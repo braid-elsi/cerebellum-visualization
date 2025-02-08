@@ -163,6 +163,75 @@ class Tree {
         });
     }
 
+    generateTreeFromLeavesAndTrunk({ leaves, trunk, levels, branchFactor }) {
+        let points = [...leaves]; // Start with leaf nodes
+        let newBranches = [];
+        let levelSpacing =
+            (trunk.y - Math.min(...leaves.map((p) => p.y))) / levels; // Vertical step size
+
+        for (let level = 1; level <= levels; level++) {
+            let newPoints = [];
+
+            // Group points into clusters of size `branchFactor`
+            for (let i = 0; i < points.length; i += branchFactor) {
+                let group = points.slice(i, i + branchFactor);
+
+                // Find average x-position and set y-level based on depth
+                let midX = group.reduce((sum, p) => sum + p.x, 0) / group.length;
+                let midY = Math.min(...group.map((p) => p.y)) + levelSpacing;
+                let mid = createVector(midX, midY);
+
+                // Create branches from group members to the midpoint
+                for (let p of group) {
+                    let branch = new Branch({
+                        start: { x: p.x, y: p.y },
+                        end: { x: mid.x, y: mid.y },
+                        level,
+                        parent: null, // Will be updated later
+                    });
+                    newBranches.push(branch);
+                }
+
+                newPoints.push(mid);
+            }
+
+            points = newPoints; // Update points for next level
+            if (points.length === 1) break; // Stop when only one root remains
+        }
+
+        // Connect the final root node to the trunk
+        let finalBranch = new Branch({
+            start: { x: points[0].x, y: points[0].y },
+            end: { x: trunk.x, y: trunk.y },
+            level: levels,
+            parent: null,
+        });
+        newBranches.push(finalBranch);
+
+        // Assign parent-child relationships
+        this.branches = this._setParentChildRelationships(newBranches);
+    }
+
+    _setParentChildRelationships(branches) {
+        let branchMap = new Map();
+        branches.forEach((branch) => {
+            let key = JSON.stringify(branch.end);
+            if (!branchMap.has(key)) branchMap.set(key, []);
+            branchMap.get(key).push(branch);
+        });
+
+        // Set children based on endpoint connections
+        branches.forEach((branch) => {
+            let key = JSON.stringify(branch.start);
+            if (branchMap.has(key)) {
+                branch.addBranches(branchMap.get(key));
+                branchMap.get(key).forEach((child) => (child.parent = branch));
+            }
+        });
+
+        return branches;
+    }
+
     render() {
         this.drawBranches(this);
     }

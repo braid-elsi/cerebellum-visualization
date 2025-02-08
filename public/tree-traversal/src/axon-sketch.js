@@ -28,6 +28,7 @@ async function setup() {
     trees.push(tree);
 
     for (let i = 0; i < 2; i++) {
+        addGranuleCell();
         addNeuron();
     }
 
@@ -69,8 +70,18 @@ async function setup() {
     });
 }
 
-function addNeuron() {
+function addGranuleCell() {
     const neuron = new GranuleCell({
+        x: getRandomInt(0, screenW),
+        y: getRandomInt(0, screenH),
+        width: getRandomInt(30, 50),
+    });
+    neurons.push(neuron);
+    neuron.generateAxon();
+}
+
+function addNeuron() {
+    const neuron = new Neuron({
         x: getRandomInt(0, screenW),
         y: getRandomInt(0, screenH),
         width: getRandomInt(30, 50),
@@ -96,6 +107,6 @@ function periodicallyAddNewSpikes(counter) {
                 n: 1,
             });
         });
-        addNeuron();
+        // addNeuron();
     }
 }

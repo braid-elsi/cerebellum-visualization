@@ -8,10 +8,15 @@ class Spike {
         direction = "outbound",
     }) {
         Object.assign(this, { w, branch, progress, speed, color, direction });
-        const { start, end } = branch;
-        [this.x, this.y] = this.isOutbound()
-            ? [start.x, start.y]
-            : [end.x, end.y];
+
+        // Store branch start/end as p5.Vectors for easier calculations
+        this.startVec = createVector(branch.start.x, branch.start.y);
+        this.endVec = createVector(branch.end.x, branch.end.y);
+
+        // Set initial position based on direction
+        this.pos = this.isOutbound()
+            ? this.startVec.copy()
+            : this.endVec.copy();
     }
 
     isOutbound() {
@@ -23,16 +28,16 @@ class Spike {
     }
 
     move() {
-        const { start, end, length } = this.branch;
         const dir = this.isOutbound() ? 1 : -1;
         this.progress += dir * this.speed;
-        const ratio = this.progress / length;
-        this.x = start.x + ratio * (end.x - start.x);
-        this.y = start.y + ratio * (end.y - start.y);
+        const ratio = this.progress / this.branch.length;
+
+        // Interpolate position using vector lerp
+        this.pos = p5.Vector.lerp(this.startVec, this.endVec, ratio);
     }
 
     render() {
         fill(...this.color);
-        ellipse(this.x, this.y, this.w, this.w);
+        ellipse(this.pos.x, this.pos.y, this.w, this.w);
     }
 }
