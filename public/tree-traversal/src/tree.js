@@ -1,13 +1,39 @@
 class TreeUtils {
-    static generateRandomTree({ startX, startY, maxLevel, maxBranches }) {
+    static generateRandomTree({
+        startX,
+        startY,
+        maxLevel,
+        maxBranches,
+        angle = -PI / 2,
+    }) {
         const tree = new Tree();
         tree.branches = tree.generateBranches({
             level: 0,
-            angle: -PI / 2,
+            angle: angle,
             x: startX,
             y: startY,
             maxLevel,
             maxBranches,
+            parent: null,
+        });
+        return tree;
+    }
+
+    static generateStaticTree({
+        startX,
+        startY,
+        maxLevel,
+        numBranches,
+        angle = -PI / 2,
+    }) {
+        const tree = new Tree();
+        tree.branches = tree.generateBranches({
+            level: 0,
+            angle: angle,
+            x: startX,
+            y: startY,
+            maxLevel,
+            numBranches,
             parent: null,
         });
         return tree;
@@ -61,12 +87,15 @@ class Tree {
         y,
         maxLevel,
         maxBranches,
+        numBranches,
         parent = null,
     }) {
         if (level >= maxLevel) return null;
 
-        const numBranches = level === 0 ? 1 : getRandomInt(1, maxBranches + 1);
-        return Array.from({ length: numBranches }, () => {
+        const len = numBranches
+            ? numBranches
+            : getRandomInt(1, maxBranches + 1);
+        return Array.from({ length: len }, () => {
             const newAngle = angle + random(-PI / 4, PI / 4);
             const length = Math.round(Math.random() * 100) + 20;
             const end = {
@@ -83,6 +112,7 @@ class Tree {
                     y: end.y,
                     maxLevel,
                     maxBranches,
+                    numBranches,
                     parent: branch,
                 }),
             );
