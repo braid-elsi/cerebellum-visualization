@@ -3,39 +3,47 @@ class Spike {
         w,
         branch,
         progress,
-        speed = 4,
+        speed = 3,
         color = [255, 0, 0],
-        isDendrite = true,
+        direction = "outbound",
     }) {
         this.w = w;
         this.branch = branch;
         this.progress = progress;
         this.speed = speed;
         this.color = color;
-        this.isDendrite = isDendrite;
-
-        // initialize the x / depending on which direction the
-        // current is flowing:
-        const { start, end } = branch;
-        if (this.isDendrite) {
-            this.x = end.x;
-            this.y = end.y;
+        this.direction = direction;
+        if (this.isOutbound()) {
+            this.x = branch.start.x;
+            this.y = branch.start.y;
         } else {
-            this.x = start.x;
-            this.y = start.y;
+            this.x = branch.end.x;
+            this.y = branch.end.y;
         }
+    }
+
+    isOutbound() {
+        return this.direction === "outbound";
+    }
+
+    isInbound() {
+        return this.direction === "inbound";
+    }
+
+    toggleDirection() {
+        this.direction = this.isOutbound() ? "inbound" : "outbound";
     }
 
     move() {
-        if (this.isDendrite) {
-            this.moveDendrite();
+        if (this.isOutbound()) {
+            this.moveOutbound();
         } else {
-            this.moveAxon();
+            this.moveInbound();
         }
     }
 
-    moveAxon() {
-        // moves from trunk to branches
+    moveOutbound() {
+        // moves from trunk to branches:
         this.progress += this.speed;
         let progressRatio = this.progress / this.branch.length;
         const { start, end } = this.branch;
@@ -43,9 +51,9 @@ class Spike {
         this.y = start.y + progressRatio * (end.y - start.y);
     }
 
-    moveDendrite() {
-        // moves from branches to trunk
-        this.progress -= this.speed; // Move backward
+    moveInbound() {
+        // moves from branches to trunk:
+        this.progress -= this.speed;
         let progressRatio = this.progress / this.branch.length;
         const { start, end } = this.branch;
 

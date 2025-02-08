@@ -1,66 +1,3 @@
-class Terminal {
-    constructor({ x, y, w, angle, color = [0, 0, 0] }) {
-        this.x = Math.round(x);
-        this.y = Math.round(y);
-        this.w = w;
-        this.angle = angle;
-        this.color = color;
-    }
-
-    render(color) {
-        if (color) {
-            this.color = color;
-        }
-        // this.color = color;
-        strokeWeight(0);
-        fill(...this.color);
-        angleMode(RADIANS);
-        push();
-        translate(this.x, this.y);
-        // console.log(terminal.angle);
-        rotate(this.angle);
-        ellipse(0, 0, this.w / 2, this.w * 1.4);
-        pop();
-    }
-}
-
-class Branch {
-    constructor({ start, end, level, branches }) {
-        this.length = dist(start.x, start.y, end.x, end.y);
-        this.angle = atan2(end.y - start.y, end.x - start.x);
-        this.start = start;
-        this.end = end;
-        this.level = level;
-        this.branches = branches;
-        if (!branches) {
-            console.log("no child branches...adding terminal.");
-            this.terminal = new Terminal({
-                x: Math.round(end.x),
-                y: Math.round(end.y),
-                w: 20,
-                angle: atan2(end.y - start.y, end.x - start.x),
-            });
-        }
-    }
-
-    render() {
-        strokeWeight(3);
-        // console.log(this.start.x, this.start.y, this.end.x, this.end.y);
-        line(this.start.x, this.start.y, this.end.x, this.end.y);
-    }
-
-    toJSON() {
-        return {
-            start: this.start,
-            end: this.end,
-            level: this.level,
-            branches: this.branches
-                ? this.branches.map((b) => b.toJSON())
-                : null,
-        };
-    }
-}
-
 class Tree {
     static generateRandomTree({ startX, startY, maxLevel, maxBranches }) {
         const tree = new Tree();
@@ -71,6 +8,7 @@ class Tree {
             y: startY,
             maxLevel: maxLevel,
             maxBranches,
+            parent: null,
         });
         return tree;
     }
@@ -125,11 +63,19 @@ class Tree {
         this.branches = branches;
     }
 
-    generateBranches({ level, angle, x, y, maxLevel, maxBranches }) {
-        console.log(level, angle, x, y, maxLevel, maxBranches);
+    generateBranches({
+        level,
+        angle,
+        x,
+        y,
+        maxLevel,
+        maxBranches,
+        parent = null,
+    }) {
+        // console.log(level, angle, x, y, maxLevel, maxBranches);
         if (level >= maxLevel) return null;
 
-        let numBranches = Math.floor(Math.random() * maxBranches) + 1;
+        let numBranches = level === 0 ? 1 : getRandomInt(1, maxBranches + 1);
         let branches = [];
 
         for (let i = 0; i < numBranches; i++) {
@@ -140,6 +86,12 @@ class Tree {
                 x: Math.round(x + cos(newAngle) * length),
                 y: Math.round(y + sin(newAngle) * length),
             };
+            const branch = new Branch({
+                start: start,
+                end: end,
+                level: level,
+                parent: parent,
+            });
             let childBranches = this.generateBranches({
                 level: level + 1,
                 angle: newAngle,
@@ -147,17 +99,33 @@ class Tree {
                 y: end.y,
                 maxLevel,
                 maxBranches,
+                parent: branch,
             });
-            const branch = new Branch({
-                start: start,
-                end: end,
-                level: level,
-                branches: childBranches,
-            });
+            branch.addBranches(childBranches);
             branches.push(branch);
             // console.log(branch);
         }
         return branches;
+    }
+
+    getTerminals() {
+        let terminals = [];
+
+        function traverse(branch) {
+            if (!branch.branches || branch.branches.length === 0) {
+                terminals.push(branch);
+            } else {
+                for (let child of branch.branches) {
+                    traverse(child);
+                }
+            }
+        }
+
+        for (let rootBranch of this.branches) {
+            traverse(rootBranch);
+        }
+
+        return terminals;
     }
 
     flatten(treeJSON) {
@@ -181,6 +149,26 @@ class Tree {
             traverse(rootBranch);
         }
         return flatBranches;
+    }
+
+    drawBranches(branch) {
+        const branches = branch.branches;
+        if (branch.terminal) {
+            branch.terminal.render();
+            return;
+        }
+
+        if (!branches) {
+            return;
+        }
+        for (let branch of branches) {
+            branch.render();
+            this.drawBranches(branch);
+        }
+    }
+
+    render() {
+        this.drawBranches(this);
     }
 
     toJSON() {
