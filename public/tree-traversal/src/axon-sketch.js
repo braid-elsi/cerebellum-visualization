@@ -17,7 +17,13 @@ async function setup() {
     if (loadFromFile) {
         tree = await loadTreeFromFile("./src/axon.json");
     } else {
-        tree = TreeUtils.generateRandomTree({
+        // tree = TreeUtils.generateRandomTree({
+        //     startX: screenW / 2,
+        //     startY: height,
+        //     maxLevel: getRandomInt(4, 8),
+        //     maxBranches: 2,
+        // });
+        tree = RandomTreeGenerator.generate({
             startX: screenW / 2,
             startY: height,
             maxLevel: getRandomInt(4, 8),

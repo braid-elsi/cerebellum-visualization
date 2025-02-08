@@ -7,7 +7,7 @@ class Neuron {
     }
 
     generateAxon() {
-        this.axon = TreeUtils.generateRandomTree({
+        this.axon = RandomTreeGenerator.generate({
             startX: this.x,
             startY: this.y,
             maxLevel: 3,
@@ -17,7 +17,7 @@ class Neuron {
     }
 
     generateDendrites() {
-        this.dendrites = TreeUtils.generateRandomTree({
+        this.dendrites = RandomTreeGenerator.generate({
             startX: this.x,
             startY: this.y,
             maxLevel: 7,
@@ -39,7 +39,7 @@ class Neuron {
 
 class GranuleCell extends Neuron {
     generateDendrites() {
-        this.dendrites = TreeUtils.generateStaticTree({
+        this.dendrites = StaticTreeGenerator.generate({
             startX: this.x,
             startY: this.y,
             maxLevel: 1,
@@ -51,7 +51,7 @@ class GranuleCell extends Neuron {
     }
 
     generateAxon() {
-        this.axon = TreeUtils.generateRandomTree({
+        this.axon = RandomTreeGenerator.generate({
             startX: this.x,
             startY: this.y,
             maxLevel: 2,

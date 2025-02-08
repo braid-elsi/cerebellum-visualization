@@ -1,4 +1,43 @@
 class Branch {
+    static generate({
+        level,
+        angle,
+        x,
+        y,
+        maxLevel,
+        maxBranches,
+        numBranches,
+        parent,
+    }) {
+        if (level >= maxLevel) return [];
+
+        const branchCount = numBranches || getRandomInt(1, maxBranches + 1);
+        return Array.from({ length: branchCount }, () => {
+            const newAngle = angle + random(-PI / 4, PI / 4);
+            const length = Math.round(Math.random() * 100) + 20;
+            const end = {
+                x: Math.round(x + cos(newAngle) * length),
+                y: Math.round(y + sin(newAngle) * length),
+            };
+
+            const branch = new Branch({ start: { x, y }, end, level, parent });
+            branch.addBranches(
+                Branch.generate({
+                    level: level + 1,
+                    angle: newAngle,
+                    x: end.x,
+                    y: end.y,
+                    maxLevel,
+                    maxBranches,
+                    numBranches,
+                    parent: branch,
+                }),
+            );
+
+            return branch;
+        });
+    }
+
     constructor({ start, end, level, parent }) {
         Object.assign(this, { start, end, level, parent });
         this.length = dist(start.x, start.y, end.x, end.y);

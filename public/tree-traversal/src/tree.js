@@ -1,5 +1,55 @@
-class TreeUtils {
-    static generateRandomTree({
+class Tree {
+    constructor(branches = []) {
+        this.branches = branches;
+    }
+
+    getTerminalBranches() {
+        const terminals = [];
+        const traverse = (branch) => {
+            if (!branch.branches || branch.branches.length === 0) {
+                terminals.push(branch);
+            } else {
+                branch.branches.forEach(traverse);
+            }
+        };
+
+        this.branches.forEach(traverse);
+        return terminals;
+    }
+
+    flatten() {
+        const flatBranches = [];
+        const traverse = (branch) => {
+            flatBranches.push(branch.toJSON());
+            branch.branches?.forEach(traverse);
+        };
+
+        this.branches.forEach(traverse);
+        return flatBranches;
+    }
+
+    render() {
+        this.drawBranches(this);
+    }
+
+    drawBranches(branch) {
+        if (branch.terminal) {
+            branch.terminal.render();
+            return;
+        }
+        branch.branches?.forEach((child) => {
+            child.render();
+            this.drawBranches(child);
+        });
+    }
+
+    toJSON() {
+        return this.flatten();
+    }
+}
+
+class RandomTreeGenerator {
+    static generate({
         startX,
         startY,
         maxLevel,
@@ -7,9 +57,9 @@ class TreeUtils {
         angle = -PI / 2,
     }) {
         const tree = new Tree();
-        tree.branches = tree.generateBranches({
+        tree.branches = Branch.generate({
             level: 0,
-            angle: angle,
+            angle,
             x: startX,
             y: startY,
             maxLevel,
@@ -18,8 +68,10 @@ class TreeUtils {
         });
         return tree;
     }
+}
 
-    static generateStaticTree({
+class StaticTreeGenerator {
+    static generate({
         startX,
         startY,
         maxLevel,
@@ -27,9 +79,9 @@ class TreeUtils {
         angle = -PI / 2,
     }) {
         const tree = new Tree();
-        tree.branches = tree.generateBranches({
+        tree.branches = Branch.generate({
             level: 0,
-            angle: angle,
+            angle,
             x: startX,
             y: startY,
             maxLevel,
@@ -38,8 +90,10 @@ class TreeUtils {
         });
         return tree;
     }
+}
 
-    static generateTreeFromJSON(branchesJSON) {
+class JSONTreeLoader {
+    static fromJSON(branchesJSON) {
         if (branchesJSON.length === 0) return new Tree([]);
 
         // Group branches by start position
@@ -54,7 +108,7 @@ class TreeUtils {
 
         // Recursive function to build tree and set parent pointers
         const buildTree = (branch, parent = null) => {
-            branch.parent = parent; // Set parent reference
+            branch.parent = parent;
             const key = JSON.stringify(branch.end);
             if (branchMap.has(key)) {
                 const branches = branchMap
@@ -75,100 +129,17 @@ class TreeUtils {
     }
 }
 
-class Tree {
-    constructor(branches = []) {
-        this.branches = branches;
-    }
+class LeafTreeGenerator {
+    static generate({ leaves, trunk, levels, branchFactor }) {
+        // Create a new Tree instance
+        const tree = new Tree();
 
-    generateBranches({
-        level,
-        angle,
-        x,
-        y,
-        maxLevel,
-        maxBranches,
-        numBranches,
-        parent = null,
-    }) {
-        if (level >= maxLevel) return null;
-
-        const len = numBranches
-            ? numBranches
-            : getRandomInt(1, maxBranches + 1);
-        return Array.from({ length: len }, () => {
-            const newAngle = angle + random(-PI / 4, PI / 4);
-            const length = Math.round(Math.random() * 100) + 20;
-            const end = {
-                x: Math.round(x + cos(newAngle) * length),
-                y: Math.round(y + sin(newAngle) * length),
-            };
-
-            const branch = new Branch({ start: { x, y }, end, level, parent });
-            branch.addBranches(
-                this.generateBranches({
-                    level: level + 1,
-                    angle: newAngle,
-                    x: end.x,
-                    y: end.y,
-                    maxLevel,
-                    maxBranches,
-                    numBranches,
-                    parent: branch,
-                }),
-            );
-
-            return branch;
-        });
-    }
-
-    getTerminalBranches() {
-        const terminals = [];
-        const traverse = (branch) => {
-            if (!branch.branches || branch.branches.length === 0) {
-                terminals.push(branch);
-            } else {
-                branch.branches.forEach(traverse);
-            }
-        };
-
-        this.branches.forEach(traverse);
-        return terminals;
-    }
-
-    flatten(treeJSON) {
-        const flatBranches = [];
-        const traverse = (branch) => {
-            flatBranches.push({
-                start: branch.start,
-                end: branch.end,
-                level: branch.level,
-            });
-
-            branch.branches?.forEach(traverse);
-        };
-
-        treeJSON.branches.forEach(traverse);
-        return flatBranches;
-    }
-
-    drawBranches(branch) {
-        if (branch.terminal) {
-            branch.terminal.render();
-            return;
-        }
-
-        branch.branches?.forEach((child) => {
-            child.render();
-            this.drawBranches(child);
-        });
-    }
-
-    generateTreeFromLeavesAndTrunk({ leaves, trunk, levels, branchFactor }) {
         let points = [...leaves]; // Start with leaf nodes
         let newBranches = [];
         let levelSpacing =
             (trunk.y - Math.min(...leaves.map((p) => p.y))) / levels; // Vertical step size
 
+        // Generate the tree structure level by level
         for (let level = 1; level <= levels; level++) {
             let newPoints = [];
 
@@ -177,7 +148,8 @@ class Tree {
                 let group = points.slice(i, i + branchFactor);
 
                 // Find average x-position and set y-level based on depth
-                let midX = group.reduce((sum, p) => sum + p.x, 0) / group.length;
+                let midX =
+                    group.reduce((sum, p) => sum + p.x, 0) / group.length;
                 let midY = Math.min(...group.map((p) => p.y)) + levelSpacing;
                 let mid = createVector(midX, midY);
 
@@ -208,11 +180,13 @@ class Tree {
         });
         newBranches.push(finalBranch);
 
-        // Assign parent-child relationships
-        this.branches = this._setParentChildRelationships(newBranches);
+        // Set parent-child relationships between branches
+        tree.branches = this._setParentChildRelationships(newBranches);
+        return tree;
     }
 
-    _setParentChildRelationships(branches) {
+    // Helper method to set parent-child relationships
+    static _setParentChildRelationships(branches) {
         let branchMap = new Map();
         branches.forEach((branch) => {
             let key = JSON.stringify(branch.end);
@@ -230,13 +204,5 @@ class Tree {
         });
 
         return branches;
-    }
-
-    render() {
-        this.drawBranches(this);
-    }
-
-    toJSON() {
-        return this.flatten({ branches: this.branches.map((b) => b.toJSON()) });
     }
 }

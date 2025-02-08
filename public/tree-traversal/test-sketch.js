@@ -27,8 +27,7 @@ function setup() {
     let trunk = createVector((numPoints * 50 + 100) / 2 + 25, 500);
 
     // Create tree and generate branches
-    let tree = new Tree();
-    tree.generateTreeFromLeavesAndTrunk({
+    let tree = LeafTreeGenerator.generate({
         leaves,
         trunk,
         levels: numLevels,
@@ -67,36 +66,36 @@ function render() {
 //     render();
 // }
 
-function generateTree(levels, branchFactor) {
-    let points = [...leaves]; // Start with leaf nodes
-    let newBranches = [];
-    let levelSpacing = (trunk.y - min(leaves.map((p) => p.y))) / levels; // Vertical step size
+// function generateTree(levels, branchFactor) {
+//     let points = [...leaves]; // Start with leaf nodes
+//     let newBranches = [];
+//     let levelSpacing = (trunk.y - min(leaves.map((p) => p.y))) / levels; // Vertical step size
 
-    for (let level = 1; level <= levels; level++) {
-        let newPoints = [];
+//     for (let level = 1; level <= levels; level++) {
+//         let newPoints = [];
 
-        // Group points into clusters of size `branchFactor`
-        for (let i = 0; i < points.length; i += branchFactor) {
-            let group = points.slice(i, i + branchFactor);
+//         // Group points into clusters of size `branchFactor`
+//         for (let i = 0; i < points.length; i += branchFactor) {
+//             let group = points.slice(i, i + branchFactor);
 
-            // Find average x-position and set y-level based on depth
-            let midX = group.reduce((sum, p) => sum + p.x, 0) / group.length;
-            let midY = min(group.map((p) => p.y)) + levelSpacing; // Move downward
-            let mid = createVector(midX, midY);
+//             // Find average x-position and set y-level based on depth
+//             let midX = group.reduce((sum, p) => sum + p.x, 0) / group.length;
+//             let midY = min(group.map((p) => p.y)) + levelSpacing; // Move downward
+//             let mid = createVector(midX, midY);
 
-            // Connect all group members to the midpoint
-            for (let p of group) {
-                newBranches.push({ start: p, end: mid });
-            }
+//             // Connect all group members to the midpoint
+//             for (let p of group) {
+//                 newBranches.push({ start: p, end: mid });
+//             }
 
-            newPoints.push(mid);
-        }
+//             newPoints.push(mid);
+//         }
 
-        points = newPoints; // Update points for next level
-        if (points.length === 1) break; // Stop when only one root remains
-    }
+//         points = newPoints; // Update points for next level
+//         if (points.length === 1) break; // Stop when only one root remains
+//     }
 
-    // Connect the final root node to the trunk
-    newBranches.push({ start: points[0], end: trunk });
-    branches = newBranches;
-}
+//     // Connect the final root node to the trunk
+//     newBranches.push({ start: points[0], end: trunk });
+//     branches = newBranches;
+// }
