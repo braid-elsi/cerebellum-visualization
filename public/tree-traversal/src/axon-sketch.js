@@ -1,22 +1,24 @@
 // Example Usage
-const loadFromFile = false;
+const loadFromFile = true;
 const direction = "outbound"; // outbound inbound
 const trees = [];
 const treeData = [];
 const spikeManager = new SpikeManager(direction);
-let screenW = document.documentElement.clientWidth - 30;
-let screenH = document.documentElement.clientHeight - 20;
+const screenW = document.documentElement.clientWidth - 30;
+const screenH = document.documentElement.clientHeight - 20;
+let counter = 1;
 
 async function setup() {
-    frameRate(60); // 60 FPS is the max on many machines
     createCanvas(screenW, screenH);
+
+    frameRate(60); // 60 FPS is the max on many machines
     background(255);
 
     let tree;
     if (loadFromFile) {
         tree = await loadTreeFromFile("./src/axon.json");
     } else {
-        tree = Tree.generateRandomTree({
+        tree = TreeUtils.generateRandomTree({
             startX: screenW / 2,
             startY: height,
             maxLevel: getRandomInt(4, 8),
@@ -32,22 +34,20 @@ async function setup() {
     }
 }
 
-let counter = 1;
 function draw() {
     background(255);
-    for (const tree of trees) {
-        tree.render();
-    }
-
+    trees.forEach((tree) => tree.render());
     spikeManager.render();
+    periodicallyAddNewSpikes(++counter);
+}
 
+function periodicallyAddNewSpikes(counter) {
     if (counter % 60 === 0) {
         const selectedTrees = getRandomItems(trees, 1);
         for (const tree of selectedTrees) {
             spikeManager.addRandomSpikes(tree, 1);
         }
     }
-    ++counter;
 }
 
 function mouseClicked() {

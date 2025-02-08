@@ -19,5 +19,5 @@ function getRandomInt(min, max) {
 async function loadTreeFromFile(url) {
     const response = await fetch(url);
     const treeJSON = await response.json();
-    return Tree.generateTreeFromJSON(treeJSON);
+    return TreeUtils.generateTreeFromJSON(treeJSON);
 }

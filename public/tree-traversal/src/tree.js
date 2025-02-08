@@ -1,4 +1,4 @@
-class Tree {
+class TreeUtils {
     static generateRandomTree({ startX, startY, maxLevel, maxBranches }) {
         const tree = new Tree();
         tree.branches = tree.generateBranches({
@@ -47,7 +47,9 @@ class Tree {
 
         return new Tree(branches);
     }
+}
 
+class Tree {
     constructor(branches = []) {
         this.branches = branches;
     }

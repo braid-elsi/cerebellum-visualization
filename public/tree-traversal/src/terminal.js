@@ -11,13 +11,11 @@ class Terminal {
         if (color) {
             this.color = color;
         }
-        // this.color = color;
         strokeWeight(0);
         fill(...this.color);
         angleMode(RADIANS);
         push();
         translate(this.x, this.y);
-        // console.log(terminal.angle);
         rotate(this.angle);
         ellipse(0, 0, this.w / 2, this.w * 1.4);
         pop();
