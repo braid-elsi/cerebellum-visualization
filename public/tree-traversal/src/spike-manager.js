@@ -50,7 +50,7 @@ class SpikeManager {
         if (this.isOutbound()) {
             return tree.branches;
         } else {
-            return tree.getTerminals();
+            return tree.getTerminalBranches();
         }
     }
 

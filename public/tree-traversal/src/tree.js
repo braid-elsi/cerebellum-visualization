@@ -6,7 +6,7 @@ class Tree {
             angle: -PI / 2,
             x: startX,
             y: startY,
-            maxLevel: maxLevel,
+            maxLevel,
             maxBranches,
             parent: null,
         });
@@ -14,49 +14,38 @@ class Tree {
     }
 
     static generateTreeFromJSON(branchesJSON) {
-        if (branchesJSON.length === 0) return new Tree(0, 0, []);
+        if (branchesJSON.length === 0) return new Tree([]);
 
-        // 1. Group branches by their start positions to figure out
-        //    which branch branches from which source branch:
-        let branchMap = new Map();
-        for (let branch of branchesJSON) {
-            let key = JSON.stringify(branch.start);
-            if (!branchMap.has(key)) {
-                branchMap.set(key, []);
-            }
-            const args = {
-                start: branch.start,
-                end: branch.end,
-                level: branch.level,
-            };
-            branchMap.get(key).push(new Branch(args));
+        // Group branches by start position
+        const branchMap = new Map();
+        for (const branch of branchesJSON) {
+            const key = JSON.stringify(branch.start);
+            branchMap.set(key, [
+                ...(branchMap.get(key) || []),
+                new Branch(branch),
+            ]);
         }
 
-        // 2. Recursively build the tree
-        function buildTree(branch) {
-            let key = JSON.stringify(branch.end);
+        // Recursive function to build tree and set parent pointers
+        const buildTree = (branch, parent = null) => {
+            branch.parent = parent; // Set parent reference
+            const key = JSON.stringify(branch.end);
             if (branchMap.has(key)) {
-                branch.branches = branchMap.get(key).map(buildTree);
-                branch.terminal = null;
+                const branches = branchMap
+                    .get(key)
+                    .map((child) => buildTree(child, branch));
+                branch.addBranches(branches);
             }
+            branch.addTerminal();
             return branch;
-        }
+        };
 
-        // 2. Identify root branches (level 0) and construct the tree
-        const rootBranches = branchesJSON
-            .filter((branch) => branch.level === 0)
-            .map((branch) => {
-                const args = {
-                    start: branch.start,
-                    end: branch.end,
-                    level: branch.level,
-                };
-                return new Branch(args);
-            });
+        // Identify root branches and construct the tree
+        const branches = branchesJSON
+            .filter(({ level }) => level === 0)
+            .map((branch) => buildTree(new Branch(branch)));
 
-        const branches = rootBranches.map(buildTree);
-        const tree = new Tree(branches);
-        return tree;
+        return new Tree(branches);
     }
 
     constructor(branches = []) {
@@ -72,99 +61,74 @@ class Tree {
         maxBranches,
         parent = null,
     }) {
-        // console.log(level, angle, x, y, maxLevel, maxBranches);
         if (level >= maxLevel) return null;
 
-        let numBranches = level === 0 ? 1 : getRandomInt(1, maxBranches + 1);
-        let branches = [];
-
-        for (let i = 0; i < numBranches; i++) {
-            let newAngle = angle + random(-PI / 4, PI / 4);
-            let length = Math.round(Math.random() * 100) + 20;
-            const start = { x: x, y: y };
+        const numBranches = level === 0 ? 1 : getRandomInt(1, maxBranches + 1);
+        return Array.from({ length: numBranches }, () => {
+            const newAngle = angle + random(-PI / 4, PI / 4);
+            const length = Math.round(Math.random() * 100) + 20;
             const end = {
                 x: Math.round(x + cos(newAngle) * length),
                 y: Math.round(y + sin(newAngle) * length),
             };
-            const branch = new Branch({
-                start: start,
-                end: end,
-                level: level,
-                parent: parent,
-            });
-            let childBranches = this.generateBranches({
-                level: level + 1,
-                angle: newAngle,
-                x: end.x,
-                y: end.y,
-                maxLevel,
-                maxBranches,
-                parent: branch,
-            });
-            branch.addBranches(childBranches);
-            branches.push(branch);
-            // console.log(branch);
-        }
-        return branches;
+
+            const branch = new Branch({ start: { x, y }, end, level, parent });
+            branch.addBranches(
+                this.generateBranches({
+                    level: level + 1,
+                    angle: newAngle,
+                    x: end.x,
+                    y: end.y,
+                    maxLevel,
+                    maxBranches,
+                    parent: branch,
+                }),
+            );
+
+            return branch;
+        });
     }
 
-    getTerminals() {
-        let terminals = [];
-
-        function traverse(branch) {
+    getTerminalBranches() {
+        const terminals = [];
+        const traverse = (branch) => {
             if (!branch.branches || branch.branches.length === 0) {
                 terminals.push(branch);
             } else {
-                for (let child of branch.branches) {
-                    traverse(child);
-                }
+                branch.branches.forEach(traverse);
             }
-        }
+        };
 
-        for (let rootBranch of this.branches) {
-            traverse(rootBranch);
-        }
-
+        this.branches.forEach(traverse);
         return terminals;
     }
 
     flatten(treeJSON) {
-        let flatBranches = [];
-
-        function traverse(branch) {
+        const flatBranches = [];
+        const traverse = (branch) => {
             flatBranches.push({
                 start: branch.start,
                 end: branch.end,
                 level: branch.level,
             });
 
-            if (branch.branches) {
-                for (let child of branch.branches) {
-                    traverse(child);
-                }
-            }
-        }
+            branch.branches?.forEach(traverse);
+        };
 
-        for (let rootBranch of treeJSON.branches) {
-            traverse(rootBranch);
-        }
+        treeJSON.branches.forEach(traverse);
         return flatBranches;
     }
 
     drawBranches(branch) {
-        const branches = branch.branches;
         if (branch.terminal) {
             branch.terminal.render();
             return;
         }
 
-        if (!branches) {
-            return;
-        }
-        for (let branch of branches) {
-            branch.render();
-            this.drawBranches(branch);
-        }
+        branch.branches?.forEach((child) => {
+            child.render();
+            this.drawBranches(child);
+        });
     }
 
     render() {
@@ -172,9 +136,6 @@ class Tree {
     }
 
     toJSON() {
-        const treeJSON = {
-            branches: this.branches.map((b) => b.toJSON()),
-        };
-        return this.flatten(treeJSON);
+        return this.flatten({ branches: this.branches.map((b) => b.toJSON()) });
     }
 }

@@ -10,7 +10,13 @@ class Branch {
 
     addBranches(branches) {
         this.branches = branches;
-        if (!branches) {
+        if (!this.branches || this.branches.length === 0) {
+            this.addTerminal();
+        }
+    }
+
+    addTerminal() {
+        if (!this.branches || this.branches.length === 0) {
             console.log("no child branches...adding terminal.");
             this.terminal = new Terminal({
                 x: Math.round(this.end.x),
@@ -21,6 +27,8 @@ class Branch {
                     this.end.x - this.start.x,
                 ),
             });
+        } else {
+            console.log("No terminal added b/c there are branches here");
         }
     }
 
