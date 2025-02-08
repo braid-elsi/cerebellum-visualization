@@ -107,7 +107,7 @@ class SpikeManager {
             neuron.charge += neuron.threshold / 10;
             if (neuron.charge >= neuron.threshold) {
                 this.initSpikes({
-                    tree: neuron.axon,
+                    tree: neuron.axon.tree,
                     direction: "outbound",
                 });
                 neuron.charge = 0;

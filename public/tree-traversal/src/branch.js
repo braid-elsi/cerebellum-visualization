@@ -47,19 +47,19 @@ class Branch {
 
     addBranches(branches) {
         this.branches = branches || [];
-        if (!this.branches.length) this.addTerminal();
+        // if (!this.branches.length) this.addTerminal();
     }
 
-    addTerminal() {
-        if (this.branches.length) return;
+    // addTerminal() {
+    //     if (this.branches.length) return;
 
-        this.terminal = new Terminal({
-            x: Math.round(this.end.x),
-            y: Math.round(this.end.y),
-            w: 20,
-            angle: this.angle,
-        });
-    }
+    //     this.terminal = new Terminal({
+    //         x: Math.round(this.end.x),
+    //         y: Math.round(this.end.y),
+    //         w: 20,
+    //         angle: this.angle,
+    //     });
+    // }
 
     render() {
         strokeWeight(3);

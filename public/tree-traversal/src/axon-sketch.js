@@ -17,12 +17,6 @@ async function setup() {
     if (loadFromFile) {
         tree = await loadTreeFromFile("./src/axon.json");
     } else {
-        // tree = TreeUtils.generateRandomTree({
-        //     startX: screenW / 2,
-        //     startY: height,
-        //     maxLevel: getRandomInt(4, 8),
-        //     maxBranches: 2,
-        // });
         tree = RandomTreeGenerator.generate({
             startX: screenW / 2,
             startY: height,
@@ -38,42 +32,24 @@ async function setup() {
         addNeuron();
     }
 
-    // x = 50;
-    // while (x < screenW) {
-    //     neurons.push(
-    //         new GranuleCell({
-    //             x: x,
-    //             y: height / 2,
-    //             width: 50,
-    //         }),
-    //     );
-    //     neurons.push(
-    //         new GranuleCell({
-    //             x: x + 100,
-    //             y: height / 2 + 250,
-    //             width: 50,
-    //         }),
-    //     );
-    //     neurons.push(
-    //         new GranuleCell({
-    //             x: x + 100,
-    //             y: height / 2 - 300,
-    //             width: 50,
-    //         }),
-    //     );
-    //     x += 200;
-    // }
-
     neurons.forEach((neuron) => {
         neuron.generateAxon(); // here is where I can pass in a list of target receptors
     });
 
     neurons.forEach((neuron) => {
         spikeManager.initSpikes({
-            tree: neuron.dendrites,
+            tree: neuron.dendrites.tree,
             direction: "inbound",
         });
     });
+}
+
+function draw() {
+    background(255);
+    neurons.forEach((neuron) => neuron.render());
+    // trees.forEach((tree) => tree.render());
+    spikeManager.render();
+    periodicallyAddNewSpikes(++counter);
 }
 
 function addGranuleCell() {
@@ -96,19 +72,11 @@ function addNeuron() {
     neuron.generateAxon();
 }
 
-function draw() {
-    background(255);
-    neurons.forEach((neuron) => neuron.render());
-    // trees.forEach((tree) => tree.render());
-    spikeManager.render();
-    periodicallyAddNewSpikes(++counter);
-}
-
 function periodicallyAddNewSpikes(counter) {
     if (counter % 30 === 0) {
         neurons.forEach((neuron) => {
             spikeManager.addRandomSpikes({
-                tree: neuron.dendrites,
+                tree: neuron.dendrites.tree,
                 direction: "inbound",
                 n: 1,
             });
