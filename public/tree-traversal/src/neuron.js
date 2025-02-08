@@ -3,7 +3,6 @@ class Neuron {
         Object.assign(this, { x, y, width });
         this.charge = 0;
         this.threshold = width;
-        this.generateAxon();
         this.generateDendrites();
     }
 
@@ -44,7 +43,7 @@ class GranuleCell extends Neuron {
             startX: this.x,
             startY: this.y,
             maxLevel: 1,
-            numBranches: 5,
+            numBranches: 3,
             angle: PI / 2,
         });
         // attach the neuron to the root branch for the tree traversal:

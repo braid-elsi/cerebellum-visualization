@@ -27,14 +27,38 @@ async function setup() {
     }
     trees.push(tree);
 
-    [100, 300, 500, 700, 900].forEach((x) => {
-        neurons.push(
-            new GranuleCell({
-                x: x + 100, //screenW / 2,
-                y: height / 2,
-                width: 50,
-            }),
-        );
+    for (let i = 0; i < 2; i++) {
+        addNeuron();
+    }
+
+    // x = 50;
+    // while (x < screenW) {
+    //     neurons.push(
+    //         new GranuleCell({
+    //             x: x,
+    //             y: height / 2,
+    //             width: 50,
+    //         }),
+    //     );
+    //     neurons.push(
+    //         new GranuleCell({
+    //             x: x + 100,
+    //             y: height / 2 + 250,
+    //             width: 50,
+    //         }),
+    //     );
+    //     neurons.push(
+    //         new GranuleCell({
+    //             x: x + 100,
+    //             y: height / 2 - 300,
+    //             width: 50,
+    //         }),
+    //     );
+    //     x += 200;
+    // }
+
+    neurons.forEach((neuron) => {
+        neuron.generateAxon(); // here is where I can pass in a list of target receptors
     });
 
     neurons.forEach((neuron) => {
@@ -43,6 +67,16 @@ async function setup() {
             direction: "inbound",
         });
     });
+}
+
+function addNeuron() {
+    const neuron = new GranuleCell({
+        x: getRandomInt(0, screenW),
+        y: getRandomInt(0, screenH),
+        width: getRandomInt(30, 50),
+    });
+    neurons.push(neuron);
+    neuron.generateAxon();
 }
 
 function draw() {
@@ -62,5 +96,6 @@ function periodicallyAddNewSpikes(counter) {
                 n: 1,
             });
         });
+        addNeuron();
     }
 }
