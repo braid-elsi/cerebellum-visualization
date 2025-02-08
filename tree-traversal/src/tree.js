@@ -1,20 +1,25 @@
 class Tree {
     constructor(branches = []) {
         this.branches = branches;
+        this.terminalBranches = null;
     }
 
     getTerminalBranches() {
-        const terminals = [];
+        if (this.terminalBranches) {
+            // console.log("already calculated...");
+            return this.terminalBranches;
+        }
+        this.terminalBranches = [];
         const traverse = (branch) => {
             if (!branch.branches || branch.branches.length === 0) {
-                terminals.push(branch);
+                this.terminalBranches.push(branch);
             } else {
                 branch.branches.forEach(traverse);
             }
         };
 
         this.branches.forEach(traverse);
-        return terminals;
+        return this.terminalBranches;
     }
 
     flatten() {
@@ -33,10 +38,6 @@ class Tree {
     }
 
     drawBranches(branch) {
-        if (branch.terminal) {
-            branch.terminal.render();
-            return;
-        }
         branch.branches?.forEach((child) => {
             child.render();
             this.drawBranches(child);
@@ -116,7 +117,6 @@ class JSONTreeLoader {
                     .map((child) => buildTree(child, branch));
                 branch.addBranches(branches);
             }
-            branch.addTerminal();
             return branch;
         };
 
