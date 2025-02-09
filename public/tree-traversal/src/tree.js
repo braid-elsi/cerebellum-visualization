@@ -19,17 +19,23 @@ class Tree {
         };
 
         this.branches.forEach(traverse);
+        console.log(this.terminalBranches);
         return this.terminalBranches;
     }
 
-    flatten() {
+    flatten(treeJSON) {
         const flatBranches = [];
         const traverse = (branch) => {
-            flatBranches.push(branch.toJSON());
+            flatBranches.push({
+                start: branch.start,
+                end: branch.end,
+                level: branch.level,
+            });
+
             branch.branches?.forEach(traverse);
         };
 
-        this.branches.forEach(traverse);
+        treeJSON.branches.forEach(traverse);
         return flatBranches;
     }
 
@@ -38,6 +44,9 @@ class Tree {
     }
 
     drawBranches(branch) {
+        if (!branch) {
+            return;
+        }
         branch.branches?.forEach((child) => {
             child.render();
             this.drawBranches(child);
@@ -45,7 +54,7 @@ class Tree {
     }
 
     toJSON() {
-        return this.flatten();
+        return this.flatten({ branches: this.branches.map((b) => b.toJSON()) });
     }
 }
 
