@@ -6,7 +6,7 @@ class Dendrites {
         this.tree.branches.forEach((branch) => (branch.neuron = neuron));
 
         const receptorBranches = this.tree.getTerminalBranches();
-        console.log(receptorBranches);
+        // console.log(receptorBranches);
         // this.receptors = finalBranches.map((branch) => branch.receptor);
         this.receptors = receptorBranches.map((b) => {
             return new Terminal({
@@ -43,7 +43,7 @@ class Axon {
 
     render() {
         this.tree.render();
-        console.log(this.terminals);
+        // console.log(this.terminals);
         this.terminals.forEach((terminal) => terminal.render());
     }
 }
@@ -62,7 +62,7 @@ class Neuron {
             startY: this.y,
             maxLevel: 3,
             maxBranches: 2,
-            angle: PI / 2,
+            angle: -PI / 2,
         });
         this.axon = new Axon({ tree });
     }
@@ -73,7 +73,7 @@ class Neuron {
             startY: this.y,
             maxLevel: 7,
             maxBranches: 2,
-            angle: -PI / 2,
+            angle: PI / 2,
         });
         // this.dendrites.branches.forEach((branch) => (branch.neuron = this));
         this.dendrites = new Dendrites({ neuron: this, tree });
@@ -91,45 +91,79 @@ class Neuron {
 
 class GranuleCell extends Neuron {
     generateDendrites() {
-        const tree = StaticTreeGenerator.generate({
-            startX: this.x,
-            startY: this.y,
-            maxLevel: 1,
-            numBranches: 3,
-            angle: PI / 2,
-        });
+        const points = [];
+        const numPoints = getRandomInt(3, 5);
+        const radius = this.width;
+        const angleRange = (2 * PI) / 3;
+        const delta = angleRange / (numPoints - 1);
+        for (let i = 0; i < numPoints; i++) {
+            let angle = delta * i + angleRange / 4; // Divide full circle into equal angles
+            let x = this.x + radius * cos(angle);
+            let y = this.y + radius * sin(angle);
+            points.push({
+                start: { x: this.x, y: this.y },
+                end: { x: x, y: y },
+                level: 0,
+            });
+        }
+        const tree = JSONTreeLoader.fromJSON(points);
         // // attach the neuron to the root branch for the tree traversal:
         // this.dendrites.branches.forEach((branch) => (branch.neuron = this));
         this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
-    generateAxon() {
-        const tree = RandomTreeGenerator.generate({
-            startX: this.x,
-            startY: this.y,
-            maxLevel: 2,
-            maxBranches: 1,
-            angle: -PI / 2,
+    generateAxon(targetCell) {
+        if (!targetCell) {
+            const tree = RandomTreeGenerator.generate({
+                startX: this.x,
+                startY: this.y,
+                maxLevel: 2,
+                maxBranches: 1,
+                angle: -PI / 2,
+            });
+            this.axon = new Axon({ tree });
+            return;
+        }
+
+        // aim for target cell:
+        const points = [];
+        const mfX = this.x;
+        const mfY = this.y;
+        const y2 = targetCell.y + 3 * targetCell.width;
+        let x2 = ((targetCell.x - mfX) / 5) * 4 + mfX;
+        let level = 0;
+        // vertical line:
+        points.push({
+            start: { x: mfX, y: mfY },
+            end: { x: mfX, y: y2 },
+            level: level,
         });
+
+        if (mfX != x2) {
+            // angled line to cell:
+            points.push({
+                start: { x: mfX, y: y2 },
+                end: { x: x2, y: y2 },
+                level: ++level,
+            });
+        }
+
+        // angled line to each receptor:
+        const receptors = targetCell.dendrites.receptors;
+        for (const receptor of receptors) {
+            points.push({
+                start: { x: x2, y: y2 },
+                end: {
+                    x: receptor.x,
+                    y: receptor.y + receptor.w / 2,
+                },
+                level: level,
+            });
+        }
+        console.log("Axon points:", points);
+        const tree = JSONTreeLoader.fromJSON(points);
+        console.log("Axon tree:", tree);
         this.axon = new Axon({ tree });
-
-        // Define leaf positions (randomly placed)
-        // let leaves = [];
-        // for (let i = 0; i < numPoints; i++) {
-        //     let x = 100 + i * 50;
-        //     let y = 150 + i * 6;
-        //     leaves.push(createVector(x, y));
-        // }
-
-        // // Define trunk position (final endpoint)
-        // let trunk = createVector((numPoints * 50 + 100) / 2 + 25, 500);
-
-        // // Create tree and generate branches
-        // let tree = LeafTreeGenerator.generate({
-        //     leaves,
-        //     trunk,
-        //     levels: numLevels,
-        //     branchFactor: branchesPerCluster,
-        // });
+        console.log("Axon:", this.axon);
     }
 }

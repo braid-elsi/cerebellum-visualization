@@ -17,7 +17,7 @@ class Terminal {
         push();
         translate(this.x, this.y);
         rotate(this.angle);
-        ellipse(0, 0, this.w / 2, this.w * 1.4);
+        ellipse(0, 0, this.w * 0.3, this.w * 0.9);
         pop();
     }
 }
