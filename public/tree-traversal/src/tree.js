@@ -19,7 +19,6 @@ class Tree {
         };
 
         this.branches.forEach(traverse);
-        console.log(this.terminalBranches);
         return this.terminalBranches;
     }
 
@@ -125,8 +124,6 @@ class JSONTreeLoader {
 
             levelMap.get(branch.level).push(branch);
         }
-
-        console.log("Branch Map", branchMap);
 
         // Recursive function to build tree and set parent pointers
         const buildTree = (branch, parent = null) => {
