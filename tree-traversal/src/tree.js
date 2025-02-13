@@ -22,14 +22,19 @@ class Tree {
         return this.terminalBranches;
     }
 
-    flatten() {
+    flatten(treeJSON) {
         const flatBranches = [];
         const traverse = (branch) => {
-            flatBranches.push(branch.toJSON());
+            flatBranches.push({
+                start: branch.start,
+                end: branch.end,
+                level: branch.level,
+            });
+
             branch.branches?.forEach(traverse);
         };
 
-        this.branches.forEach(traverse);
+        treeJSON.branches.forEach(traverse);
         return flatBranches;
     }
 
@@ -38,6 +43,9 @@ class Tree {
     }
 
     drawBranches(branch) {
+        if (!branch) {
+            return;
+        }
         branch.branches?.forEach((child) => {
             child.render();
             this.drawBranches(child);
@@ -45,7 +53,7 @@ class Tree {
     }
 
     toJSON() {
-        return this.flatten();
+        return this.flatten({ branches: this.branches.map((b) => b.toJSON()) });
     }
 }
 
@@ -97,14 +105,24 @@ class JSONTreeLoader {
     static fromJSON(branchesJSON) {
         if (branchesJSON.length === 0) return new Tree([]);
 
-        // Group branches by start position
+        // Group branches by start position and level
         const branchMap = new Map();
-        for (const branch of branchesJSON) {
-            const key = JSON.stringify(branch.start);
-            branchMap.set(key, [
-                ...(branchMap.get(key) || []),
-                new Branch(branch),
-            ]);
+        const branches = branchesJSON.map(
+            (branchData) => new Branch(branchData),
+        );
+
+        for (const branch of branches) {
+            const startKey = JSON.stringify(branch.start);
+            if (!branchMap.has(startKey)) {
+                branchMap.set(startKey, new Map());
+            }
+
+            const levelMap = branchMap.get(startKey);
+            if (!levelMap.has(branch.level)) {
+                levelMap.set(branch.level, []);
+            }
+
+            levelMap.get(branch.level).push(branch);
         }
 
         // Recursive function to build tree and set parent pointers
@@ -112,20 +130,19 @@ class JSONTreeLoader {
             branch.parent = parent;
             const key = JSON.stringify(branch.end);
             if (branchMap.has(key)) {
-                const branches = branchMap
-                    .get(key)
-                    .map((child) => buildTree(child, branch));
+                const levelMap = branchMap.get(key);
+                const branches = [...levelMap.values()].flat();
                 branch.addBranches(branches);
+                branches.forEach((child) => buildTree(child, branch));
             }
             return branch;
         };
 
-        // Identify root branches and construct the tree
-        const branches = branchesJSON
-            .filter(({ level }) => level === 0)
-            .map((branch) => buildTree(new Branch(branch)));
+        // Identify root branches (level === 0) and construct the tree
+        const rootBranches = branches.filter((branch) => branch.level === 0);
+        const treeBranches = rootBranches.map((branch) => buildTree(branch));
 
-        return new Tree(branches);
+        return new Tree(treeBranches);
     }
 }
 

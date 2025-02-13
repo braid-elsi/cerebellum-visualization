@@ -16,6 +16,10 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+function logBase(x, base) {
+    return Math.log(x) / Math.log(base);
+}
+
 async function loadTreeFromFile(url) {
     const response = await fetch(url);
     const treeJSON = await response.json();

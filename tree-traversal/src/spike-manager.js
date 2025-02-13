@@ -10,7 +10,7 @@ class SpikeManager {
     addSpike({ branch, direction, width = 16 }) {
         this.spikes.push(
             new Spike({
-                w: width,
+                width: width,
                 branch,
                 progress: direction === "outbound" ? 0 : branch.length,
                 direction: direction,
@@ -24,9 +24,8 @@ class SpikeManager {
 
     initSpikes({ tree, direction }) {
         console.log(tree, direction);
-        this.getStartBranches({ tree, direction }).forEach((branch) =>
-            this.addSpike({ branch, direction }),
-        );
+        const branches = this.getStartBranches({ tree, direction });
+        branches.forEach((branch) => this.addSpike({ branch, direction }));
     }
 
     getStartBranches({ tree, direction }) {
@@ -74,15 +73,20 @@ class SpikeManager {
 
     spawnOutboundSpikes(spike) {
         if (spike.branch.branches?.length) {
+            const numBranches = spike.branch.branches.length;
             spike.branch.branches.forEach((b) =>
                 this.addSpike({
-                    width: spike.w,
+                    width: Math.min(
+                        (spike.width / numBranches) * Math.log2(numBranches),
+                        spike.width,
+                    ),
                     branch: b,
                     direction: "outbound",
                 }),
             );
         } else {
             console.log("You have reached the terminal button");
+            this.transferChargeAcrossSynapse(spike);
         }
     }
 
@@ -93,25 +97,42 @@ class SpikeManager {
     spawnInboundSpike(spike) {
         if (spike.branch.parent) {
             this.addSpike({
-                width: spike.w,
+                width: spike.width,
                 branch: spike.branch.parent,
                 direction: "inbound",
             });
         } else {
+            // transfer the charge to the connected neuron:
             console.log("Spike reached the root");
-            // time to pass on the spikes:
-            const neuron = spike.branch.neuron;
-            if (!neuron) {
-                return;
-            }
-            neuron.charge += neuron.threshold / 10;
-            if (neuron.charge >= neuron.threshold) {
-                this.initSpikes({
-                    tree: neuron.axon.tree,
-                    direction: "outbound",
-                });
-                neuron.charge = 0;
-            }
+            this.transferChargeToSoma(spike.branch.neuron);
+        }
+    }
+
+    transferChargeToSoma(neuron) {
+        if (!neuron) {
+            console.error(
+                "Error: Dendrites not attached to a neuron. Logic error in setting up Neuron.",
+            );
+        }
+        // console.log("Tranferring the charge to the Soma");
+        neuron.charge += neuron.threshold / 10;
+        if (neuron.charge >= neuron.threshold) {
+            this.initSpikes({
+                tree: neuron.axon.tree,
+                direction: "outbound",
+            });
+            neuron.charge = 0;
+        }
+    }
+
+    transferChargeAcrossSynapse(spike) {
+        const terminal = spike.branch.terminal;
+        if (terminal && terminal.receptor) {
+            this.addSpike({
+                width: spike.width,
+                branch: terminal.receptor.branch,
+                direction: "inbound",
+            });
         }
     }
 }
