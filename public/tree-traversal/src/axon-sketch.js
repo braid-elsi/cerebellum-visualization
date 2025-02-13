@@ -37,21 +37,29 @@ async function setup() {
 
     const cell2 = new GranuleCell({
         x: screenW / 2,
-        y: 450,
+        y: 350,
         width: getRandomInt(30, 50),
     });
     cell2.generateAxon(cell1);
 
-    // const cell3 = new GranuleCell({
-    //     x: screenW / 2,
-    //     y: 600,
-    //     width: getRandomInt(30, 50),
-    // });
-    // cell3.generateAxon(cell2);
+    const cell3 = new GranuleCell({
+        x: screenW / 2,
+        y: 500,
+        width: getRandomInt(30, 50),
+    });
+    cell3.generateAxon(cell2);
+
+    const cell4 = new GranuleCell({
+        x: screenW / 2 - 200,
+        y: 750,
+        width: getRandomInt(30, 50),
+    });
+    cell4.generateAxon(cell3);
 
     neurons.push(cell1);
     neurons.push(cell2);
-    // neurons.push(cell3);
+    neurons.push(cell3);
+    neurons.push(cell4);
 
     // neurons.forEach((neuron) => {
     //     neuron.generateAxon(); // here is where I can pass in a list of target receptors
@@ -103,6 +111,6 @@ function periodicallyAddNewSpikes(counter) {
             n: 1,
         });
         // });
-        randomInterval = getRandomInt(10, 100);
+        randomInterval = getRandomInt(10, 80);
     }
 }

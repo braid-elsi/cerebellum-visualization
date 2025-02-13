@@ -81,7 +81,16 @@ class SpikeManager {
                 }),
             );
         } else {
-            console.log("You have reached the terminal button", spike.branch);
+            const terminal = spike.branch.terminal;
+            console.log("You have reached the terminal button", terminal);
+            if (terminal.receptor) {
+                console.log("Terminal receptor defined!");
+                this.addSpike({
+                    width: spike.w,
+                    branch: terminal.receptor.branch,
+                    direction: "inbound",
+                });
+            }
         }
     }
 
