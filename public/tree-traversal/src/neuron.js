@@ -8,12 +8,10 @@ class Dendrites {
         const receptorBranches = this.tree.getTerminalBranches();
         // console.log(receptorBranches);
         // this.receptors = finalBranches.map((branch) => branch.receptor);
-        this.receptors = receptorBranches.map((b) => {
+        this.receptors = receptorBranches.map((branch) => {
             return new Receptor({
-                x: Math.round(b.end.x),
-                y: Math.round(b.end.y),
-                w: 20,
-                angle: b.angle,
+                width: 20,
+                branch: branch,
             });
         });
     }
@@ -25,25 +23,28 @@ class Dendrites {
 }
 
 class Axon {
-    constructor({ tree }) {
+    constructor({ tree, terminals = null }) {
         this.tree = tree;
+        this.terminals = terminals || this.generateTerminalBranches();
+        console.log("Axon terminals:", this.terminals);
+    }
+
+    generateTerminalBranches() {
         const terminalBranches = this.tree.getTerminalBranches();
         console.log(terminalBranches);
 
         // connect the roots of the dendrite trees to the source neuron
-
-        this.terminals = [];
-        terminalBranches.forEach((b) => {
+        const terminals = [];
+        terminalBranches.forEach((branch) => {
             const terminal = new Terminal({
-                x: Math.round(b.end.x),
-                y: Math.round(b.end.y),
-                w: 20,
-                angle: b.angle,
+                width: 20,
+                branch: branch,
             });
-            this.terminals.push(terminal);
+            terminals.push(terminal);
             // give the terminal branch access to the terminal
-            b.terminal = terminal;
+            branch.terminal = terminal;
         });
+        return terminals;
     }
 
     render() {
@@ -137,6 +138,7 @@ class GranuleCell extends Neuron {
         const y2 = targetCell.y + 3 * targetCell.width;
         let x2 = ((targetCell.x - mfX) / 5) * 4 + mfX;
         let level = 0;
+
         // vertical line:
         points.push({
             start: { x: mfX, y: mfY },
@@ -145,8 +147,8 @@ class GranuleCell extends Neuron {
         });
         ++level;
 
+        // angled line to cell:
         if (mfX != x2) {
-            // angled line to cell:
             points.push({
                 start: { x: mfX, y: y2 },
                 end: { x: x2, y: y2 },
