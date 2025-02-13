@@ -15,6 +15,31 @@ class Dendrites {
         });
     }
 
+    getReceptorMaxY() {
+        return this.receptors.reduce(
+            (max, receptor) => (receptor.y > max.y ? receptor : max),
+            this.receptors[0],
+        );
+    }
+    getReceptorMaxX() {
+        return this.receptors.reduce(
+            (max, receptor) => (receptor.x > max.x ? receptor : max),
+            this.receptors[0],
+        );
+    }
+    getReceptorMinX() {
+        return this.receptors.reduce(
+            (min, receptor) => (receptor.x < min.x ? receptor : min),
+            this.receptors[0],
+        );
+    }
+    getReceptorMinY() {
+        return this.receptors.reduce(
+            (min, receptor) => (receptor.y < min.y ? receptor : min),
+            this.receptors[0],
+        );
+    }
+
     render() {
         this.tree.render();
         this.receptors.forEach((receptor) => receptor.render());
@@ -51,7 +76,7 @@ class Axon {
 }
 
 class Neuron {
-    constructor({ x, y, width }) {
+    constructor({ x, y, width, maxBranches = 2, maxLevel = 3 }) {
         if (x === undefined || y === undefined || width === undefined) {
             throw new Error("x, y, and width are required parameters.");
         }
@@ -72,12 +97,12 @@ class Neuron {
         this.axon = new Axon({ tree });
     }
 
-    generateDendrites() {
+    generateDendrites(maxBranches = 2, maxLevel = 3) {
         const tree = RandomTreeGenerator.generate({
             startX: this.x,
             startY: this.y,
-            maxLevel: 7,
-            maxBranches: 2,
+            maxLevel: maxLevel,
+            maxBranches: maxBranches,
             angle: PI / 2,
         });
         // this.dendrites.branches.forEach((branch) => (branch.neuron = this));
@@ -176,29 +201,22 @@ class GranuleCell extends Neuron {
         const points = [];
         const mfX = this.x;
         const mfY = this.y;
-        const y2 = targetCell.y + 3 * targetCell.width;
+        const branchY = targetCell.dendrites.getReceptorMaxY(); //targetCell.y
+        // const branchX = targetCell.dendrites.getReceptorMaxX(); //targetCell.x
+        // console.log(branchX);
+        const y2 = branchY.y + 3 * targetCell.width;
         let x2 = ((targetCell.x - mfX) / 5) * 4 + mfX;
         let level = 0;
 
-        // vertical line:
+        // level 1:
         points.push({
             start: { x: mfX, y: mfY },
-            end: { x: mfX, y: y2 },
+            end: { x: x2, y: y2 },
             level: level,
         });
         ++level;
 
-        // angled line to cell:
-        if (mfX != x2) {
-            points.push({
-                start: { x: mfX, y: y2 },
-                end: { x: x2, y: y2 },
-                level: level,
-            });
-            ++level;
-        }
-
-        // angled line to each receptor:
+        // level 2:
         const receptors = targetCell.dendrites.receptors;
         for (const receptor of receptors) {
             const synapseGapWidth = receptor.width / 3;

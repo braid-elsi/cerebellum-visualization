@@ -1,13 +1,20 @@
 class Spike {
     constructor({
-        w,
+        width = 20,
         branch,
         progress,
         speed = 3,
         color = [255, 0, 0],
         direction = "outbound",
     }) {
-        Object.assign(this, { w, branch, progress, speed, color, direction });
+        Object.assign(this, {
+            width,
+            branch,
+            progress,
+            speed,
+            color,
+            direction,
+        });
 
         // Store branch start/end as p5.Vectors for easier calculations
         this.startVec = createVector(branch.start.x, branch.start.y);
@@ -38,6 +45,6 @@ class Spike {
 
     render() {
         fill(...this.color);
-        ellipse(this.pos.x, this.pos.y, this.w, this.w);
+        ellipse(this.pos.x, this.pos.y, this.width, this.width);
     }
 }
