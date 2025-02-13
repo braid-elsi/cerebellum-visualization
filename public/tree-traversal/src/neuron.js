@@ -9,7 +9,7 @@ class Dendrites {
         // console.log(receptorBranches);
         // this.receptors = finalBranches.map((branch) => branch.receptor);
         this.receptors = receptorBranches.map((b) => {
-            return new Terminal({
+            return new Receptor({
                 x: Math.round(b.end.x),
                 y: Math.round(b.end.y),
                 w: 20,
@@ -31,13 +31,18 @@ class Axon {
         console.log(terminalBranches);
 
         // connect the roots of the dendrite trees to the source neuron
-        this.terminals = terminalBranches.map((b) => {
-            return new Terminal({
+
+        this.terminals = [];
+        terminalBranches.forEach((b) => {
+            const terminal = new Terminal({
                 x: Math.round(b.end.x),
                 y: Math.round(b.end.y),
                 w: 20,
                 angle: b.angle,
             });
+            this.terminals.push(terminal);
+            // give the terminal branch access to the terminal
+            b.terminal = terminal;
         });
     }
 
@@ -138,24 +143,27 @@ class GranuleCell extends Neuron {
             end: { x: mfX, y: y2 },
             level: level,
         });
+        ++level;
 
         if (mfX != x2) {
             // angled line to cell:
             points.push({
                 start: { x: mfX, y: y2 },
                 end: { x: x2, y: y2 },
-                level: ++level,
+                level: level,
             });
+            ++level;
         }
 
         // angled line to each receptor:
         const receptors = targetCell.dendrites.receptors;
         for (const receptor of receptors) {
+            const synapseGapWidth = receptor.w / 3;
             points.push({
                 start: { x: x2, y: y2 },
                 end: {
                     x: receptor.x,
-                    y: receptor.y + receptor.w / 2,
+                    y: receptor.y + synapseGapWidth,
                 },
                 level: level,
             });

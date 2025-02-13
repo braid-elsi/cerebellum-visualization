@@ -24,9 +24,8 @@ class SpikeManager {
 
     initSpikes({ tree, direction }) {
         console.log(tree, direction);
-        this.getStartBranches({ tree, direction }).forEach((branch) =>
-            this.addSpike({ branch, direction }),
-        );
+        const branches = this.getStartBranches({ tree, direction });
+        branches.forEach((branch) => this.addSpike({ branch, direction }));
     }
 
     getStartBranches({ tree, direction }) {
@@ -82,7 +81,7 @@ class SpikeManager {
                 }),
             );
         } else {
-            console.log("You have reached the terminal button");
+            console.log("You have reached the terminal button", spike.branch);
         }
     }
 
@@ -98,20 +97,26 @@ class SpikeManager {
                 direction: "inbound",
             });
         } else {
+            // transfer the charge to the connected neuron:
             console.log("Spike reached the root");
-            // time to pass on the spikes:
-            const neuron = spike.branch.neuron;
-            if (!neuron) {
-                return;
-            }
-            neuron.charge += neuron.threshold / 10;
-            if (neuron.charge >= neuron.threshold) {
-                this.initSpikes({
-                    tree: neuron.axon.tree,
-                    direction: "outbound",
-                });
-                neuron.charge = 0;
-            }
+            this.transferChargeToNeuron(spike.branch.neuron);
+        }
+    }
+
+    transferChargeToNeuron(neuron) {
+        if (!neuron) {
+            console.error(
+                "Error: Dendrites not attached to a neuron. Logic error in setting up Neuron.",
+            );
+        }
+        // console.log("Tranferring the charge to the Soma");
+        neuron.charge += neuron.threshold / 10;
+        if (neuron.charge >= neuron.threshold) {
+            this.initSpikes({
+                tree: neuron.axon.tree,
+                direction: "outbound",
+            });
+            neuron.charge = 0;
         }
     }
 }
