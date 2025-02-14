@@ -1,12 +1,15 @@
-class Spike {
-    constructor({
-        width = 20,
-        branch,
-        progress,
-        speed = 3,
-        color = [255, 0, 0],
-        direction = "outbound",
-    }) {
+export default class Spike {
+    constructor(
+        {
+            width = 20,
+            branch,
+            progress,
+            speed = 3,
+            color = [255, 0, 0],
+            direction = "outbound",
+        },
+        p5,
+    ) {
         Object.assign(this, {
             width,
             branch,
@@ -17,8 +20,8 @@ class Spike {
         });
 
         // Store branch start/end as p5.Vectors for easier calculations
-        this.startVec = createVector(branch.start.x, branch.start.y);
-        this.endVec = createVector(branch.end.x, branch.end.y);
+        this.startVec = p5.createVector(branch.start.x, branch.start.y);
+        this.endVec = p5.createVector(branch.end.x, branch.end.y);
 
         // Set initial position based on direction
         this.pos = this.isOutbound()
@@ -34,17 +37,18 @@ class Spike {
         this.direction = this.isOutbound() ? "inbound" : "outbound";
     }
 
-    move() {
+    move(p5) {
         const dir = this.isOutbound() ? 1 : -1;
         this.progress += dir * this.speed;
         const ratio = this.progress / this.branch.length;
 
         // Interpolate position using vector lerp
-        this.pos = p5.Vector.lerp(this.startVec, this.endVec, ratio);
+        const vectorLerpFunction = p5.constructor.Vector.lerp;
+        this.pos = vectorLerpFunction(this.startVec, this.endVec, ratio);
     }
 
-    render() {
-        fill(...this.color);
-        ellipse(this.pos.x, this.pos.y, this.width, this.width);
+    render(p5) {
+        p5.fill(...this.color);
+        p5.ellipse(this.pos.x, this.pos.y, this.width, this.width);
     }
 }

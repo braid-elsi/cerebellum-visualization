@@ -1,3 +1,7 @@
+import { getRandomInt, dist1 } from "./utils.js";
+import { JSONTreeLoader, RandomTreeGenerator } from "./tree.js";
+import { Receptor, Terminal } from "./synapses.js";
+
 class Dendrites {
     constructor({ neuron, tree }) {
         this.tree = tree;
@@ -40,9 +44,9 @@ class Dendrites {
         );
     }
 
-    render() {
-        this.tree.render();
-        this.receptors.forEach((receptor) => receptor.render());
+    render(p5) {
+        this.tree.render(p5);
+        this.receptors.forEach((receptor) => receptor.render(p5));
     }
 }
 
@@ -69,13 +73,13 @@ class Axon {
         return terminals;
     }
 
-    render() {
-        this.tree.render();
-        this.terminals.forEach((terminal) => terminal.render());
+    render(p5) {
+        this.tree.render(p5);
+        this.terminals.forEach((terminal) => terminal.render(p5));
     }
 }
 
-class Neuron {
+export class Neuron {
     constructor({ x, y, width, maxBranches = 2, maxLevel = 3 }) {
         if (x === undefined || y === undefined || width === undefined) {
             throw new Error("x, y, and width are required parameters.");
@@ -92,7 +96,7 @@ class Neuron {
             startY: this.y,
             maxLevel: 3,
             maxBranches: 2,
-            angle: -PI / 2,
+            angle: -Math.PI / 2,
         });
         this.axon = new Axon({ tree });
     }
@@ -109,27 +113,27 @@ class Neuron {
         this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
-    render() {
+    render(p5) {
         this.charge = Math.max(0, this.charge - 0.005);
-        this.axon.render();
-        this.dendrites.render();
-        ellipse(this.x, this.y, this.width, this.width);
-        fill(255, 0, 0);
-        ellipse(this.x, this.y, this.charge, this.charge);
+        this.axon.render(p5);
+        this.dendrites.render(p5);
+        p5.ellipse(this.x, this.y, this.width, this.width);
+        p5.fill(255, 0, 0);
+        p5.ellipse(this.x, this.y, this.charge, this.charge);
     }
 }
 
-class GranuleCell extends Neuron {
+export class GranuleCell extends Neuron {
     generateDendrites() {
         const points = [];
         const numPoints = getRandomInt(3, 5);
         const radius = this.width;
-        const angleRange = (2 * PI) / 3;
+        const angleRange = (2 * Math.PI) / 3;
         const delta = angleRange / (numPoints - 1);
         for (let i = 0; i < numPoints; i++) {
             let angle = delta * i + angleRange / 4; // Divide full circle into equal angles
-            let x = this.x + radius * cos(angle);
-            let y = this.y + radius * sin(angle);
+            let x = this.x + radius * Math.cos(angle);
+            let y = this.y + radius * Math.sin(angle);
             points.push({
                 start: { x: this.x, y: this.y },
                 end: { x: x, y: y },
@@ -142,27 +146,26 @@ class GranuleCell extends Neuron {
         this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
-    generateAxon(targetCell) {
-        if (!targetCell) {
+    generateAxon(targetCells) {
+        if (!targetCells) {
             const tree = RandomTreeGenerator.generate({
                 startX: this.x,
                 startY: this.y,
                 maxLevel: 2,
                 maxBranches: 1,
-                angle: -PI / 2,
+                angle: -Math.PI / 2,
             });
             this.axon = new Axon({ tree });
             return;
         }
 
-        const branchJSON = this.generateBranchJSON(targetCell);
-        const tree = JSONTreeLoader.fromJSON(branchJSON);
-        this.axon = new Axon({ tree });
-        this.attachTerminalsToReceptors(targetCell);
-        console.log(
-            "Axon terminals attached to receptors?",
-            this.axon.terminals,
-        );
+        console.log(targetCells);
+        for (const targetCell of targetCells) {
+            const branchJSON = this.generateBranchJSON(targetCell);
+            const tree = JSONTreeLoader.fromJSON(branchJSON);
+            this.axon = new Axon({ tree });
+            this.attachTerminalsToReceptors(targetCell);
+        }
     }
 
     attachTerminalsToReceptors(targetCell) {
@@ -170,14 +173,14 @@ class GranuleCell extends Neuron {
 
         function getClosestReceptor(terminal) {
             let closestReceptor = receptors[0];
-            let smallestDistanceYet = dist(
+            let smallestDistanceYet = dist1(
                 terminal.x,
                 terminal.y,
                 closestReceptor.x,
                 closestReceptor.y,
             );
             for (const receptor of receptors) {
-                let newDistance = dist(
+                let newDistance = dist1(
                     terminal.x,
                     terminal.y,
                     receptor.x,

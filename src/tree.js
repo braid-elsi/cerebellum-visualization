@@ -1,4 +1,6 @@
-class Tree {
+import Branch from "./branch.js";
+
+export class Tree {
     constructor(branches = []) {
         this.branches = branches;
         this.terminalBranches = null;
@@ -38,17 +40,17 @@ class Tree {
         return flatBranches;
     }
 
-    render() {
-        this.drawBranches(this);
+    render(p5) {
+        this.drawBranches(this, p5);
     }
 
-    drawBranches(branch) {
+    drawBranches(branch, p5) {
         if (!branch) {
             return;
         }
         branch.branches?.forEach((child) => {
-            child.render();
-            this.drawBranches(child);
+            child.render(p5);
+            this.drawBranches(child, p5);
         });
     }
 
@@ -57,7 +59,7 @@ class Tree {
     }
 }
 
-class RandomTreeGenerator {
+export class RandomTreeGenerator {
     static generate({
         startX,
         startY,
@@ -79,7 +81,7 @@ class RandomTreeGenerator {
     }
 }
 
-class StaticTreeGenerator {
+export class StaticTreeGenerator {
     static generate({
         startX,
         startY,
@@ -101,7 +103,7 @@ class StaticTreeGenerator {
     }
 }
 
-class JSONTreeLoader {
+export class JSONTreeLoader {
     static fromJSON(branchesJSON) {
         if (branchesJSON.length === 0) return new Tree([]);
 
@@ -146,7 +148,7 @@ class JSONTreeLoader {
     }
 }
 
-class LeafTreeGenerator {
+export class LeafTreeGenerator {
     static generate({ leaves, trunk, levels, branchFactor }) {
         // Create a new Tree instance
         const tree = new Tree();

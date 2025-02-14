@@ -9,26 +9,26 @@ class Endpoint {
         this.doRotation = false;
     }
 
-    render(color) {
+    render(p5, color) {
         if (color) {
             this.color = color;
         }
-        strokeWeight(0);
-        fill(...this.color);
+        p5.strokeWeight(0);
+        p5.fill(...this.color);
         if (this.doRotation) {
-            angleMode(RADIANS);
-            push();
-            translate(this.x, this.y);
-            rotate(this.angle);
-            ellipse(0, 0, this.width * 0.3, this.width * 0.9);
-            pop();
+            p5.angleMode(RADIANS);
+            p5.push();
+            p5.translate(this.x, this.y);
+            p5.rotate(this.angle);
+            p5.ellipse(0, 0, this.width * 0.3, this.width * 0.9);
+            p5.pop();
         } else {
-            ellipse(this.x, this.y, this.width * 0.9, this.width * 0.3);
+            p5.ellipse(this.x, this.y, this.width * 0.9, this.width * 0.3);
         }
     }
 }
 
-class Receptor extends Endpoint {
+export class Receptor extends Endpoint {
     constructor({ branch, width, color = [0, 0, 0] }, terminal = null) {
         super({ branch, width, color });
         this.type = "receptor";
@@ -43,7 +43,7 @@ class Receptor extends Endpoint {
     }
 }
 
-class Terminal extends Endpoint {
+export class Terminal extends Endpoint {
     constructor({ branch, width, color = [0, 0, 0], receptor = null }) {
         super({ branch, width, color });
         this.receptor = receptor;
