@@ -57,11 +57,18 @@ async function setup(p5) {
     cell2.generateAxon([cell1]);
 
     const cell3 = new GranuleCell({
-        x: screenW / 2,
+        x: screenW / 2 + 300,
         y: 700,
         width: getRandomInt(30, 50),
     });
     cell3.generateAxon([cell1, cell2]);
+
+    const cell4 = new GranuleCell({
+        x: screenW / 2 - 300,
+        y: 900,
+        width: getRandomInt(30, 50),
+    });
+    cell4.generateAxon([cell1, cell2, cell3]);
 
     // const cell4 = new GranuleCell({
     //     x: screenW / 2 - 200,
@@ -73,7 +80,7 @@ async function setup(p5) {
     neurons.push(cell1);
     neurons.push(cell2);
     neurons.push(cell3);
-    // neurons.push(cell4);
+    neurons.push(cell4);
 
     // neurons.forEach((neuron) => {
     //     neuron.generateAxon(); // here is where I can pass in a list of target receptors
@@ -96,10 +103,18 @@ function draw(p5) {
 
 function periodicallyAddNewSpikes(counter, p5) {
     if (counter % randomInterval === 0) {
-        const neuron = neurons[neurons.length - 1];
+        // const neuron = neurons[neurons.length - 1];
         spikeManager.addRandomSpikes(
             {
-                tree: neuron.dendrites.tree,
+                tree: neurons[3].dendrites.tree,
+                direction: "inbound",
+                n: 1,
+            },
+            p5,
+        );
+        spikeManager.addRandomSpikes(
+            {
+                tree: neurons[2].dendrites.tree,
                 direction: "inbound",
                 n: 1,
             },

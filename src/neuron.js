@@ -160,10 +160,17 @@ export class GranuleCell extends Neuron {
         }
 
         console.log(targetCells);
+        let branchJSON = [];
         for (const targetCell of targetCells) {
-            const branchJSON = this.generateBranchJSON(targetCell);
-            const tree = JSONTreeLoader.fromJSON(branchJSON);
-            this.axon = new Axon({ tree });
+            branchJSON.push(...this.generateBranchJSON(targetCell));
+        }
+        const tree = JSONTreeLoader.fromJSON(branchJSON);
+        this.axon = new Axon({ tree });
+        for (const targetCell of targetCells) {
+            // this doesn't work b/c every terminal only has one receptor and
+            // both neurons are trying to attach to all of the available receptors.
+            // the solution is to ensure that the target terminals are the argument,
+            // not the entire cell:
             this.attachTerminalsToReceptors(targetCell);
         }
     }
