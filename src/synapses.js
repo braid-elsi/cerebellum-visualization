@@ -55,6 +55,9 @@ export class Terminal extends Endpoint {
         if (!receptor) {
             return;
         }
+        // if (this. receptor.terminal) {
+        //     console.error("Terminal already attached");
+        // }
         this.receptor = receptor;
         this.receptor.terminal = this;
     }

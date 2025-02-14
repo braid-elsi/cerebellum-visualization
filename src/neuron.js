@@ -19,29 +19,25 @@ class Dendrites {
         });
     }
 
-    getReceptorMaxY() {
+    getReceptorExtreme(compareFn, axis) {
         return this.receptors.reduce(
-            (max, receptor) => (receptor.y > max.y ? receptor : max),
+            (extreme, receptor) =>
+                compareFn(receptor[axis], extreme[axis]) ? receptor : extreme,
             this.receptors[0],
         );
+    }
+
+    getReceptorMaxY() {
+        return this.getReceptorExtreme((a, b) => a > b, "y");
     }
     getReceptorMaxX() {
-        return this.receptors.reduce(
-            (max, receptor) => (receptor.x > max.x ? receptor : max),
-            this.receptors[0],
-        );
+        return this.getReceptorExtreme((a, b) => a > b, "x");
     }
     getReceptorMinX() {
-        return this.receptors.reduce(
-            (min, receptor) => (receptor.x < min.x ? receptor : min),
-            this.receptors[0],
-        );
+        return this.getReceptorExtreme((a, b) => a < b, "x");
     }
     getReceptorMinY() {
-        return this.receptors.reduce(
-            (min, receptor) => (receptor.y < min.y ? receptor : min),
-            this.receptors[0],
-        );
+        return this.getReceptorExtreme((a, b) => a < b, "y");
     }
 
     render(p5) {
@@ -60,17 +56,11 @@ class Axon {
         const terminalBranches = this.tree.getTerminalBranches();
 
         // connect the roots of the dendrite trees to the source neuron
-        const terminals = [];
-        terminalBranches.forEach((branch) => {
-            const terminal = new Terminal({
-                width: 20,
-                branch: branch,
-            });
-            terminals.push(terminal);
-            // give the terminal branch access to the terminal
+        return terminalBranches.map((branch) => {
+            const terminal = new Terminal({ width: 20, branch });
             branch.terminal = terminal;
+            return terminal;
         });
-        return terminals;
     }
 
     render(p5) {
@@ -91,14 +81,15 @@ export class Neuron {
     }
 
     generateAxon() {
-        const tree = RandomTreeGenerator.generate({
-            startX: this.x,
-            startY: this.y,
-            maxLevel: 3,
-            maxBranches: 2,
-            angle: -Math.PI / 2,
+        this.axon = new Axon({
+            tree: RandomTreeGenerator.generate({
+                startX: this.x,
+                startY: this.y,
+                maxLevel: this.maxLevel, // Use class properties
+                maxBranches: this.maxBranches,
+                angle: -Math.PI / 2,
+            }),
         });
-        this.axon = new Axon({ tree });
     }
 
     generateDendrites(maxBranches = 2, maxLevel = 3) {
@@ -107,7 +98,7 @@ export class Neuron {
             startY: this.y,
             maxLevel: maxLevel,
             maxBranches: maxBranches,
-            angle: PI / 2,
+            angle: Math.PI / 2,
         });
         // this.dendrites.branches.forEach((branch) => (branch.neuron = this));
         this.dendrites = new Dendrites({ neuron: this, tree });
@@ -175,34 +166,21 @@ export class GranuleCell extends Neuron {
         }
     }
 
+    getClosestReceptor(terminal, receptors) {
+        return receptors.reduce(
+            (closest, receptor) =>
+                dist1(terminal.x, terminal.y, receptor.x, receptor.y) <
+                dist1(terminal.x, terminal.y, closest.x, closest.y)
+                    ? receptor
+                    : closest,
+            receptors[0],
+        );
+    }
+
     attachTerminalsToReceptors(targetCell) {
         const receptors = targetCell.dendrites.receptors;
-
-        function getClosestReceptor(terminal) {
-            let closestReceptor = receptors[0];
-            let smallestDistanceYet = dist1(
-                terminal.x,
-                terminal.y,
-                closestReceptor.x,
-                closestReceptor.y,
-            );
-            for (const receptor of receptors) {
-                let newDistance = dist1(
-                    terminal.x,
-                    terminal.y,
-                    receptor.x,
-                    receptor.y,
-                );
-                if (newDistance < smallestDistanceYet) {
-                    smallestDistanceYet = newDistance;
-                    closestReceptor = receptor;
-                }
-            }
-            return closestReceptor;
-        }
-
         this.axon.terminals.forEach((terminal) => {
-            terminal.setReceptor(getClosestReceptor(terminal));
+            terminal.setReceptor(this.getClosestReceptor(terminal, receptors));
         });
     }
 

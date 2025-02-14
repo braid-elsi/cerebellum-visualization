@@ -61,14 +61,14 @@ async function setup(p5) {
         y: 700,
         width: getRandomInt(30, 50),
     });
-    cell3.generateAxon([cell1, cell2]);
+    cell3.generateAxon([cell2]);
 
     const cell4 = new GranuleCell({
         x: screenW / 2 - 300,
         y: 900,
         width: getRandomInt(30, 50),
     });
-    cell4.generateAxon([cell1, cell2, cell3]);
+    cell4.generateAxon([cell2, cell3]);
 
     // const cell4 = new GranuleCell({
     //     x: screenW / 2 - 200,
@@ -103,18 +103,10 @@ function draw(p5) {
 
 function periodicallyAddNewSpikes(counter, p5) {
     if (counter % randomInterval === 0) {
-        // const neuron = neurons[neurons.length - 1];
+        const neuron = neurons[3];
         spikeManager.addRandomSpikes(
             {
-                tree: neurons[3].dendrites.tree,
-                direction: "inbound",
-                n: 1,
-            },
-            p5,
-        );
-        spikeManager.addRandomSpikes(
-            {
-                tree: neurons[2].dendrites.tree,
+                tree: neuron.dendrites.tree,
                 direction: "inbound",
                 n: 1,
             },
