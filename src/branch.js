@@ -55,8 +55,9 @@ export default class Branch {
     }
 
     addBranches(branches) {
-        this.branches = branches || [];
+        this.branches.push(...branches);
     }
+
     render(p5) {
         this.drawStraightLine(p5);
         // this.drawCurvedLine(p5);

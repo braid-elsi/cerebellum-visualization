@@ -2,8 +2,16 @@ import Branch from "./branch.js";
 
 export class Tree {
     constructor(branches = []) {
-        this.branches = branches;
+        this.branches = branches; // usually only 1 branch, but it depends
         this.terminalBranches = null;
+    }
+
+    addBranch(newBranch, targetBranch = null) {
+        if (!targetBranch && this.branches.length === 0) {
+            throw Error("No root branch(es) defined.");
+        }
+        targetBranch = targetBranch || this.branches[0];
+        targetBranch.addBranches([newBranch]);
     }
 
     getTerminalBranches() {

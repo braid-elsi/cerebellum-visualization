@@ -1,11 +1,8 @@
 import p5Lib from "p5";
 import SpikeManager from "./spike-manager.js";
-import { loadTreeFromFile } from "./utils.js";
-import { GranuleCell } from "./neuron.js";
+import { GranuleCell, Neuron } from "./neuron.js";
 import { getRandomInt } from "./utils.js";
 
-const loadFromFile = true;
-const trees = [];
 const neurons = [];
 const spikeManager = new SpikeManager();
 const screenW = document.documentElement.clientWidth - 30;
@@ -28,70 +25,30 @@ async function setup(p5) {
     p5.frameRate(60); // 60 FPS is the max on many machines
     p5.background(255);
 
-    let tree;
-    if (loadFromFile) {
-        tree = await loadTreeFromFile("./src/axon.json");
-    } else {
-        tree = RandomTreeGenerator.generate({
-            startX: screenW / 2,
-            startY: height,
-            maxLevel: getRandomInt(4, 8),
-            maxBranches: 2,
+    Array.from({ length: 4 }).forEach((item, idx) => {
+        const gc = new GranuleCell({
+            x: screenW / 2 + Math.random() * 200 - 100,
+            y: 200 + idx * 250,
+            width: getRandomInt(30, 50),
         });
-        console.log(tree.toJSON());
-    }
-    trees.push(tree);
-
-    const cell1 = new GranuleCell({
-        x: screenW / 2,
-        y: 200,
-        width: getRandomInt(30, 50),
+        if (idx > 0) {
+            // the previous neuron should be connected to the current neuron:
+            gc.connectTo(neurons[idx - 1], getRandomInt(2, 4));
+        }
+        neurons.push(gc);
     });
-    cell1.generateAxon();
 
-    const cell2 = new GranuleCell({
-        x: screenW / 2 - 50,
+    const gc = new GranuleCell({
+        x: screenW / 2 + 200,
         y: 450,
         width: getRandomInt(30, 50),
     });
-    cell2.generateAxon([cell1]);
+    gc.connectTo(neurons[0], 3);
+    neurons[2].connectTo(gc, 3);
+    neurons.push(gc);
 
-    const cell3 = new GranuleCell({
-        x: screenW / 2 + 300,
-        y: 700,
-        width: getRandomInt(30, 50),
-    });
-    cell3.generateAxon([cell2]);
-
-    const cell4 = new GranuleCell({
-        x: screenW / 2 - 300,
-        y: 900,
-        width: getRandomInt(30, 50),
-    });
-    cell4.generateAxon([cell2, cell3]);
-
-    // const cell4 = new GranuleCell({
-    //     x: screenW / 2 - 200,
-    //     y: 750,
-    //     width: getRandomInt(30, 50),
-    // });
-    // cell4.generateAxon(cell3);
-
-    neurons.push(cell1);
-    neurons.push(cell2);
-    neurons.push(cell3);
-    neurons.push(cell4);
-
-    // neurons.forEach((neuron) => {
-    //     neuron.generateAxon(); // here is where I can pass in a list of target receptors
-    // });
-
-    // neurons.forEach((neuron) => {
-    //     spikeManager.initSpikes({
-    //         tree: neuron.dendrites.tree,
-    //         direction: "inbound",
-    //     });
-    // });
+    neurons.forEach((gc) => gc.generateDendrites());
+    neurons.forEach((gc) => gc.generateAxon());
 }
 
 function draw(p5) {
@@ -106,8 +63,8 @@ function periodicallyAddNewSpikes(counter, p5) {
         const neuron = neurons[3];
         spikeManager.addRandomSpikes(
             {
-                tree: neuron.dendrites.tree,
-                direction: "inbound",
+                tree: neuron.axon.tree,
+                direction: "outbound",
                 n: 1,
             },
             p5,

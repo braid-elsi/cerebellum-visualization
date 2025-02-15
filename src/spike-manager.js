@@ -40,8 +40,9 @@ export default class SpikeManager {
     }
 
     addRandomSpikes({ tree, direction, n = 1 }, p5) {
-        getRandomItems(this.getStartBranches({ tree, direction }), n).forEach(
-            (branch) => this.addSpike({ branch, direction }, p5),
+        const branches = this.getStartBranches({ tree, direction });
+        getRandomItems(branches, n).forEach((branch) =>
+            this.addSpike({ branch, direction }, p5),
         );
     }
 
@@ -128,13 +129,15 @@ export default class SpikeManager {
         // console.log("Tranferring the charge to the Soma");
         neuron.charge += neuron.threshold / 10;
         if (neuron.charge >= neuron.threshold) {
-            this.initSpikes(
-                {
-                    tree: neuron.axon.tree,
-                    direction: "outbound",
-                },
-                p5,
-            );
+            if (neuron.axon) {
+                this.initSpikes(
+                    {
+                        tree: neuron.axon.tree,
+                        direction: "outbound",
+                    },
+                    p5,
+                );
+            }
             neuron.charge = 0;
         }
     }
