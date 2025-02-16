@@ -10,14 +10,15 @@ export default class SpikeManager {
         this.spikes.forEach((spike) => spike.toggleDirection());
     }
 
-    addSpike({ branch, direction, width = 16 }, p5) {
+    addSpike({ branch, direction, width = 16, color = [255, 0, 0] }, p5) {
         this.spikes.push(
             new Spike(
                 {
-                    width: width,
+                    width,
                     branch,
                     progress: direction === "outbound" ? 0 : branch.length,
-                    direction: direction,
+                    direction,
+                    color,
                 },
                 p5,
             ),
@@ -28,9 +29,11 @@ export default class SpikeManager {
         this.spikes.splice(i, 1);
     }
 
-    initSpikes({ tree, direction }, p5) {
+    initSpikes({ tree, direction, color = [255, 255, 0] }, p5) {
         const branches = this.getStartBranches({ tree, direction });
-        branches.forEach((branch) => this.addSpike({ branch, direction }, p5));
+        branches.forEach((branch) =>
+            this.addSpike({ branch, direction, color }, p5),
+        );
     }
 
     getStartBranches({ tree, direction }) {
@@ -39,10 +42,10 @@ export default class SpikeManager {
             : tree.getTerminalBranches();
     }
 
-    addRandomSpikes({ tree, direction, n = 1 }, p5) {
+    addRandomSpikes({ tree, direction, n = 1, color = [200, 0, 0] }, p5) {
         const branches = this.getStartBranches({ tree, direction });
         getRandomItems(branches, n).forEach((branch) =>
-            this.addSpike({ branch, direction }, p5),
+            this.addSpike({ branch, direction, color }, p5),
         );
     }
 
@@ -58,13 +61,13 @@ export default class SpikeManager {
             spike.render(p5);
 
             if (this.isEndOfOutboundBrach(spike)) {
-                this.spawnOutboundSpikes(spike, p5);
+                this.spawnOutboundSpikes(spike, p5, spike.color);
                 this.removeSpike(i);
                 continue;
             }
 
             if (this.isEndOfInboundBrach(spike)) {
-                this.spawnInboundSpike(spike, p5);
+                this.spawnInboundSpike(spike, p5, spike.color);
                 this.removeSpike(i);
             }
         }
@@ -77,14 +80,15 @@ export default class SpikeManager {
         );
     }
 
-    spawnOutboundSpikes(spike, p5) {
+    spawnOutboundSpikes(spike, p5, color = [255, 0, 0]) {
         if (spike.branch.branches?.length) {
             spike.branch.branches.forEach((b) =>
                 this.addSpike(
                     {
-                        width: Math.min(spike.width * 0.6, spike.width),
+                        width: Math.min(spike.width * 0.8, spike.width),
                         branch: b,
                         direction: "outbound",
+                        color,
                     },
                     p5,
                 ),
@@ -99,24 +103,26 @@ export default class SpikeManager {
         return spike.direction === "inbound" && spike.progress <= 0;
     }
 
-    spawnInboundSpike(spike, p5) {
+    spawnInboundSpike(spike, p5, color = [255, 0, 0]) {
         if (spike.branch.parent) {
             this.addSpike(
                 {
                     width: spike.width,
                     branch: spike.branch.parent,
                     direction: "inbound",
+                    color,
                 },
                 p5,
             );
         } else {
             // transfer the charge to the connected neuron:
             console.log("Spike reached the root");
-            this.transferChargeToSoma(spike.branch.neuron, p5);
+            this.transferChargeToSoma(spike, p5);
         }
     }
 
-    transferChargeToSoma(neuron, p5) {
+    transferChargeToSoma(spike, p5) {
+        const neuron = spike.branch.neuron;
         if (!neuron) {
             console.error(
                 "Error: Dendrites not attached to a neuron. Logic error in setting up Neuron.",
@@ -130,6 +136,7 @@ export default class SpikeManager {
                     {
                         tree: neuron.axon.tree,
                         direction: "outbound",
+                        color: spike.color,
                     },
                     p5,
                 );
@@ -146,6 +153,7 @@ export default class SpikeManager {
                     width: spike.width,
                     branch: terminal.receptor.branch,
                     direction: "inbound",
+                    color: spike.color,
                 },
                 p5,
             );

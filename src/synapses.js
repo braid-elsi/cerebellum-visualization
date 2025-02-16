@@ -20,10 +20,22 @@ class Endpoint {
             p5.push();
             p5.translate(this.x, this.y);
             p5.rotate(this.angle);
-            p5.ellipse(0, 0, this.width * 0.3, this.width * 0.9);
+            p5.ellipse(0, 0, this.width * 0.1, this.width * 0.8);
             p5.pop();
         } else {
-            p5.ellipse(this.x, this.y, this.width * 0.9, this.width * 0.3);
+            p5.stroke(0);
+            const radius = this.width * 0.4;
+            p5.rectMode(p5.CENTER);
+            p5.rect(
+                this.x,
+                this.y,
+                this.width * 0.7,
+                this.width * 0.25,
+                radius,
+                radius,
+                radius,
+                radius,
+            );
         }
     }
 }

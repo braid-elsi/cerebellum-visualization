@@ -15,7 +15,7 @@ class Dendrites {
         this.receptors = receptorBranches.map(
             (branch) =>
                 new Receptor({
-                    width: Math.max(this.neuron.width * 0.75, 20),
+                    width: Math.max(this.neuron.width * 0.4, 20),
                     branch,
                 }),
         );
@@ -29,6 +29,7 @@ class Dendrites {
         return receptors.size > 0 ? receptors[0] : null;
     }
     getAvailableReceptors() {
+        // console.log(this.receptors);
         return this.receptors.filter((receptor) => !receptor.terminal);
     }
 
@@ -207,7 +208,7 @@ export class Neuron {
             this.dendrites.render(p5);
         }
         p5.ellipse(this.x, this.y, this.width, this.width);
-        p5.fill(255, 0, 0);
+        p5.fill(0, 200, 200);
         p5.ellipse(this.x, this.y, this.charge, this.charge);
     }
 }
@@ -322,7 +323,109 @@ export class MossyFiberNeuron extends Neuron {
         return branch;
     }
 
+    getBranchEndpoint(parentBranch, neurons) {
+        const result = neurons.reduce(
+            (acc, neuron) => {
+                acc.sumX += neuron[0].x;
+                acc.maxY = Math.max(acc.maxY, neuron[0].y);
+                return acc;
+            },
+            { sumX: 0, maxY: -Infinity },
+        );
+
+        return {
+            x: result.sumX / neurons.length,
+            y:
+                parentBranch.end.y -
+                (parentBranch.end.y - result.maxY) / 4,
+        };
+    }
+
+    addReceptorsToBranch({ neuron, numConnections, parentBranch, level }) {
+        const availableReceptors = neuron.dendrites.getAvailableReceptors();
+        if (availableReceptors.length < numConnections) {
+            console.error(
+                "There aren't enough receptors to attach to! Skipping.",
+            );
+            return;
+        }
+        for (let i = 0; i < numConnections; i++) {
+            const receptor = availableReceptors[i];
+            const synapseGapWidth = receptor.width / 3 - 1;
+
+            const receptorBranch = new Branch({
+                start: parentBranch.end,
+                end: {
+                    x: receptor.x,
+                    y: receptor.y + synapseGapWidth,
+                },
+                level: level + 1,
+                parent: parentBranch,
+            });
+            this.axon.tree.addBranch(receptorBranch, parentBranch);
+            this.axon.addTerminal(
+                Math.max(neuron.width * 0.4, 20),
+                receptorBranch,
+                receptor,
+            );
+        }
+    }
+
+    addBranches(parentBranch, remainingNeurons, level) {
+        // Base case:
+        if (remainingNeurons.length <= 2) {
+            const branches = [];
+            remainingNeurons.forEach((neuronPair) => {
+                const [neuron, numConnections] = neuronPair;
+                const branch = new Branch({
+                    start: parentBranch.end,
+                    end: { x: neuron.x, y: neuron.y + neuron.width * 2 },
+                    level,
+                    parent: parentBranch,
+                });
+                branches.push(branch);
+                this.addReceptorsToBranch({
+                    neuron,
+                    numConnections,
+                    parentBranch: branch,
+                    level,
+                });
+            });
+            parentBranch.addBranches(branches);
+            return;
+        }
+
+        // Binary branching logic:
+        const splitIndex = Math.floor(remainingNeurons.length / 2);
+        const firstHalf = remainingNeurons.slice(0, splitIndex);
+        const secondHalf = remainingNeurons.slice(splitIndex);
+
+        // for each neuron group, create a new branch:
+        [firstHalf, secondHalf].forEach((neuronGroup) => {
+            const { x, y } = this.getBranchEndpoint(parentBranch, neuronGroup);
+            const branch = new Branch({
+                start: parentBranch.end,
+                end: { x: x, y: y },
+                level,
+                parent: parentBranch,
+            });
+            this.addBranches(branch, neuronGroup, level + 1);
+            parentBranch.addBranches([branch]);
+        });
+    }
+
+    // TODO: start here to make a binary tree from mossy fibers
     generateAxon() {
+        if (!this.outputNeurons || this.outputNeurons.size === 0) {
+            return;
+        }
+        const rootBranch = this.getOrCreateAxonRoot();
+        // Start recursive tree construction
+        const outputNeurons = Array.from(this.outputNeurons);
+        this.addBranches(rootBranch, outputNeurons, 1);
+    }
+
+    generateAxon1() {
         if (!this.outputNeurons || this.outputNeurons.size === 0) {
             return;
         }
@@ -338,7 +441,7 @@ export class MossyFiberNeuron extends Neuron {
             }
             for (let i = 0; i < numConnections; i++) {
                 const receptor = availableReceptors[i];
-                const synapseGapWidth = receptor.width / 3;
+                const synapseGapWidth = receptor.width / 3 - 1;
 
                 const branch = new Branch({
                     start: root.end,
@@ -351,7 +454,7 @@ export class MossyFiberNeuron extends Neuron {
                 });
                 this.axon.tree.addBranch(branch, root);
                 this.axon.addTerminal(
-                    Math.max(targetNeuron.width * 0.75, 20),
+                    Math.max(targetNeuron.width * 0.4, 20),
                     branch,
                     receptor,
                 );

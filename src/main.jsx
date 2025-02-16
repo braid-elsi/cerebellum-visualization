@@ -16,7 +16,7 @@ let mf2;
 // Create a new p5 instance
 (function initializeApp() {
     new p5Lib(function (p5) {
-        p5.frameRate(40);
+        p5.frameRate(20);
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5);
     });
@@ -30,37 +30,33 @@ async function setup(p5) {
 
     for (let i = 0; i < 5; i++) {
         const gc = new GranuleCell({
-            x: 150 * i + 50,
+            x: 125 * i + 50,
             y: screenH / 2,
-            width: getRandomInt(20, 40),
+            width: getRandomInt(30, 50),
         });
         neurons.push(gc);
     }
 
     mf1 = new MossyFiberNeuron({
-        x: 350,
+        x: 300,
         y: screenH / 2 + 400,
         width: 60,
     });
-    // mf1.connectTo(neurons[0], getRandomInt(2, 5));
-    // mf1.connectTo(neurons[1], getRandomInt(2, 5));
+    mf1.connectTo(neurons[0], getRandomInt(2, 5));
+    mf1.connectTo(neurons[1], getRandomInt(2, 5));
 
     mf2 = new MossyFiberNeuron({
-        x: 500,
+        x: 425,
         y: screenH / 2 + 500,
         width: 60,
     });
-    mf2.connectTo(neurons[2], getRandomInt(2, 5));
-    mf2.connectTo(neurons[3], getRandomInt(2, 5));
-    mf2.connectTo(neurons[4], getRandomInt(2, 5));
-
-    // mf.connectTo(neurons[0], 3);
-    // mf.connectTo(neurons[1], 2);
-    // // neurons[2].connectTo(gc, 2);
+    mf2.connectTo(neurons[2], getRandomInt(2, 4));
+    mf2.connectTo(neurons[3], getRandomInt(2, 4));
+    mf2.connectTo(neurons[4], getRandomInt(2, 4));
 
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
-    neurons.forEach((gc) => mf1.connectTo(gc, getRandomInt(2, 5)));
+    // neurons.forEach((gc) => mf1.connectTo(gc, getRandomInt(1, 4)));
     neurons.forEach((gc) => gc.generateDendrites());
     mf1.generateDendrites();
     mf2.generateDendrites();
@@ -81,12 +77,12 @@ function draw(p5) {
 function periodicallyAddNewSpikes(counter, p5) {
     if (counter % randomInterval1 === 0) {
         for (const neuron of [mf1]) {
-            console.log(neuron);
             spikeManager.addRandomSpikes(
                 {
                     tree: neuron.axon.tree,
                     direction: "outbound",
                     n: 1,
+                    color: [255, 0, 0]
                 },
                 p5,
             );
@@ -102,6 +98,7 @@ function periodicallyAddNewSpikes(counter, p5) {
                     tree: neuron.axon.tree,
                     direction: "outbound",
                     n: 1,
+                    color: [0, 0, 255]
                 },
                 p5,
             );
