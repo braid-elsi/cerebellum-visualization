@@ -1,6 +1,7 @@
 import p5Lib from "p5";
 import SpikeManager from "./spike-manager.js";
-import { GranuleCell, MossyFiberNeuron } from "./neuron.js";
+import GranuleCell from "./neurons/granule-cell.js";
+import MossyFiberNeuron from "./neurons/mossy-fiber-neuron.js";
 import { getRandomInt } from "./utils.js";
 
 const neurons = [];
@@ -39,24 +40,25 @@ async function setup(p5) {
 
     mf1 = new MossyFiberNeuron({
         x: 300,
-        y: screenH / 2 + 400,
+        y: screenH / 2 + 500,
         width: 60,
     });
-    mf1.connectTo(neurons[0], getRandomInt(2, 5));
-    mf1.connectTo(neurons[1], getRandomInt(2, 5));
+    // mf1.connectTo(neurons[0], getRandomInt(2, 5));
+    // mf1.connectTo(neurons[1], getRandomInt(2, 5));
+    // mf1.connectTo(neurons[2], 1);
 
     mf2 = new MossyFiberNeuron({
         x: 425,
         y: screenH / 2 + 500,
         width: 60,
     });
-    mf2.connectTo(neurons[2], getRandomInt(2, 4));
+    mf2.connectTo(neurons[2], getRandomInt(2, 3));
     mf2.connectTo(neurons[3], getRandomInt(2, 4));
     mf2.connectTo(neurons[4], getRandomInt(2, 4));
 
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
-    // neurons.forEach((gc) => mf1.connectTo(gc, getRandomInt(1, 4)));
+    neurons.forEach((gc) => mf1.connectTo(gc, getRandomInt(1, 4)));
     neurons.forEach((gc) => gc.generateDendrites());
     mf1.generateDendrites();
     mf2.generateDendrites();
@@ -82,7 +84,7 @@ function periodicallyAddNewSpikes(counter, p5) {
                     tree: neuron.axon.tree,
                     direction: "outbound",
                     n: 1,
-                    color: [255, 0, 0]
+                    color: [200, 0, 200],
                 },
                 p5,
             );
@@ -98,11 +100,11 @@ function periodicallyAddNewSpikes(counter, p5) {
                     tree: neuron.axon.tree,
                     direction: "outbound",
                     n: 1,
-                    color: [0, 0, 255]
+                    color: [0, 200, 200],
                 },
                 p5,
             );
         }
-        randomInterval2 = getRandomInt(10, 80);
+        randomInterval2 = getRandomInt(40, 150);
     }
 }
