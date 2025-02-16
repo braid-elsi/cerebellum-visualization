@@ -13,7 +13,11 @@ class Dendrites {
 
         const receptorBranches = this.tree.getTerminalBranches();
         this.receptors = receptorBranches.map(
-            (branch) => new Receptor({ width: 20, branch }),
+            (branch) =>
+                new Receptor({
+                    width: Math.max(this.neuron.width * 0.75, 20),
+                    branch,
+                }),
         );
 
         // Track available receptors
@@ -21,23 +25,14 @@ class Dendrites {
     }
 
     getAvailableReceptor() {
-        return this.availableReceptors.size > 0
-            ? [...this.availableReceptors][0]
-            : null;
+        const receptors = this.getAvailableReceptors();
+        return receptors.size > 0 ? receptors[0] : null;
     }
     getAvailableReceptors() {
         return this.receptors.filter((receptor) => !receptor.terminal);
     }
 
-    // markReceptorAsUsed(receptor) {
-    //     this.availableReceptors.delete(receptor);
-    // }
-
     getReceptorExtreme(compareFn, axis) {
-        // const availableReceptors = this.receptors.filter(
-        //     (receptor) => receptor.terminal === null,
-        // );
-        // console.log(JSON.stringify(availableReceptors));
         return this.receptors.reduce(
             (extreme, receptor) =>
                 compareFn(receptor[axis], extreme[axis]) ? receptor : extreme,
@@ -163,12 +158,6 @@ export class Neuron {
         };
     }
 
-    finalizeConnections() {
-        // Now that all connections are known, generate dendrites and axon
-        this.generateDendrites();
-        this.generateAxon();
-    }
-
     generateAxon() {
         console.log("generate axon.");
     }
@@ -194,7 +183,6 @@ export class Neuron {
         if (totalConnections === 0) {
             return;
         }
-        console.log("totalConnections", totalConnections);
 
         // Generate a dendritic tree based on number of connections
         const tree = RandomTreeGenerator.generate({
@@ -210,7 +198,7 @@ export class Neuron {
 
     render(p5) {
         p5.fill(0, 0, 0);
-        this.charge = Math.max(0, this.charge - 0.005);
+        this.charge = Math.max(0, this.charge - 0.015);
 
         if (this.axon) {
             this.axon.render(p5);
@@ -257,29 +245,42 @@ export class GranuleCell extends Neuron {
         this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
-    // generateAxon() {
-    //     let pointArray = [];
-    //     for (const [targetNeuron, numConnections] of this.outputNeurons) {
-    //         console.log(
-    //             "Target Neuron:",
-    //             targetNeuron,
-    //             "numConnections",
-    //             numConnections,
-    //         );
-    //         pointArray.push(
-    //             ...this.generateBranchJSON(targetNeuron, numConnections),
-    //         );
-    //     }
-    //     const tree = JSONTreeLoader.fromJSON(pointArray);
-    //     this.axon = new Axon({ tree });
-    //     for (const [targetNeuron, numConnections] of this.outputNeurons) {
-    //         // this doesn't work b/c every terminal only has one receptor and
-    //         // both neurons are trying to attach to all of the available receptors.
-    //         // the solution is to ensure that the target terminals are the argument,
-    //         // not the entire cell:
-    //         this.attachTerminalsToReceptors(targetNeuron, numConnections);
-    //     }
-    // }
+    generateAxon() {
+        const topY = getRandomInt(5, 150);
+        const vertical = new Branch({
+            start: { x: this.x, y: this.y },
+            end: { x: this.x, y: topY },
+            level: 0,
+            parent: null,
+        });
+        const left = new Branch({
+            start: { x: this.x, y: topY },
+            end: { x: 0, y: topY },
+            level: 1,
+            parent: vertical,
+        });
+        const right = new Branch({
+            start: { x: this.x, y: topY },
+            end: { x: 1500, y: topY },
+            level: 1,
+            parent: vertical,
+        });
+
+        this.axon = new Axon({ tree: new Tree([vertical]) });
+        this.axon.tree.addBranch(left, vertical);
+        this.axon.tree.addBranch(right, vertical);
+    }
+}
+
+export class MossyFiberNeuron extends Neuron {
+    constructor({ x, y, width }) {
+        super({ x, y, width });
+        this.type = "mf";
+    }
+
+    generateDendrites() {
+        console.log("No dendrites!");
+    }
 
     getOrCreateAxonRoot() {
         if (this.axon && this.axon.tree && this.axon.tree.branches.length > 0) {
@@ -295,18 +296,25 @@ export class GranuleCell extends Neuron {
         // all of the target cells:
         console.log("Creating the axon and the root branch");
         const neurons = [...this.outputNeurons.keys()];
-        const endX =
+
+        //get the trunk's end x-position:
+        let endX =
             neurons.reduce((sum, neuron) => (sum += neuron.x), 0) /
             neurons.length;
+        endX = this.x + (endX - this.x) / 2;
+
         let endY = neurons.reduce(
             (max, neuron) => (neuron.y > max ? neuron.y : max),
             neurons[0].y,
         );
-        endY = this.y - (this.y - endY) / 2;
+        endY = this.y - (this.y - endY) / 4;
 
         const branch = new Branch({
             start: { x: this.x, y: this.y },
-            end: { x: endX, y: endY },
+            end: {
+                x: endX,
+                y: endY,
+            },
             level: 0,
             parent: null,
         });
@@ -318,19 +326,10 @@ export class GranuleCell extends Neuron {
         if (!this.outputNeurons || this.outputNeurons.size === 0) {
             return;
         }
-        /* 
-        New algorithm:
-            1. Check if an Axon tree is defined. If not, create the root branch. Position it
-               at the midpoint of the output Neurons.
-                    * The tree now has one root branch.
-            2. For each output neuron, add a new branch to the root branch that connects
-               to the specified number of unoccupied receptors. 
-                    * After the is done, attached the terminals to the receptors right away
-            
-        By doing it this way, the axons should be able to grow dynamically!
-        */
+
         const root = this.getOrCreateAxonRoot();
 
+        // generate axon branches that will synapse onto each output neuron
         for (const [targetNeuron, numConnections] of this.outputNeurons) {
             const availableReceptors =
                 targetNeuron.dendrites.getAvailableReceptors();
@@ -351,74 +350,12 @@ export class GranuleCell extends Neuron {
                     parent: root,
                 });
                 this.axon.tree.addBranch(branch, root);
-                this.axon.addTerminal(20, branch, receptor);
+                this.axon.addTerminal(
+                    Math.max(targetNeuron.width * 0.75, 20),
+                    branch,
+                    receptor,
+                );
             }
         }
     }
-
-    initializeAxon() {
-        const tree = JSONTreeLoader.fromJSON(pointArray);
-        this.axon = new Axon({ tree });
-    }
-
-    generateBranchJSON(targetCell, numConnections) {
-        // aim for target cell:
-        const points = [];
-        const branchY = targetCell.dendrites.getReceptorMaxY(); //targetCell.y
-
-        const y2 = branchY.y + 3 * targetCell.width;
-        let x2 = ((targetCell.x - mfX) / 5) * 4 + mfX;
-        let level = 0;
-        console.log(x2, y2, level);
-
-        // level 1:
-        points.push({
-            start: { x: this.x, y: this.y },
-            end: { x: x2, y: y2 },
-            level: level,
-        });
-        ++level;
-
-        // level 2:
-        const receptors = targetCell.dendrites.receptors.filter(
-            (receptor) => !receptor.terminal,
-        );
-        for (let i = 0; i < numConnections; i++) {
-            console.log("numReceptors:", receptors.length);
-            const receptor = receptors[i];
-            if (!receptor) {
-                throw Error("Something went wrong!");
-            }
-            const synapseGapWidth = receptor.width / 3;
-            points.push({
-                start: { x: x2, y: y2 },
-                end: {
-                    x: receptor.x,
-                    y: receptor.y + synapseGapWidth,
-                },
-                level: level,
-            });
-        }
-        return points;
-    }
-
-    // getClosestReceptor(terminal, receptors) {
-    //     const availableReceptors = receptors.filter(
-    //         (receptor) => receptor.terminal === null,
-    //     );
-    //     if (availableReceptors.length === 0) return null;
-
-    //     const closest = availableReceptors.reduce(
-    //         (closest, receptor) =>
-    //             dist1(terminal.x, terminal.y, receptor.x, receptor.y) <
-    //             dist1(terminal.x, terminal.y, closest.x, closest.y)
-    //                 ? receptor
-    //                 : closest,
-    //         availableReceptors[0],
-    //     );
-
-    //     // Mark as used before returning
-    //     closest.terminal = terminal;
-    //     return closest;
-    // }
 }

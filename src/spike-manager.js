@@ -79,14 +79,10 @@ export default class SpikeManager {
 
     spawnOutboundSpikes(spike, p5) {
         if (spike.branch.branches?.length) {
-            const numBranches = spike.branch.branches.length;
             spike.branch.branches.forEach((b) =>
                 this.addSpike(
                     {
-                        width: Math.min(
-                            (spike.width / Math.log2(numBranches)) * 1.1,
-                            spike.width,
-                        ),
+                        width: Math.min(spike.width * 0.6, spike.width),
                         branch: b,
                         direction: "outbound",
                     },
