@@ -177,7 +177,7 @@ export class Neuron {
         });
     }
 
-    generateDendrites(numBranches = 2, maxLevel = 5) {
+    generateDendrites(numBranches = 2, maxLevel = 7) {
 
         // Generate a dendritic tree based on number of connections
         const tree = RandomTreeGenerator.generate({

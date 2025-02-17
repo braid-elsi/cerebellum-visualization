@@ -14,7 +14,8 @@ export default class Branch {
 
         const branchCount = numBranches || 2;
         return Array.from({ length: branchCount }, () => {
-            const newAngle = angle + getRandomFloat(-Math.PI / 4, Math.PI / 4);
+            let newAngle = angle + getRandomFloat(-Math.PI / 4, Math.PI / 4);
+            // newAngle = -Math.min(Math.PI - 0.1, Math.abs(newAngle));
             const length = Math.round(Math.random() * 100) + 20;
             const end = {
                 x: Math.round(x + Math.cos(newAngle) * length),

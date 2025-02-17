@@ -36,8 +36,8 @@ export default class GranuleCell extends Neuron {
         this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
-    generateAxon() {
-        const topY = getRandomInt(5, 150);
+    generateAxon(topY) {
+        topY = topY || getRandomInt(5, 300);
         const vertical = new Branch({
             start: { x: this.x, y: this.y },
             end: { x: this.x, y: topY },

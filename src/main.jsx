@@ -34,7 +34,7 @@ async function setup(p5) {
     for (let i = 0; i < 7; i++) {
         const gc = new GranuleCell({
             x: 125 * i + 50,
-            y: screenH / 2,
+            y: screenH,
             width: getRandomInt(30, 50),
         });
         neurons.push(gc);
@@ -42,7 +42,7 @@ async function setup(p5) {
 
     mf1 = new MossyFiberNeuron({
         x: 425,
-        y: screenH / 2 + 500,
+        y: screenH + 500,
         width: 60,
     });
     // mf1.connectTo(neurons[0], getRandomInt(2, 5));
@@ -51,7 +51,7 @@ async function setup(p5) {
 
     mf2 = new MossyFiberNeuron({
         x: 175,
-        y: screenH / 2 + 500,
+        y: screenH  + 500,
         width: 60,
     });
     mf2.connectTo(neurons[0], getRandomInt(2, 3));
@@ -60,7 +60,7 @@ async function setup(p5) {
 
     mf3 = new MossyFiberNeuron({
         x: 675,
-        y: screenH / 2 + 500,
+        y: screenH + 500,
         width: 60,
     });
     mf3.connectTo(neurons[4], 1);
@@ -69,7 +69,7 @@ async function setup(p5) {
 
     pk1 = new PurkinjeNeuron({
         x: 1000,
-        y: screenH / 2,
+        y: screenH / 3 * 2,
         width: 60,
         color: [200, 100, 100],
     });
@@ -82,7 +82,13 @@ async function setup(p5) {
     mf2.generateDendrites();
     mf3.generateDendrites();
     pk1.generateDendrites();
-    neurons.forEach((gc) => gc.generateAxon());
+
+    let xOffset = 40;
+    const shuffledNeurons = [...neurons].sort(() => Math.random() - 0.5);
+    shuffledNeurons.forEach((gc) => {
+        gc.generateAxon(10 + xOffset);
+        xOffset += getRandomInt(15, 40);
+    });
     mf1.generateAxon();
     mf2.generateAxon();
     mf3.generateAxon();
