@@ -2,6 +2,7 @@ import p5Lib from "p5";
 import SpikeManager from "./spike-manager.js";
 import GranuleCell from "./neurons/granule-cell.js";
 import MossyFiberNeuron from "./neurons/mossy-fiber-neuron.js";
+import PurkinjeNeuron from "./neurons/purkinje-neuron.js";
 import { getRandomInt } from "./utils.js";
 
 const neurons = [];
@@ -13,6 +14,7 @@ let randomInterval1 = 30;
 let randomInterval2 = 50;
 let randomInterval3 = 70;
 let mf1, mf2, mf3;
+let pk1;
 
 // Create a new p5 instance
 (function initializeApp() {
@@ -65,6 +67,13 @@ async function setup(p5) {
     mf3.connectTo(neurons[5], 2);
     mf3.connectTo(neurons[6], 3);
 
+    pk1 = new PurkinjeNeuron({
+        x: 1000,
+        y: screenH / 2,
+        width: 60,
+        color: [200, 100, 100],
+    });
+    
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
     neurons.forEach((gc) => mf1.connectTo(gc, getRandomInt(1, 4)));
@@ -72,10 +81,12 @@ async function setup(p5) {
     mf1.generateDendrites();
     mf2.generateDendrites();
     mf3.generateDendrites();
+    pk1.generateDendrites();
     neurons.forEach((gc) => gc.generateAxon());
     mf1.generateAxon();
     mf2.generateAxon();
     mf3.generateAxon();
+    pk1.generateAxon();
 }
 
 function draw(p5) {
@@ -84,6 +95,7 @@ function draw(p5) {
     mf1.render(p5);
     mf2.render(p5);
     mf3.render(p5);
+    pk1.render(p5);
     spikeManager.render(p5);
     periodicallyAddNewSpikes(++counter, p5);
 }
@@ -106,7 +118,6 @@ function periodicallyAddNewSpikes(counter, p5) {
 
     if (counter % randomInterval2 === 0) {
         for (const neuron of [mf2]) {
-            console.log(neuron);
             spikeManager.addRandomSpikes(
                 {
                     tree: neuron.axon.tree,
@@ -122,7 +133,6 @@ function periodicallyAddNewSpikes(counter, p5) {
 
     if (counter % randomInterval3 === 0) {
         for (const neuron of [mf3]) {
-            console.log(neuron);
             spikeManager.addRandomSpikes(
                 {
                     tree: neuron.axon.tree,

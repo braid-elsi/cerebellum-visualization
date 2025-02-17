@@ -73,6 +73,7 @@ export class RandomTreeGenerator {
         startY,
         maxLevel,
         maxBranches,
+        numBranches,
         angle = -PI / 2,
     }) {
         const tree = new Tree();
@@ -83,6 +84,7 @@ export class RandomTreeGenerator {
             y: startY,
             maxLevel,
             maxBranches,
+            numBranches,
             parent: null,
         });
         return tree;

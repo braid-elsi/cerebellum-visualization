@@ -43,7 +43,7 @@ export default class MossyFiberNeuron extends Neuron {
             parent: null,
         });
 
-        this.axon = new Axon({ tree: new Tree([branch]) });
+        this.axon = new Axon({ neuron: this, tree: new Tree([branch]) });
         return branch;
     }
 

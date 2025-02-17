@@ -9,96 +9,56 @@ export default class GranuleCell extends Neuron {
         this.type = "gc";
     }
 
+    // Generates dendrites to accomodate all of the input neurons
+    // that will be synapsing onto this neuron;
     generateDendrites() {
-        const totalSynapses = this.calculateTotalSynapses();
-        const dendritePoints = this.calculateDendritePoints(totalSynapses);
-        const tree = JSONTreeLoader.fromJSON(dendritePoints);
-        this.dendrites = new Dendrites({ neuron: this, tree });
-    }
-
-    calculateTotalSynapses() {
-        return [...this.inputNeurons.values()].reduce(
+        const points = [];
+        const totalSynapses = [...this.inputNeurons.values()].reduce(
             (sum, value) => sum + value,
             0,
         );
-    }
-
-    calculateDendritePoints(totalSynapses) {
-        if (totalSynapses <= 1) return [];
-
-        const angleConfig = {
-            start: Math.PI - Math.PI / 6,
-            range: Math.PI - Math.PI / 3,
-            delta: (Math.PI - Math.PI / 3) / (totalSynapses - 1),
-        };
-
-        return Array.from({ length: totalSynapses }, (_, index) => {
-            const angle = angleConfig.start - angleConfig.delta * index;
-            const radius = this.getRandomDendriteRadius();
-
-            return {
-                start: this.getPosition(),
-                end: this.calculateEndPoint(angle, radius),
+        const start = Math.PI - Math.PI / 6;
+        const angleRange = Math.PI - Math.PI / 3;
+        const delta = angleRange / (totalSynapses - 1);
+        let angle = start;
+        for (let i = 0; i < totalSynapses; i++) {
+            const radius = getRandomInt(this.width * 0.75, this.width * 1.5);
+            let x = this.x + radius * Math.cos(angle);
+            let y = this.y + radius * Math.sin(angle);
+            points.push({
+                start: { x: this.x, y: this.y },
+                end: { x: x, y: y },
                 level: 0,
-            };
-        });
-    }
-
-    getRandomDendriteRadius() {
-        return getRandomInt(this.width * 0.75, this.width * 1.5);
-    }
-
-    getPosition() {
-        return { x: this.x, y: this.y };
-    }
-
-    calculateEndPoint(angle, radius) {
-        return {
-            x: this.x + radius * Math.cos(angle),
-            y: this.y + radius * Math.sin(angle),
-        };
+            });
+            angle -= delta;
+        }
+        const tree = JSONTreeLoader.fromJSON(points);
+        this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
     generateAxon() {
-        const verticalBranch = this.createVerticalBranch();
-        this.axon = new Axon({ tree: new Tree([verticalBranch]) });
-
-        this.createHorizontalBranches(verticalBranch);
-    }
-
-    createVerticalBranch() {
         const topY = getRandomInt(5, 150);
-        return new Branch({
-            start: this.getPosition(),
+        const vertical = new Branch({
+            start: { x: this.x, y: this.y },
             end: { x: this.x, y: topY },
             level: 0,
             parent: null,
         });
-    }
-
-    createHorizontalBranches(verticalBranch) {
-        const branchConfig = {
-            startX: this.x,
-            y: verticalBranch.end.y,
+        const left = new Branch({
+            start: { x: this.x, y: topY },
+            end: { x: 0, y: topY },
             level: 1,
-            parent: verticalBranch,
-        };
-
-        const leftBranch = new Branch({
-            start: { x: branchConfig.startX, y: branchConfig.y },
-            end: { x: 0, y: branchConfig.y },
-            level: branchConfig.level,
-            parent: branchConfig.parent,
+            parent: vertical,
+        });
+        const right = new Branch({
+            start: { x: this.x, y: topY },
+            end: { x: 1500, y: topY },
+            level: 1,
+            parent: vertical,
         });
 
-        const rightBranch = new Branch({
-            start: { x: branchConfig.startX, y: branchConfig.y },
-            end: { x: 1500, y: branchConfig.y },
-            level: branchConfig.level,
-            parent: branchConfig.parent,
-        });
-
-        this.axon.tree.addBranch(leftBranch, verticalBranch);
-        this.axon.tree.addBranch(rightBranch, verticalBranch);
+        this.axon = new Axon({ neuron: this, tree: new Tree([vertical]) });
+        this.axon.tree.addBranch(left, vertical);
+        this.axon.tree.addBranch(right, vertical);
     }
 }

@@ -16,6 +16,7 @@ export class Dendrites {
                 new Receptor({
                     width: Math.max(this.neuron.width * 0.4, 20),
                     branch,
+                    color: this.neuron.color,
                 }),
         );
 
@@ -54,15 +55,17 @@ export class Dendrites {
     }
 
     render(p5) {
+        p5.stroke(...this.neuron.color);
         this.tree.render(p5);
         this.receptors.forEach((receptor) => receptor.render(p5));
     }
 }
 
 export class Axon {
-    constructor({ tree, terminals = null }) {
+    constructor({ neuron, tree, terminals = null }) {
         this.tree = tree;
         this.terminals = [];
+        this.neuron = neuron;
         // this.terminals = terminals || this.generateTerminals();
     }
 
@@ -71,27 +74,28 @@ export class Axon {
 
         // connect the roots of the dendrite trees to the source neuron
         return terminalBranches.map((branch) => {
-            const terminal = new Terminal({ width: 20, branch });
+            const terminal = new Terminal({ width: 20, branch, color: this.neuron.color });
             branch.terminal = terminal;
             return terminal;
         });
     }
 
     addTerminal(width, branch, receptor = null) {
-        const terminal = new Terminal({ width, branch });
+        const terminal = new Terminal({ width, branch, color: this.neuron.color });
         branch.terminal = terminal;
         this.terminals.push(terminal);
         terminal.setReceptor(receptor);
     }
 
     render(p5) {
+        p5.stroke(...this.neuron.color);
         this.tree.render(p5);
         this.terminals.forEach((terminal) => terminal.render(p5));
     }
 }
 
 export class Neuron {
-    constructor({ x, y, width }) {
+    constructor({ x, y, width, color=[0, 0, 0] }) {
         if (x === undefined || y === undefined || width === undefined) {
             throw new Error("x, y, and width are required parameters.");
         }
@@ -103,6 +107,7 @@ export class Neuron {
         this.dendrites = null;
         this.axon = null;
         this.type = "neuron";
+        this.color = color;
     }
 
     // Connect this neuron to another neuron
@@ -158,46 +163,35 @@ export class Neuron {
         };
     }
 
-    generateAxon() {
-        console.log("generate axon.");
+    generateAxon(maxLevel=4, maxBranches=1) {
+        this.axon = new Axon({
+            tree: RandomTreeGenerator.generate({
+                startX: this.x,
+                startY: this.y,
+                maxLevel, 
+                numBranches: maxBranches,
+                maxBranches,
+                angle: Math.PI / 2,
+            }),
+            neuron: this
+        });
     }
 
-    // generateAxon() {
-    //     this.axon = new Axon({
-    //         tree: RandomTreeGenerator.generate({
-    //             startX: this.x,
-    //             startY: this.y,
-    //             maxLevel: this.maxLevel, // Use class properties
-    //             maxBranches: this.maxBranches,
-    //             angle: -Math.PI / 2,
-    //         }),
-    //     });
-    // }
-
-    generateDendrites(numBranches = 2) {
-        console.log("generating neuron dendrites...");
-        const totalConnections = this.postsynapticNeurons.reduce(
-            (sum, conn) => sum + conn.numSynapses,
-            0,
-        );
-        if (totalConnections === 0) {
-            return;
-        }
+    generateDendrites(numBranches = 2, maxLevel = 5) {
 
         // Generate a dendritic tree based on number of connections
         const tree = RandomTreeGenerator.generate({
             startX: this.x,
             startY: this.y,
-            maxLevel: logBase(totalConnections.numBranches),
+            maxLevel,
             maxBranches: numBranches,
-            angle: Math.PI / 2,
+            angle: -Math.PI / 2,
         });
 
         this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
     render(p5) {
-        p5.fill(0, 0, 0);
         this.charge = Math.max(0, this.charge - 0.015);
 
         if (this.axon) {
@@ -206,6 +200,7 @@ export class Neuron {
         if (this.dendrites) {
             this.dendrites.render(p5);
         }
+        p5.fill(...this.color);
         p5.ellipse(this.x, this.y, this.width, this.width);
         p5.fill(0, 200, 200);
         p5.ellipse(this.x, this.y, this.charge, this.charge);

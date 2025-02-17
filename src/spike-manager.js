@@ -84,7 +84,7 @@ export default class SpikeManager {
         if (spike.branch.branches?.length) {
             const numBranches = spike.branch.branches.length;
             const scaleFactor = numBranches === 1 ? 1 : 1 - numBranches * 0.075;
-            console.log("sf:", scaleFactor);
+            // console.log("sf:", scaleFactor);
             spike.branch.branches.forEach((b) =>
                 this.addSpike(
                     {
@@ -97,7 +97,7 @@ export default class SpikeManager {
                 ),
             );
         } else {
-            console.log("You have reached the terminal button");
+            // console.log("You have reached the terminal button");
             this.transferChargeAcrossSynapse(spike, p5);
         }
     }
@@ -119,7 +119,7 @@ export default class SpikeManager {
             );
         } else {
             // transfer the charge to the connected neuron:
-            console.log("Spike reached the root");
+            // console.log("Spike reached the root");
             this.transferChargeToSoma(spike, p5);
         }
     }
