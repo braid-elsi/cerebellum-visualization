@@ -48,6 +48,85 @@ export class Tree {
         return flatBranches;
     }
 
+    // Existing methods...
+
+    /**
+     * Finds intersections between an external branch and branches in the tree.
+     * @param {Object} externalBranch - The external branch { start: { x, y }, end: { x, y } }.
+     * @returns {Array} - Array of { branch, intersectionPoint } objects.
+     */
+    findIntersectionsWithExternalBranch(externalBranch) {
+        const intersections = [];
+        const allBranches = this.getAllBranches(); // Collect all branches
+
+        for (const branch of allBranches) {
+            const intersectionPoint = this.lineSegmentIntersection(
+                branch.start,
+                branch.end,
+                externalBranch.start,
+                externalBranch.end,
+            );
+            if (intersectionPoint) {
+                intersections.push({ branch, intersectionPoint });
+            }
+        }
+
+        return intersections;
+    }
+
+    /**
+     * Collects all branches recursively.
+     * @returns {Array} - Flattened list of all branches.
+     */
+    getAllBranches() {
+        const branches = [];
+
+        const traverse = (branch) => {
+            branches.push(branch);
+            branch.branches?.forEach(traverse);
+        };
+
+        this.branches.forEach(traverse);
+        return branches;
+    }
+
+    /**
+     * Checks if two line segments intersect and returns the intersection point.
+     * @param {Object} p1 - Start of first segment { x, y }.
+     * @param {Object} p2 - End of first segment { x, y }.
+     * @param {Object} p3 - Start of second segment { x, y }.
+     * @param {Object} p4 - End of second segment { x, y }.
+     * @returns {Object|null} - Intersection point { x, y } or null if no intersection.
+     */
+    lineSegmentIntersection(p1, p2, p3, p4) {
+        const det = (p1, p2, p3) =>
+            (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+
+        const d1 = det(p3, p4, p1);
+        const d2 = det(p3, p4, p2);
+        const d3 = det(p1, p2, p3);
+        const d4 = det(p1, p2, p4);
+
+        if (d1 * d2 < 0 && d3 * d4 < 0) {
+            const denom =
+                (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
+            if (denom === 0) return null; // Parallel lines
+
+            const x =
+                ((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x) -
+                    (p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x)) /
+                denom;
+            const y =
+                ((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y) -
+                    (p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x)) /
+                denom;
+
+            return { x, y };
+        }
+
+        return null;
+    }
+
     render(p5) {
         this.drawBranches(this, p5);
     }
@@ -86,6 +165,32 @@ export class RandomTreeGenerator {
             maxBranches,
             numBranches,
             parent: null,
+        });
+        return tree;
+    }
+}
+
+export class PurkinjeTreeGenerator {
+    static generate({
+        level = 0,
+        x,
+        y,
+        maxLevel,
+        numBranches,
+        angle = -PI / 2,
+        parent,
+        yMax,
+    }) {
+        const tree = new Tree();
+        tree.branches = Branch.generatePurkinjeTree({
+            level,
+            angle,
+            x,
+            y,
+            maxLevel,
+            numBranches,
+            parent,
+            yMax,
         });
         return tree;
     }

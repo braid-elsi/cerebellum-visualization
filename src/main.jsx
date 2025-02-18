@@ -4,6 +4,8 @@ import GranuleCell from "./neurons/granule-cell.js";
 import MossyFiberNeuron from "./neurons/mossy-fiber-neuron.js";
 import PurkinjeNeuron from "./neurons/purkinje-neuron.js";
 import { getRandomInt } from "./utils.js";
+import Branch from "./branch.js";
+import { Receptor } from "./synapses.js";
 
 const neurons = [];
 const spikeManager = new SpikeManager();
@@ -34,7 +36,7 @@ async function setup(p5) {
     for (let i = 0; i < 7; i++) {
         const gc = new GranuleCell({
             x: 125 * i + 50,
-            y: screenH,
+            y: screenH * 2/3,
             width: getRandomInt(30, 50),
         });
         neurons.push(gc);
@@ -51,7 +53,7 @@ async function setup(p5) {
 
     mf2 = new MossyFiberNeuron({
         x: 175,
-        y: screenH  + 500,
+        y: screenH + 500,
         width: 60,
     });
     mf2.connectTo(neurons[0], getRandomInt(2, 3));
@@ -69,11 +71,11 @@ async function setup(p5) {
 
     pk1 = new PurkinjeNeuron({
         x: 1000,
-        y: screenH / 3 * 2,
+        y: screenH / 2,
         width: 60,
         color: [200, 100, 100],
     });
-    
+
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
     neurons.forEach((gc) => mf1.connectTo(gc, getRandomInt(1, 4)));
@@ -93,6 +95,89 @@ async function setup(p5) {
     mf2.generateAxon();
     mf3.generateAxon();
     pk1.generateAxon();
+
+    // find Purkinje dendrite intersections with Granule Cell axons:
+    for (const gc of neurons) {
+        for (const gcBranch of gc.axon.tree.getAllBranches()) {
+            const branchesToBeBisected =
+                pk1.dendrites.tree.findIntersectionsWithExternalBranch(
+                    gcBranch,
+                );
+            console.log(branchesToBeBisected);
+            for (const entry of branchesToBeBisected) {
+                const pkBranch = entry.branch;
+                const point = entry.intersectionPoint;
+
+                /**********************/
+                /* Granule cell stuff */
+                /**********************/
+
+                // 1. Create two new children:
+                const gcBranch2 = new Branch({
+                    start: point,
+                    end: { ...gcBranch.end },
+                    level: gcBranch.level + 1,
+                    parent: gcBranch,
+                });
+                const gcBranchTerminal = new Branch({
+                    start: point,
+                    end: { x: point.x + 1, y: point.y + 1 },
+                    level: gcBranch.level + 1,
+                    parent: gcBranch,
+                });
+                const terminal = gc.axon.addTerminal(20, gcBranchTerminal);
+
+                // 2. Transfer the current branch's children to the new branch:
+                gcBranch2.branches = gcBranch.branches;
+
+                // 3. Update the current branch, and add the 2 new children to it:
+                gcBranch.update({
+                    end: point,
+                    level: gcBranch.level + 1,
+                    branches: [gcBranch2, gcBranchTerminal],
+                });
+
+                /***********************/
+                /* Purkinje cell stuff */
+                /***********************/
+
+                // 1. Create two new children:
+                const pkBranch2 = new Branch({
+                    start: point,
+                    end: { ...pkBranch.end },
+                    level: pkBranch.level + 1,
+                    parent: pkBranch,
+                });
+
+                const pkBranchReceptor = new Branch({
+                    start: point,
+                    end: { x: point.x + 1, y: point.y + 1 },
+                    level: pkBranch.level + 1,
+                    parent: pkBranch,
+                });
+                // add receptor:
+                const receptor = new Receptor({
+                    width: Math.max(pk1.width * 0.4, 20),
+                    branch: pkBranchReceptor,
+                    color: pk1.color,
+                });
+
+                // 2. Transfer the current branch's children to the new branch:
+                pkBranch2.branches = pkBranch.branches;
+
+                // 3. Update the current branch, and add the 2 new children to it:
+                pkBranch.update({
+                    end: point,
+                    level: pkBranch.level + 1,
+                    branches: [pkBranch2, pkBranchReceptor],
+                });
+
+                // make the connections:
+                receptor.setTerminal(terminal);
+                terminal.setReceptor(receptor);
+            }
+        }
+    }
 }
 
 function draw(p5) {
@@ -129,7 +214,7 @@ function periodicallyAddNewSpikes(counter, p5) {
                     tree: neuron.axon.tree,
                     direction: "outbound",
                     n: 1,
-                    color: [200, 0, 200],
+                    color: [0, 200, 200],
                 },
                 p5,
             );
@@ -144,7 +229,7 @@ function periodicallyAddNewSpikes(counter, p5) {
                     tree: neuron.axon.tree,
                     direction: "outbound",
                     n: 1,
-                    color: [0, 0, 200],
+                    color: [0, 200, 200],
                 },
                 p5,
             );

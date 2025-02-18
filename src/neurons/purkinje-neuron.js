@@ -1,6 +1,8 @@
-import { Neuron, Axon } from "./base.js";
+import Neuron from "./base.js";
+import Axon from "./axon.js";
+import Dendrites from "./dendrites.js";
 import Branch from "../branch.js";
-import { Tree } from "../tree.js";
+import { Tree, PurkinjeTreeGenerator } from "../tree.js";
 
 export default class PurkinjeNeuron extends Neuron {
     constructor({ x, y, width, color }) {
@@ -8,8 +10,19 @@ export default class PurkinjeNeuron extends Neuron {
         this.type = "purkinje";
     }
 
-    generateDendrites() {
-        super.generateDendrites();
+    generateDendrites(numBranches = 2, maxLevel = 9) {
+        // Generate a dendritic tree based on number of connections
+        const tree = PurkinjeTreeGenerator.generate({
+            x: this.x,
+            y: this.y,
+            numBranches,
+            maxLevel: maxLevel,
+            numBranches: numBranches,
+            angle: -Math.PI / 2,
+            yMax: this.y,
+        });
+
+        this.dendrites = new Dendrites({ neuron: this, tree });
     }
 
     generateAxon() {
@@ -19,7 +32,6 @@ export default class PurkinjeNeuron extends Neuron {
             level: 0,
             parent: null,
         });
-
 
         this.axon = new Axon({ neuron: this, tree: new Tree([vertical]) });
     }

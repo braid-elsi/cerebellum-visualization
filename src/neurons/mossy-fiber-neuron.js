@@ -1,4 +1,5 @@
-import { Neuron, Axon } from "./base.js";
+import Neuron from "./base.js";
+import Axon from "./axon.js";
 import { Tree } from "../tree.js";
 import Branch from "../branch.js";
 

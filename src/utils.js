@@ -14,6 +14,33 @@ export function getRandomItems(arr, n) {
     return shuffled.slice(0, n); // Take the first n elements
 }
 
+export function getRandomSign() {
+    return Math.random() < 0.5 ? -1 : 1;
+}
+export function weightedRandomInt(low, high, weightFactor = 4) {
+    if (low >= high) {
+        return high;
+    }
+    const numbers = [];
+    const weights = [];
+
+    for (let num = low; num <= high; num++) {
+        numbers.push(num);
+        weights.push(Math.pow(weightFactor, (num - low) / (high - low)));
+    }
+
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    const randomValue = Math.random() * totalWeight;
+
+    let cumulativeWeight = 0;
+    for (let i = 0; i < numbers.length; i++) {
+        cumulativeWeight += weights[i];
+        if (randomValue < cumulativeWeight) {
+            return numbers[i];
+        }
+    }
+}
+
 export function getRandomFloat(min, max) {
     return Math.random() * (max - min) + min;
 }

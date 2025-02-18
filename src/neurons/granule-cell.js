@@ -1,5 +1,7 @@
 import { getRandomInt } from "../utils.js";
-import { Neuron, Axon, Dendrites } from "./base.js";
+import Neuron from "./base.js";
+import Axon from "./axon.js";
+import Dendrites from "./dendrites.js";
 import { Tree, JSONTreeLoader } from "../tree.js";
 import Branch from "../branch.js";
 
@@ -52,7 +54,7 @@ export default class GranuleCell extends Neuron {
         });
         const right = new Branch({
             start: { x: this.x, y: topY },
-            end: { x: 1500, y: topY },
+            end: { x: 2000, y: topY },
             level: 1,
             parent: vertical,
         });
