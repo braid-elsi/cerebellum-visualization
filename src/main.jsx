@@ -58,7 +58,7 @@ async function setup(p5) {
 
     pk1 = new PurkinjeNeuron({
         x: 1000,
-        y: screenH - 100,
+        y: screenH - 300,
         width: 60,
         color: [200, 100, 100],
     });
@@ -82,33 +82,33 @@ async function setup(p5) {
     pk1.generateAxon();
 
     // find Purkinje dendrite intersections with Granule Cell axons:
-    // for (const gc of [neurons[0]]) {
-    //     for (let gcBranch of gc.axon.tree.getAllBranches()) {
-    //         const branchesToBeBisected =
-    //             pk1.dendrites.tree.findIntersectionsWithExternalBranch(
-    //                 gcBranch,
-    //             );
-    //         console.log(branchesToBeBisected);
-    //         let i = 0;
-    //         for (const entry of branchesToBeBisected) {
-    //             const point = entry.intersectionPoint;
-    //             const pkBranch = entry.branch;
-    //             const terminal = gc.addTerminalToBranch(gcBranch, point);
-    //             const receptor = pk1.addReceptorToBranch(pkBranch, point);
+    for (const gc of [neurons[0]]) {
+        for (let gcBranch of gc.axon.tree.getAllBranches()) {
+            const branchesToBeBisected =
+                pk1.dendrites.tree.findIntersectionsWithExternalBranch(
+                    gcBranch,
+                );
+            console.log(branchesToBeBisected);
+            let i = 0;
+            for (const entry of branchesToBeBisected) {
+                const point = entry.intersectionPoint;
+                const pkBranch = entry.branch;
+                const terminal = gc.addTerminalToBranch(gcBranch, point);
+                const receptor = pk1.addReceptorToBranch(pkBranch, point);
 
-    //             // make the connections:
-    //             receptor.setTerminal(terminal);
-    //             terminal.setReceptor(receptor);
-    //             ++i;
-    //             // why does it work with 2 but not 3 terminal / receptor pairs?
-    //             // and how do I debug this error?
-    //             // if (i > 1) {
-    //             //     break;
-    //             // }
-    //         }
-    //     }
-    //     console.log(gc.axon);
-    // }
+                // make the connections:
+                receptor.setTerminal(terminal);
+                terminal.setReceptor(receptor);
+                ++i;
+                // why does it work with 2 but not 3 terminal / receptor pairs?
+                // and how do I debug this error?
+                // if (i > 1) {
+                //     break;
+                // }
+            }
+        }
+        console.log(gc.axon);
+    }
 }
 
 function draw(p5) {
@@ -118,13 +118,16 @@ function draw(p5) {
     mf2.render(p5);
     pk1.render(p5);
     spikeManager.render(p5);
-    // periodicallyAddNewSpikes(++counter, p5);
-    periodicallyAddNewSpikesToPurkinje(counter, p5);
-    ++counter;
+    periodicallyAddNewSpikes(++counter, p5);
+    // periodicallyAddNewSpikesToPurkinje(counter, p5);
+    // ++counter;
 }
 
 function periodicallyAddNewSpikesToPurkinje(counter, p5) {
-    if (counter % 3333333333333333 === 0) {
+    if (counter % randomInterval1 === 0) {
+        if (!pk1.dendrites) {
+            return;
+        }
         spikeManager.addRandomSpikes(
             {
                 tree: pk1.dendrites.tree,

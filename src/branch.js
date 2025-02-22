@@ -8,9 +8,8 @@ import {
 export class Branch {
     constructor({ start, end, level, parent, branches = [] }) {
         Object.assign(this, { start, end, level, parent });
-        this.length = dist1(start.x, start.y, end.x, end.y);
-        this.angle = Math.atan2(end.y - start.y, end.x - start.x);
         this.branches = branches;
+        this.updateGeometry();
 
         // if we want to curve the lines:
         const randomRangeY = 15;
@@ -19,6 +18,20 @@ export class Branch {
             (this.start.x + this.end.x) / 2 + getRandomFloat(0, randomRangeX); // Slight randomness for organic shape
         this.controlY =
             (this.start.y + this.end.y) / 2 - getRandomFloat(0, randomRangeY);
+    }
+
+    updateGeometry() {
+        if (!this.start || !this.end) return;
+        
+        this.length = Math.hypot(
+            this.end.x - this.start.x,
+            this.end.y - this.start.y
+        );
+        
+        this.angle = Math.atan2(
+            this.end.y - this.start.y,
+            this.end.x - this.start.x
+        );
     }
 
     updateLevelsRecursively(newLevel) {
@@ -46,11 +59,7 @@ export class Branch {
         }
 
         // regenerate length and angle:
-        this.length = dist1(this.start.x, this.start.y, this.end.x, this.end.y);
-        this.angle = Math.atan2(
-            this.end.y - this.start.y,
-            this.end.x - this.start.x,
-        );
+        this.updateGeometry();
     }
 
     addBranches(branches) {
@@ -89,6 +98,34 @@ export class Branch {
             level: this.level,
             branches: this.branches.map((b) => b.toJSON()),
         };
+    }
+
+    simplify(minEdgeLength) {
+        if (!this.branches) return;
+
+        // First, recursively process all children
+        for (let i = this.branches.length - 1; i >= 0; i--) {
+            this.branches[i]?.simplify(minEdgeLength);
+        }
+
+        // Then process current branch's children
+        for (let i = this.branches.length - 1; i >= 0; i--) {
+            const child = this.branches[i];
+            if (!child?.branches) continue;
+            
+            if (child.branches.length === 1) {
+                const grandchild = child.branches[0];
+                if (!grandchild) continue;
+
+                if (child.length < minEdgeLength) {
+                    // Replace child with grandchild
+                    this.branches[i] = grandchild;
+                    grandchild.parent = this;
+                    grandchild.start = this.end;
+                    grandchild.updateGeometry();
+                }
+            }
+        }
     }
 }
 

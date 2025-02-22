@@ -25,9 +25,12 @@ export default class PurkinjeNeuron extends Neuron {
 
         const tree = await PurkinjeTreeLoader.loadTreeFromJSON(
             "./180524_E1_KO.json",
+            {
+                offsetX: this.x,
+                offsetY: this.y,
+                scale: 4,
+            },
         );
-
-        PurkinjeTreeLoader.testParentChain(tree);
 
         this.dendrites = new Dendrites({ neuron: this, tree });
     }

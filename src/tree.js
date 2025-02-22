@@ -48,6 +48,46 @@ export class Tree {
         return flatBranches;
     }
 
+    traverse(callback) {
+        const traverseBranch = (branch) => {
+            if (!branch) return;
+            
+            callback(branch);
+            
+            if (branch.branches) {
+                branch.branches.forEach(child => {
+                    if (child) {
+                        traverseBranch(child);
+                    }
+                });
+            }
+        };
+
+        this.branches.forEach(root => traverseBranch(root));
+    }
+
+    countBranches() {
+        let count = 0;
+        this.traverse(() => count++);
+        return count;
+    }
+
+    getHeight() {
+        let maxLevel = 0;
+        this.traverse((branch) => {
+            maxLevel = Math.max(maxLevel, branch.level);
+        });
+        return maxLevel;
+    }
+
+    getLevelDistribution() {
+        const levelCounts = new Map();
+        this.traverse((branch) => {
+            levelCounts.set(branch.level, (levelCounts.get(branch.level) || 0) + 1);
+        });
+        return levelCounts;
+    }
+
     // Existing methods...
 
     /**
@@ -359,14 +399,14 @@ export class PurkinjeTreeLoader {
             return null;
         }
 
-        const nodesMap = PurkinjeTreeLoader.buildNodeMap(jsonData);
+        const nodesMap = PurkinjeTreeLoader.buildNodeMap(jsonData, options);
         console.log("Initial nodes:", nodesMap.size);
-        
+
         // Build initial tree
         jsonData.edges.forEach((edge) => {
             const parentBranch = nodesMap.get(edge.source);
             const childBranch = nodesMap.get(edge.target);
-            
+
             if (!parentBranch || !childBranch) return;
 
             childBranch.parent = parentBranch;
@@ -377,59 +417,17 @@ export class PurkinjeTreeLoader {
         });
 
         // Find root branches
-        const rootBranches = Array.from(nodesMap.values())
-            .filter(b => b.parent === null);
-        
+        const rootBranches = Array.from(nodesMap.values()).filter(
+            (b) => b.parent === null,
+        );
+
         if (!rootBranches || rootBranches.length === 0) {
             console.error("No root branches found");
             return null;
         }
 
-        console.log("Root branches found:", {
-            count: rootBranches.length,
-            firstRoot: {
-                branches: rootBranches[0].branches?.length || 0,
-                level: rootBranches[0].level,
-                hasEnd: !!rootBranches[0].end
-            }
-        });
-
         // Create tree with the correct property name
         const tree = new Tree(rootBranches);
-        
-        // Use the correct property name for validation
-        console.log("Tree validation:", {
-            hasBranches: !!tree.branches,
-            branchCount: tree.branches?.length || 0,
-            firstBranchValid: !!tree.branches?.[0]
-        });
-
-        // Test parent chain
-        const testChain = (branch, expectedParent = null) => {
-            if (!branch) return true;
-            
-            if (branch.parent !== expectedParent) {
-                console.error("Invalid parent reference", {
-                    branchLevel: branch.level,
-                    expectedParent: expectedParent?.level,
-                    actualParent: branch.parent?.level
-                });
-                return false;
-            }
-
-            return branch.branches.every(child => testChain(child, branch));
-        };
-
-        const isValid = testChain(tree.branches[0]);
-        console.log("Parent chain validation:", isValid);
-
-        if (!isValid) {
-            console.error("Tree structure is invalid");
-            return new Tree([]);
-        }
-
-        // If we got here, the tree is valid
-        console.log("Tree structure is valid, proceeding with simplification");
 
         // Simplify the tree
         this.simplifyTree(tree, options);
@@ -439,7 +437,7 @@ export class PurkinjeTreeLoader {
 
     static simplifyTree(tree, options) {
         const {
-            minEdgeLength = 5,
+            minEdgeLength = .1,
             simplifyThreshold = 0.3
         } = options;
 
@@ -447,156 +445,89 @@ export class PurkinjeTreeLoader {
             return;
         }
 
-        const updateBranchGeometry = (branch) => {
-            if (!branch?.start || !branch?.end) return;
-            branch.length = Math.hypot(
-                branch.end.x - branch.start.x,
-                branch.end.y - branch.start.y
-            );
-            branch.angle = Math.atan2(
-                branch.end.y - branch.start.y,
-                branch.end.x - branch.start.x
-            );
-        };
-
-        const simplifyBranch = (branch) => {
-            if (!branch || !branch.branches) return;
-
-            // First, recursively process all children
-            for (let i = branch.branches.length - 1; i >= 0; i--) {
-                simplifyBranch(branch.branches[i]);
-            }
-
-            // Then process current branch's children
-            for (let i = branch.branches.length - 1; i >= 0; i--) {
-                const child = branch.branches[i];
-                if (!child || !child.branches) continue;
-                
-                if (child.branches.length === 1) {
-                    const grandchild = child.branches[0];
-                    if (!grandchild) continue;
-
-                    if (child.length < minEdgeLength) {
-                        // Replace child with grandchild
-                        branch.branches[i] = grandchild;
-                        grandchild.parent = branch;
-                        grandchild.start = branch.end;
-                        updateBranchGeometry(grandchild);
-                    }
-                }
-            }
-        };
-
-        // First, ensure root is level 0
-        tree.branches[0].level = 0;
-        
         // Apply simplification
         tree.branches.forEach(root => {
-            simplifyBranch(root);
+            root.simplify(minEdgeLength);
         });
 
-        // Recalculate all levels
-        const recalculateLevels = (branch, level = 0) => {
-            if (!branch) return;
-            branch.level = level;
-            if (branch.branches) {
-                branch.branches.forEach(child => {
-                    if (child) {
-                        recalculateLevels(child, level + 1);
-                    }
-                });
-            }
-        };
-
+        // Recalculate levels
         tree.branches.forEach(root => {
-            recalculateLevels(root, 0);
+            root.level = 0;
+            this.recalculateLevels(root, 0);
         });
 
-        // Log final branch count
-        const countBranches = (branch) => {
-            if (!branch) return 0;
-            let count = 1;
-            if (branch.branches) {
-                count += branch.branches.reduce((sum, child) => 
-                    sum + (child ? countBranches(child) : 0), 0);
-            }
-            return count;
-        };
-
-        const totalBranches = tree.branches.reduce((sum, root) => 
-            sum + countBranches(root), 0);
-        console.log(`Tree simplified: ${totalBranches} branches remaining`);
+        // Log statistics
+        this.logTreeStatistics(tree);
     }
 
-    static testParentChain(tree) {
-        if (!tree?.branches?.[0]) {
-            console.log("Invalid tree structure");
-            return;
-        }
-
-        const root = tree.branches[0];
-        let deepestBranch = null;
-        let maxDepth = -1;
-
-        // Find the deepest branch
-        const traverse = (branch, depth = 0) => {
-            if (depth > maxDepth) {
-                maxDepth = depth;
-                deepestBranch = branch;
-            }
-
-            if (branch.branches) {
-                branch.branches.forEach(child => traverse(child, depth + 1));
-            }
-        };
-
-        traverse(root);
-        console.log(`Found deepest branch at depth ${maxDepth}`);
-
-        if (!deepestBranch) {
-            console.log("No branches found");
-            return;
-        }
-
-        // Follow parent chain back to root
-        const chain = [];
-        let current = deepestBranch;
+    static recalculateLevels(branch, level = 0) {
+        if (!branch) return;
         
-        while (current) {
-            const node = {
-                level: current.level,
-                hasParent: !!current.parent,
-                childCount: current.branches?.length || 0,
-                start: current.start ? `(${current.start.x.toFixed(2)}, ${current.start.y.toFixed(2)})` : 'null',
-                end: current.end ? `(${current.end.x.toFixed(2)}, ${current.end.y.toFixed(2)})` : 'null'
-            };
-            
-            console.log(`Branch level ${node.level}: start ${node.start} -> end ${node.end}`);
-            
-            chain.push(node);
-            current = current.parent;
+        branch.level = level;
+        if (branch.branches) {
+            branch.branches.forEach(child => {
+                if (child) {
+                    this.recalculateLevels(child, level + 1);
+                }
+            });
         }
-
-        console.log("Parent chain analysis:", {
-            length: chain.length,
-            startLevel: chain[0]?.level,
-            endLevel: chain[chain.length - 1]?.level,
-            brokenLinks: chain.filter(n => n.level !== 0 && !n.hasParent),
-            consecutiveLevels: chain.every((node, i) => 
-                i === 0 || node.level === chain[i-1].level - 1
-            )
-        });
-
-        return chain;
     }
 
-    static buildNodeMap(jsonData) {
+    static validateLevels(branch) {
+        if (!branch) return true;
+        
+        if (branch.branches) {
+            for (const child of branch.branches) {
+                if (!child) continue;
+                
+                // Check if child's level is exactly one more than parent's
+                if (child.level !== branch.level + 1) {
+                    console.error(`Invalid level: parent=${branch.level}, child=${child.level}`);
+                    return false;
+                }
+                
+                // Recursively validate children
+                if (!this.validateLevels(child)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    static logTreeStatistics(tree) {
+        // Validate levels
+        const isValid = tree.branches.every(root => this.validateLevels(root));
+        console.log(`Level validation: ${isValid ? 'passed' : 'failed'}`);
+
+        // Log tree height
+        const treeHeight = tree.getHeight();
+        console.log(`Tree height (max level): ${treeHeight}`);
+
+        // Log branch count
+        const totalBranches = tree.countBranches();
+        console.log(`Tree simplified: ${totalBranches} branches remaining`);
+
+        // Log level distribution
+        const levelCounts = tree.getLevelDistribution();
+        console.log('Level distribution:', 
+            Array.from(levelCounts.entries())
+                .sort(([a], [b]) => a - b)
+                .map(([level, count]) => `${level}: ${count}`)
+                .join(', ')
+        );
+
+        return { isValid, height: treeHeight, totalBranches, levelCounts };
+    }
+
+    static buildNodeMap(jsonData, options) {
         const nodesMap = new Map();
 
         // Create branch instances for each node
-        const scale = 5;
-        const offsetX = 996;
-        const offsetY = 520;
+        // const scale = 5;
+        // const offsetX = 996;
+        // const offsetY = 520;
+        const { offsetX, offsetY, scale } = options;
         jsonData.nodes.forEach((node) => {
             const start = {
                 x: node.x * scale + offsetX,
