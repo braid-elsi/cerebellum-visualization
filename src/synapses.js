@@ -1,6 +1,6 @@
 class Endpoint {
     constructor({ branch, width, color = [0, 0, 0] }) {
-        console.log({ branch, width, color });
+        // console.log({ branch, width, color });
         this.branch = branch;
         this.x = Math.round(branch.end.x);
         this.y = Math.round(branch.end.y);

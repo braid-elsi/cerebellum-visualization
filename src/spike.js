@@ -4,7 +4,7 @@ export default class Spike {
             width = 20,
             branch,
             progress,
-            speed = 3,
+            speed = 2,
             color = [255, 0, 0],
             direction = "outbound",
         },
@@ -45,6 +45,7 @@ export default class Spike {
         // Interpolate position using vector lerp
         const vectorLerpFunction = p5.constructor.Vector.lerp;
         this.pos = vectorLerpFunction(this.startVec, this.endVec, ratio);
+        // console.log(this.pos);
     }
 
     render(p5) {

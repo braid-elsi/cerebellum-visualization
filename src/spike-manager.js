@@ -44,6 +44,7 @@ export default class SpikeManager {
 
     addRandomSpikes({ tree, direction, n = 1, color = [200, 0, 0] }, p5) {
         const branches = this.getStartBranches({ tree, direction });
+        console.log("Adding random spikes:", branches);
         getRandomItems(branches, n).forEach((branch) =>
             this.addSpike({ branch, direction, color }, p5),
         );
@@ -107,6 +108,7 @@ export default class SpikeManager {
     }
 
     spawnInboundSpike(spike, p5, color = [255, 0, 0]) {
+        console.log("Spawing new outbound spike:", spike.branch);
         if (spike.branch.parent) {
             this.addSpike(
                 {
