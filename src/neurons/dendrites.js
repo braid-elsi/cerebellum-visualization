@@ -22,6 +22,10 @@ export default class Dendrites {
         // this.availableReceptors = new Set(this.receptors);
     }
 
+    addReceptor(receptor) {
+        this.receptors.push(receptor);
+    }
+
     getAvailableReceptor() {
         const receptors = this.getAvailableReceptors();
         return receptors.size > 0 ? receptors[0] : null;

@@ -1,4 +1,4 @@
-import Branch from "./branch.js";
+import { Branch, BranchUtils } from "./branch.js";
 
 export class Tree {
     constructor(branches = []) {
@@ -156,7 +156,7 @@ export class RandomTreeGenerator {
         angle = -PI / 2,
     }) {
         const tree = new Tree();
-        tree.branches = Branch.generate({
+        tree.branches = BranchUtils.generateBranch({
             level: 0,
             angle,
             x: startX,
@@ -182,7 +182,7 @@ export class PurkinjeTreeGenerator {
         yMax,
     }) {
         const tree = new Tree();
-        tree.branches = Branch.generatePurkinjeTree({
+        tree.branches = BranchUtils.generatePurkinjeBranch({
             level,
             angle,
             x,
@@ -205,7 +205,7 @@ export class StaticTreeGenerator {
         angle = -PI / 2,
     }) {
         const tree = new Tree();
-        tree.branches = Branch.generate({
+        tree.branches = BranchUtils.generateBranch({
             level: 0,
             angle,
             x: startX,
@@ -338,5 +338,129 @@ export class LeafTreeGenerator {
         });
 
         return branches;
+    }
+}
+
+export class PurkinjeTreeLoader {
+    static async loadTreeFromJSON(filePath, options = {}) {
+        try {
+            const response = await fetch(filePath);
+            const jsonData = await response.json();
+            return PurkinjeTreeLoader.parseTree(jsonData, options);
+        } catch (error) {
+            console.error("Error loading JSON file:", error);
+        }
+    }
+
+    static parseTree(jsonData, {
+        minEdgeLength = 1,      // Minimum distance between points
+        simplifyThreshold = 0.5, // Angle threshold for removing points (in radians)
+        skipFactor = 2,         // Take every nth point
+        iterations = 5          // Number of times to apply simplification
+    } = {}) {
+        const nodesMap = PurkinjeTreeLoader.buildNodeMap(jsonData);
+        
+        // First pass: Create initial tree structure
+        jsonData.edges.forEach((edge) => {
+            const parentBranch = nodesMap.get(edge.source);
+            const childBranch = nodesMap.get(edge.target);
+            
+            if (!parentBranch || !childBranch) return;
+
+            childBranch.parent = parentBranch;
+            parentBranch.branches.push(childBranch);
+            childBranch.level = parentBranch.level + 1;
+            childBranch.start = parentBranch.end;
+        });
+
+        // Simplify paths
+        const simplifyBranch = (branch) => {
+            if (!branch.branches.length) return;
+
+            // Process each child branch
+            for (let i = branch.branches.length - 1; i >= 0; i--) {
+                const child = branch.branches[i];
+                
+                // If child has exactly one child, consider removing it
+                if (child.branches.length === 1) {
+                    const grandchild = child.branches[0];
+                    const angle = Math.abs(PurkinjeTreeLoader.calculateAngle(
+                        branch.start,
+                        child.end,
+                        grandchild.end
+                    ));
+
+                    // If angle is small enough, remove the intermediate point
+                    if (angle < simplifyThreshold) {
+                        // Remove child and connect grandchild directly to parent
+                        branch.branches[i] = grandchild;
+                        grandchild.parent = branch;
+                        grandchild.start = branch.end;
+                        grandchild.level = branch.level + 1;
+                        
+                        // Continue checking this branch again since we modified it
+                        i++;
+                        continue;
+                    }
+                }
+
+                // Recursively simplify child branches
+                simplifyBranch(branch.branches[i]);
+            }
+        };
+
+        // Find root branches
+        const rootBranches = Array.from(nodesMap.values())
+            .filter(b => b.parent === null);
+
+        // Apply simplification multiple times
+        for (let iter = 0; iter < iterations; iter++) {
+            // Gradually increase the threshold with each iteration
+            const currentThreshold = simplifyThreshold * (1 + iter * 0.5);
+            console.log(`Iteration ${iter + 1}, threshold: ${currentThreshold}`);
+            
+            rootBranches.forEach(branch => {
+                simplifyBranch(branch, currentThreshold);
+            });
+        }
+
+        return new Tree(rootBranches);
+    }
+
+    // Helper to calculate angle between three points
+    static calculateAngle(p1, p2, p3) {
+        const v1 = { x: p2.x - p1.x, y: p2.y - p1.y };
+        const v2 = { x: p3.x - p2.x, y: p3.y - p2.y };
+        return Math.atan2(
+            v1.x * v2.y - v1.y * v2.x,
+            v1.x * v2.x + v1.y * v2.y
+        );
+    }
+
+    static buildNodeMap(jsonData) {
+        const nodesMap = new Map();
+
+        // Create branch instances for each node
+        const scale = 7;
+        const offsetX = 996;
+        const offsetY = 220;
+        jsonData.nodes.forEach((node) => {
+            const start = {
+                x: node.x * scale + offsetX,
+                y: -node.y * scale + offsetY,
+            };
+            const end = { ...start };
+            nodesMap.set(
+                node.id,
+                new Branch({
+                    start: start,
+                    end: end, // Updated later
+                    level: 0,
+                    parent: null,
+                    branches: [],
+                }),
+            );
+        });
+        return nodesMap;
     }
 }

@@ -3,7 +3,7 @@ import Neuron from "./base.js";
 import Axon from "./axon.js";
 import Dendrites from "./dendrites.js";
 import { Tree, JSONTreeLoader } from "../tree.js";
-import Branch from "../branch.js";
+import { Branch } from "../branch.js";
 
 export default class GranuleCell extends Neuron {
     constructor({ x, y, width }) {
@@ -63,4 +63,36 @@ export default class GranuleCell extends Neuron {
         this.axon.tree.addBranch(left, vertical);
         this.axon.tree.addBranch(right, vertical);
     }
+
+    addTerminalToBranch(currentBranch, point) {
+        // 1. Create two new children:
+        const secondHalf = new Branch({
+            start: point,
+            end: { ...currentBranch.end },
+            level: currentBranch.level + 1,
+            parent: currentBranch,
+            branches: [...currentBranch.branches],
+        });
+        secondHalf.branches.forEach((b) => (b.parent = secondHalf));
+
+        const currentBranchTerminal = new Branch({
+            start: point,
+            end: { x: point.x + 5, y: point.y + 5 },
+            level: currentBranch.level + 1,
+            parent: currentBranch,
+        });
+
+        // 2. Create the terminal
+        const terminal = this.axon.addTerminal(20, currentBranchTerminal);
+
+        // 3. Update the current branch, and add the 2 new children to it:
+        secondHalf.updateLevelsRecursively(currentBranch.level + 1);
+        currentBranch.update({
+            end: point,
+            branches: [secondHalf, currentBranchTerminal],
+        });
+        return terminal;
+    }
+
+    // render(p5) {}
 }

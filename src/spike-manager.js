@@ -97,7 +97,7 @@ export default class SpikeManager {
                 ),
             );
         } else {
-            // console.log("You have reached the terminal button");
+            console.log("You have reached the terminal button");
             this.transferChargeAcrossSynapse(spike, p5);
         }
     }

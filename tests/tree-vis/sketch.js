@@ -1,62 +1,67 @@
-// Initialize variables
-let numTines = 7;  // Number of tines in the fork-tree
-let tineLength = 50;  // Length of each tine
-let trunkLength = 300;  // Length of the trunk
-let tineSpread = 600;  // Total horizontal spread of tines
-let topLineLength = 80;  // Length of the perpendicular lines at the top
-let miniTineLength = 100;  // Length of the small tines
-let miniTineSpread = 80;  // Spread of the small tines
+let root;
 
 function setup() {
-  createCanvas(1000, 800);
-  background(255);
-  
-  // Center the tree at the bottom of the canvas
-  translate(width/2, height - 100);
-  
-  // Draw the tree
-  drawTree();
-  
-  noLoop();
+    createCanvas(600, 600);
+    background(255);
+    stroke(120, 60, 120, 180); // Soft purple color with alpha
+
+    // Start the tree at the bottom center
+    root = new Branch(width / 2, height, -PI / 2, 100, 10);
+    root.generateBranches(); // Generate all branches
 }
 
-function drawTree() {
-  // Draw trunk
-  stroke(101, 67, 33);  // Dark brown
-  strokeWeight(3);
-  line(0, 0, 0, -trunkLength);
-  
-  // Draw tines
-  translate(0, -trunkLength);  // Move to top of trunk
-  strokeWeight(3);
-  
-  // Calculate spacing between tines
-  let spacing = tineSpread / (numTines - 1);
-  let startX = -tineSpread / 2;
-  
-  // Draw each tine and its perpendicular top line
-  for (let i = 0; i < numTines; i++) {
-    let x = startX + (spacing * i);
-    line(0, 0, x, -tineLength);
-    // Draw perpendicular line at the top
-    line(x, -tineLength, x, -tineLength - topLineLength);
-    
-    // Draw mini fork at the top
-    let miniStartX = x - miniTineSpread / 2;
-    let miniSpacing = miniTineSpread / 2;
-    for (let j = 0; j < 3; j++) {
-      let miniX = miniStartX + (miniSpacing * j);
-      line(x, -tineLength - topLineLength, miniX, -tineLength - topLineLength - miniTineLength);
-      
-      // Add top-most mini forks
-      let topMiniSpread = miniTineSpread / 2; // Make the top spread smaller
-      let topMiniStartX = miniX - topMiniSpread / 2;
-      let topMiniSpacing = topMiniSpread / 2;
-      for (let k = 0; k < 3; k++) {
-        let topX = topMiniStartX + (topMiniSpacing * k);
-        line(miniX, -tineLength - topLineLength - miniTineLength, 
-             topX, -tineLength - topLineLength - miniTineLength - (miniTineLength/2));
-      }
+function draw() {
+    background(255);
+    root.show();
+}
+
+// Branch class
+class Branch {
+    constructor(x, y, angle, length, thickness) {
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+        this.length = length;
+        this.thickness = thickness;
+        this.branches = [];
+
+        if (thickness > 2) {
+            this.generateBranches();
+        }
     }
-  }
+
+    generateBranches() {
+        let numBranches = floor(random(2, 4)); // Each branch splits into 2-3
+
+        for (let i = 0; i < numBranches; i++) {
+            let newAngle = this.angle + random(-PI / 5, PI / 5); // Small variation
+            let newLength = this.length * random(0.6, 0.8); // Reduce length
+            let newX = this.x + cos(this.angle) * this.length;
+            let newY = this.y + sin(this.angle) * this.length;
+
+            this.branches.push(
+                new Branch(
+                    newX,
+                    newY,
+                    newAngle,
+                    newLength,
+                    this.thickness * 0.7,
+                ),
+            );
+        }
+    }
+
+    show() {
+        strokeWeight(this.thickness);
+        line(
+            this.x,
+            this.y,
+            this.x + cos(this.angle) * this.length,
+            this.y + sin(this.angle) * this.length,
+        );
+
+        for (let branch of this.branches) {
+            branch.show();
+        }
+    }
 }

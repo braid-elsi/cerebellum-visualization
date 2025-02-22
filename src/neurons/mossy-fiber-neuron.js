@@ -1,7 +1,7 @@
 import Neuron from "./base.js";
 import Axon from "./axon.js";
 import { Tree } from "../tree.js";
-import Branch from "../branch.js";
+import { Branch } from "../branch.js";
 
 export default class MossyFiberNeuron extends Neuron {
     constructor({ x, y, width }) {
