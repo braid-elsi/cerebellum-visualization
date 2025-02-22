@@ -49,21 +49,7 @@ export class Tree {
     }
 
     traverse(callback) {
-        const traverseBranch = (branch) => {
-            if (!branch) return;
-            
-            callback(branch);
-            
-            if (branch.branches) {
-                branch.branches.forEach(child => {
-                    if (child) {
-                        traverseBranch(child);
-                    }
-                });
-            }
-        };
-
-        this.branches.forEach(root => traverseBranch(root));
+        this.branches.forEach(root => root.traverse(callback));
     }
 
     countBranches() {
@@ -437,7 +423,7 @@ export class PurkinjeTreeLoader {
 
     static simplifyTree(tree, options) {
         const {
-            minEdgeLength = .1,
+            minEdgeLength = 4,
             simplifyThreshold = 0.3
         } = options;
 

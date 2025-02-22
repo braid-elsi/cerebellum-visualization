@@ -127,6 +127,20 @@ export class Branch {
             }
         }
     }
+
+    traverse(callback) {
+        if (!this) return;
+        
+        callback(this);
+        
+        if (this.branches) {
+            this.branches.forEach(child => {
+                if (child) {
+                    child.traverse(callback);
+                }
+            });
+        }
+    }
 }
 
 export class BranchUtils {

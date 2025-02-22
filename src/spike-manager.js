@@ -83,8 +83,7 @@ export default class SpikeManager {
     spawnOutboundSpikes(spike, p5, color = [255, 0, 0]) {
         if (spike.branch.branches?.length) {
             const numBranches = spike.branch.branches.length;
-            const scaleFactor = numBranches === 1 ? 1 : 1 - numBranches * 0.075;
-            // console.log("sf:", scaleFactor);
+            const scaleFactor = numBranches === 1 ? 1 : 1 - numBranches * 0.03;
             spike.branch.branches.forEach((b) =>
                 this.addSpike(
                     {

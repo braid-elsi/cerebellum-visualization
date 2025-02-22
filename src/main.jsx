@@ -57,8 +57,8 @@ async function setup(p5) {
     mf2.connectTo(neurons[2], getRandomInt(2, 4));
 
     pk1 = new PurkinjeNeuron({
-        x: 1000,
-        y: screenH - 300,
+        x: 700,
+        y: screenH - 400,
         width: 60,
         color: [200, 100, 100],
     });
@@ -82,32 +82,52 @@ async function setup(p5) {
     pk1.generateAxon();
 
     // find Purkinje dendrite intersections with Granule Cell axons:
-    for (const gc of [neurons[0]]) {
+    for (const gc of neurons) {
+        // Collect all intersections first before making any modifications
+        const allIntersections = [];
         for (let gcBranch of gc.axon.tree.getAllBranches()) {
-            const branchesToBeBisected =
-                pk1.dendrites.tree.findIntersectionsWithExternalBranch(
-                    gcBranch,
-                );
-            console.log(branchesToBeBisected);
-            let i = 0;
-            for (const entry of branchesToBeBisected) {
-                const point = entry.intersectionPoint;
-                const pkBranch = entry.branch;
+            const intersections = pk1.dendrites.tree.findIntersectionsWithExternalBranch(gcBranch);
+            allIntersections.push(...intersections.map(entry => ({
+                gcBranch,
+                pkBranch: entry.branch,
+                point: entry.intersectionPoint
+            })));
+        }
+
+        // Sort intersections by distance from the end of their branches
+        // This ensures we process from tips toward roots
+        allIntersections.sort((a, b) => {
+            const aDistFromEnd = Math.hypot(
+                a.gcBranch.end.x - a.point.x,
+                a.gcBranch.end.y - a.point.y
+            );
+            const bDistFromEnd = Math.hypot(
+                b.gcBranch.end.x - b.point.x,
+                b.gcBranch.end.y - b.point.y
+            );
+            return aDistFromEnd - bDistFromEnd;
+        });
+
+        // Now process all intersections from tips toward roots
+        let i = 0;
+        for (const { gcBranch, pkBranch, point } of allIntersections) {
+            try {
                 const terminal = gc.addTerminalToBranch(gcBranch, point);
                 const receptor = pk1.addReceptorToBranch(pkBranch, point);
 
-                // make the connections:
+                if (!terminal || !receptor) {
+                    console.error('Failed to create terminal or receptor');
+                    continue;
+                }
+
                 receptor.setTerminal(terminal);
                 terminal.setReceptor(receptor);
                 ++i;
-                // why does it work with 2 but not 3 terminal / receptor pairs?
-                // and how do I debug this error?
-                // if (i > 1) {
-                //     break;
-                // }
+            } catch (error) {
+                console.error('Error creating connection:', error);
             }
         }
-        console.log(gc.axon);
+        console.log(`Total connections made: ${i}`);
     }
 }
 
@@ -118,9 +138,10 @@ function draw(p5) {
     mf2.render(p5);
     pk1.render(p5);
     spikeManager.render(p5);
-    periodicallyAddNewSpikes(++counter, p5);
+    // periodicallyAddNewSpikesToGC(counter, p5);
+    periodicallyAddNewSpikes(counter, p5);
     // periodicallyAddNewSpikesToPurkinje(counter, p5);
-    // ++counter;
+    ++counter;
 }
 
 function periodicallyAddNewSpikesToPurkinje(counter, p5) {
@@ -137,7 +158,23 @@ function periodicallyAddNewSpikesToPurkinje(counter, p5) {
             },
             p5,
         );
-        randomInterval1 = getRandomInt(10, 80);
+        // randomInterval1 = getRandomInt(10, 80);
+    }
+}
+
+function periodicallyAddNewSpikesToGC(counter, p5) {
+    if (neurons.length < 5) {
+        return;
+    }
+    if (counter % randomInterval1 === 0) {
+        spikeManager.addSpike({
+                branch: neurons[4].axon.tree.branches[0],
+                direction: "outbound",
+                color: [0, 200, 200], // [200, 0, 200],
+            },
+            p5,
+        );
+        randomInterval1 = getRandomInt(200, 500);
     }
 }
 
