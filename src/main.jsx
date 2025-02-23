@@ -57,7 +57,7 @@ async function setup(p5) {
 
     pk1 = new PurkinjeNeuron({
         x: 1000,
-        y: screenH - 300,
+        y: screenH - 200,
         width: 60,
         color: [200, 100, 100],
     });
@@ -81,53 +81,8 @@ async function setup(p5) {
     pk1.generateAxon();
 
     // find Purkinje dendrite intersections with Granule Cell axons:
-    for (const gc of neurons) {
-        // Collect all intersections first before making any modifications
-        const allIntersections = [];
-        for (let gcBranch of gc.axon.tree.getAllBranches()) {
-            const intersections = pk1.dendrites.tree.findIntersectionsWithExternalBranch(gcBranch);
-            allIntersections.push(...intersections.map(entry => ({
-                gcBranch,
-                pkBranch: entry.branch,
-                point: entry.intersectionPoint
-            })));
-        }
-
-        // Sort intersections by distance from the end of their branches
-        // This ensures we process from tips toward roots
-        allIntersections.sort((a, b) => {
-            const aDistFromEnd = Math.hypot(
-                a.gcBranch.end.x - a.point.x,
-                a.gcBranch.end.y - a.point.y
-            );
-            const bDistFromEnd = Math.hypot(
-                b.gcBranch.end.x - b.point.x,
-                b.gcBranch.end.y - b.point.y
-            );
-            return aDistFromEnd - bDistFromEnd;
-        });
-
-        // Now process all intersections from tips toward roots
-        let i = 0;
-        for (const { gcBranch, pkBranch, point } of allIntersections) {
-            try {
-                const terminal = gc.addTerminalToBranch(gcBranch, point);
-                const receptor = pk1.addReceptorToBranch(pkBranch, point);
-
-                if (!terminal || !receptor) {
-                    console.error('Failed to create terminal or receptor');
-                    continue;
-                }
-
-                receptor.setTerminal(terminal);
-                terminal.setReceptor(receptor);
-                ++i;
-            } catch (error) {
-                console.error('Error creating connection:', error);
-            }
-        }
-        console.log(`Total connections made: ${i}`);
-    }
+    const totalConnections = pk1.connectWithGranuleCells(neurons);
+    console.log(`Total connections made: ${totalConnections}`);
 }
 
 function draw(p5) {
@@ -180,6 +135,9 @@ function periodicallyAddNewSpikesToGC(counter, p5) {
 function periodicallyAddNewSpikes(counter, p5) {
     if (counter % randomInterval1 === 0) {
         for (const neuron of [mf1]) {
+            if (!neuron.axon || !neuron.axon.tree) {
+                continue;
+            }
             spikeManager.addRandomSpikes(
                 {
                     tree: neuron.axon.tree,
@@ -195,6 +153,9 @@ function periodicallyAddNewSpikes(counter, p5) {
 
     if (counter % randomInterval2 === 0) {
         for (const neuron of [mf2]) {
+            if (!neuron.axon || !neuron.axon.tree) {
+                continue;
+            }
             spikeManager.addRandomSpikes(
                 {
                     tree: neuron.axon.tree,

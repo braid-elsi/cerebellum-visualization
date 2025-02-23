@@ -86,8 +86,8 @@ export default class GranuleCell extends Neuron {
 
         // 2. Create the terminal
         const terminal = this.axon.addTerminal({
-            width: 7,
-            height: 7,
+            width: 9,
+            height: 9,
             branch: currentBranchTerminal,
             receptor: null,
             doRotation: true,

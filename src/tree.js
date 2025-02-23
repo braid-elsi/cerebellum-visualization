@@ -513,11 +513,11 @@ export class PurkinjeTreeLoader {
         // const scale = 5;
         // const offsetX = 996;
         // const offsetY = 520;
-        const { offsetX, offsetY, scale } = options;
+        const { offsetX, offsetY, scaleX, scaleY } = options;
         jsonData.nodes.forEach((node) => {
             const start = {
-                x: node.x * scale + offsetX,
-                y: -node.y * scale + offsetY,
+                x: node.x * scaleX + offsetX,
+                y: -node.y * scaleY + offsetY,
             };
             const end = { ...start };
             nodesMap.set(

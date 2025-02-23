@@ -28,11 +28,12 @@ export default class PurkinjeNeuron extends Neuron {
             {
                 offsetX: this.x,
                 offsetY: this.y,
-                scale: 7,
+                scaleX: 9,
+                scaleY: 5,
             },
         );
 
-        this.dendrites = new Dendrites({ neuron: this, tree });
+        this.dendrites = new Dendrites({ neuron: this, tree, receptorWidth: 10, receptorHeight: 3.5 });
     }
 
     generateAxon() {
@@ -77,9 +78,8 @@ export default class PurkinjeNeuron extends Neuron {
             branches: null,
         });
 
-        // 2. Create receptor:
+        // 2. Create receptor (we don't want to show it so width and height are 0):
         const receptor = new Receptor({
-            // width: Math.max(this.width * 0.4, 20),
             width: 0,
             height: 0,
             branch: currentBranchReceptor,
@@ -108,5 +108,79 @@ export default class PurkinjeNeuron extends Neuron {
         return receptor;
     }
 
-    // render(p5) {}
+    // Helper method to find all intersection points between a granule cell and this Purkinje cell
+    findAllIntersections(granuleCell) {
+        const intersections = [];
+        for (let gcBranch of granuleCell.axon.tree.getAllBranches()) {
+            const branchIntersections = this.dendrites.tree.findIntersectionsWithExternalBranch(gcBranch);
+            intersections.push(...branchIntersections.map(entry => ({
+                gcBranch,
+                pkBranch: entry.branch,
+                point: entry.intersectionPoint
+            })));
+        }
+        return intersections;
+    }
+
+    // Helper method to sort intersections from branch tips toward roots.
+    // This is important because as we're adding new terminal branches to the granule
+    // cell's axon, we need to do it in the correct order (from furthest away to closest)
+    // otherwise the parent-child relationships of the axon branches will be all messed up.
+    sortIntersectionsByDistance(intersections) {
+        return intersections.sort((a, b) => {
+            const aDistFromEnd = Math.hypot(
+                a.gcBranch.end.x - a.point.x,
+                a.gcBranch.end.y - a.point.y
+            );
+            const bDistFromEnd = Math.hypot(
+                b.gcBranch.end.x - b.point.x,
+                b.gcBranch.end.y - b.point.y
+            );
+            return aDistFromEnd - bDistFromEnd;
+        });
+    }
+
+    // Helper method to create a single connection at an intersection point
+    createConnection(granuleCell, intersection) {
+        const { gcBranch, pkBranch, point } = intersection;
+        try {
+            const terminal = granuleCell.addTerminalToBranch(gcBranch, point);
+            const receptor = this.addReceptorToBranch(pkBranch, point);
+
+            if (!terminal || !receptor) {
+                console.error('Failed to create terminal or receptor');
+                return false;
+            }
+
+            receptor.setTerminal(terminal);
+            terminal.setReceptor(receptor);
+            return true;
+        } catch (error) {
+            console.error('Error creating connection:', error);
+            return false;
+        }
+    }
+
+    connectWithGranuleCells(granuleCells) {
+        let totalConnections = 0;
+        
+        for (const granuleCell of granuleCells) {
+            // Find and sort all possible connection points
+            const intersections = this.findAllIntersections(granuleCell);
+            const sortedIntersections = this.sortIntersectionsByDistance(intersections);
+
+            // Create connections at each intersection point
+            let connections = 0;
+            for (const intersection of sortedIntersections) {
+                if (this.createConnection(granuleCell, intersection)) {
+                    connections++;
+                }
+            }
+
+            console.log(`Connections made with granule cell: ${connections}`);
+            totalConnections += connections;
+        }
+        return totalConnections;
+    }
+
 }

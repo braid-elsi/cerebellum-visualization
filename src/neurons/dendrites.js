@@ -1,7 +1,7 @@
 import { Receptor } from "../synapses.js";
 
 export default class Dendrites {
-    constructor({ neuron, tree }) {
+    constructor({ neuron, tree, receptorWidth = 15, receptorHeight = 5 }) {
         this.tree = tree;
         this.neuron = neuron;
 
@@ -12,8 +12,8 @@ export default class Dendrites {
         this.receptors = receptorBranches.map(
             (branch) =>
                 new Receptor({
-                    width: 15,
-                    height: 5,
+                    width: receptorWidth,
+                    height: receptorHeight,
                     branch,
                     color: this.neuron.color,
                 }),
