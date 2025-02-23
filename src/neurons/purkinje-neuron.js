@@ -33,7 +33,17 @@ export default class PurkinjeNeuron extends Neuron {
             },
         );
 
-        this.dendrites = new Dendrites({ neuron: this, tree, receptorWidth: 10, receptorHeight: 3.5 });
+        const dendriteOptions = { 
+            neuron: this, 
+            tree, 
+            receptorOptions: {
+                width: 8, 
+                height: 3, 
+                doRotation: true,
+                color: this.color
+            } 
+        }
+        this.dendrites = new Dendrites(dendriteOptions);
     }
 
     generateAxon() {

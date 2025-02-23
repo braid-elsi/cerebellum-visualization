@@ -1,7 +1,11 @@
 import { Receptor } from "../synapses.js";
 
 export default class Dendrites {
-    constructor({ neuron, tree, receptorWidth = 15, receptorHeight = 5 }) {
+    constructor({ 
+            neuron, 
+            tree, 
+            receptorOptions = { width: 15, height: 5, color: null, doRotation: false } 
+        }) {
         this.tree = tree;
         this.neuron = neuron;
 
@@ -10,17 +14,17 @@ export default class Dendrites {
 
         const receptorBranches = this.tree.getTerminalBranches();
         this.receptors = receptorBranches.map(
-            (branch) =>
-                new Receptor({
-                    width: receptorWidth,
-                    height: receptorHeight,
+            (branch) => {
+                const {width, height, color, doRotation} = receptorOptions;
+                return new Receptor({
+                    width: width || 15,
+                    height: height || 5,
                     branch,
-                    color: this.neuron.color,
-                }),
+                    color: color || this.neuron.color,
+                    doRotation: doRotation || false
+                });
+            }
         );
-
-        // Track available receptors
-        // this.availableReceptors = new Set(this.receptors);
     }
 
     addReceptor(receptor) {
@@ -32,7 +36,6 @@ export default class Dendrites {
         return receptors.size > 0 ? receptors[0] : null;
     }
     getAvailableReceptors() {
-        // console.log(this.receptors);
         return this.receptors.filter((receptor) => !receptor.terminal);
     }
 
@@ -47,12 +50,15 @@ export default class Dendrites {
     getReceptorMaxY() {
         return this.getReceptorExtreme((a, b) => a > b, "y");
     }
+
     getReceptorMaxX() {
         return this.getReceptorExtreme((a, b) => a > b, "x");
     }
+
     getReceptorMinX() {
         return this.getReceptorExtreme((a, b) => a < b, "x");
     }
+    
     getReceptorMinY() {
         return this.getReceptorExtreme((a, b) => a < b, "y");
     }

@@ -41,7 +41,7 @@ async function setup(p5) {
     }
 
     mf1 = new MossyFiberNeuron({
-        x: 425,
+        x: 300,
         y: screenH + 500,
         width: 60,
     });
@@ -98,39 +98,39 @@ function draw(p5) {
     ++counter;
 }
 
-function periodicallyAddNewSpikesToPurkinje(counter, p5) {
-    if (counter % randomInterval1 === 0) {
-        if (!pk1.dendrites) {
-            return;
-        }
-        spikeManager.addRandomSpikes(
-            {
-                tree: pk1.dendrites.tree,
-                direction: "inbound",
-                n: 1,
-                color: [0, 200, 200], // [200, 0, 200],
-            },
-            p5,
-        );
-        // randomInterval1 = getRandomInt(10, 80);
-    }
-}
+// function periodicallyAddNewSpikesToPurkinje(counter, p5) {
+//     if (counter % randomInterval1 === 0) {
+//         if (!pk1.dendrites) {
+//             return;
+//         }
+//         spikeManager.addRandomSpikes(
+//             {
+//                 tree: pk1.dendrites.tree,
+//                 direction: "inbound",
+//                 n: 1,
+//                 color: [0, 200, 200], // [200, 0, 200],
+//             },
+//             p5,
+//         );
+//         // randomInterval1 = getRandomInt(10, 80);
+//     }
+// }
 
-function periodicallyAddNewSpikesToGC(counter, p5) {
-    if (neurons.length < 5) {
-        return;
-    }
-    if (counter % randomInterval1 === 0) {
-        spikeManager.addSpike({
-                branch: neurons[4].axon.tree.branches[0],
-                direction: "outbound",
-                color: [0, 200, 200], // [200, 0, 200],
-            },
-            p5,
-        );
-        randomInterval1 = getRandomInt(200, 500);
-    }
-}
+// function periodicallyAddNewSpikesToGC(counter, p5) {
+//     if (neurons.length < 5) {
+//         return;
+//     }
+//     if (counter % randomInterval1 === 0) {
+//         spikeManager.addSpike({
+//                 branch: neurons[4].axon.tree.branches[0],
+//                 direction: "outbound",
+//                 color: [0, 200, 200], // [200, 0, 200],
+//             },
+//             p5,
+//         );
+//         randomInterval1 = getRandomInt(200, 500);
+//     }
+// }
 
 function periodicallyAddNewSpikes(counter, p5) {
     if (counter % randomInterval1 === 0) {
@@ -148,7 +148,7 @@ function periodicallyAddNewSpikes(counter, p5) {
                 p5,
             );
         }
-        randomInterval1 = getRandomInt(10, 80);
+        randomInterval1 = getRandomInt(100, 500);
     }
 
     if (counter % randomInterval2 === 0) {
@@ -166,6 +166,6 @@ function periodicallyAddNewSpikes(counter, p5) {
                 p5,
             );
         }
-        randomInterval2 = getRandomInt(40, 150);
+        randomInterval2 = getRandomInt(400, 800);
     }
 }

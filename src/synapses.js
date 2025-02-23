@@ -1,6 +1,5 @@
 class Endpoint {
-    constructor({ branch, width, height,color = [0, 0, 0] }) {
-        // console.log({ branch, width, color });
+    constructor({ branch, width, height, color = [0, 0, 0], doRotation = false }) {
         this.branch = branch;
         this.x = Math.round(branch.end.x);
         this.y = Math.round(branch.end.y);
@@ -8,23 +7,26 @@ class Endpoint {
         this.width = width;
         this.height = height || width / 3;
         this.color = color;
-        this.doRotation = false;
+        this.doRotation = doRotation;
     }
 
     render(p5, color) {
+        p5.rectMode(p5.CENTER);
+        const radius = this.width * 0.4;
         if (color) {
             this.color = color;
         }
         p5.strokeWeight(0);
         p5.fill(...this.color);
         if (this.doRotation) {
-            p5.angleMode(RADIANS);
+            const tangentAngle = this.angle + Math.PI/2;
+            p5.angleMode(p5.RADIANS);
             p5.push();
             p5.translate(this.x, this.y);
-            p5.rotate(this.angle);
+            p5.rotate(tangentAngle);
             p5.rect(
-                this.x,
-                this.y,
+                0,
+                0,
                 this.width,
                 this.height,
                 radius,
@@ -35,7 +37,6 @@ class Endpoint {
             p5.pop();
         } else {
             p5.stroke(0);
-            const radius = this.width * 0.4;
             p5.rectMode(p5.CENTER);
             p5.rect(
                 this.x,
@@ -52,8 +53,8 @@ class Endpoint {
 }
 
 export class Receptor extends Endpoint {
-    constructor({ branch, width, height, color = [0, 0, 0] }, terminal = null) {
-        super({ branch, width, height, color });
+    constructor({ branch, width, height, color = [0, 0, 0] , terminal = null, doRotation = false}) {
+        super({ branch, width, height, color, doRotation });
         this.type = "receptor";
         this.setTerminal(terminal);
     }
@@ -67,11 +68,10 @@ export class Receptor extends Endpoint {
 }
 
 export class Terminal extends Endpoint {
-    constructor({ branch, width, height, color = [0, 0, 0], receptor = null }) {
-        super({ branch, width, height, color });
+    constructor({ branch, width, height, color = [0, 0, 0], receptor = null, doRotation = false }) {
+        super({ branch, width, height, color, doRotation });
         this.receptor = receptor;
         this.type = "terminal";
-        this.doRotation = false;
         this.setReceptor(receptor);
     }
     setReceptor(receptor) {
