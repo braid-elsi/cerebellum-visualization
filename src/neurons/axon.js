@@ -14,7 +14,7 @@ export default class Axon {
 
         // connect the roots of the dendrite trees to the source neuron
         return terminalBranches.map((branch) => {
-            const terminal = new Terminal({
+            const terminal = ({
                 width: 20,
                 branch,
                 color: this.neuron.color,
@@ -24,11 +24,13 @@ export default class Axon {
         });
     }
 
-    addTerminal(width, branch, receptor = null) {
+    addTerminal({width, height, branch, receptor = null, doRotation = false}) {
         const terminal = new Terminal({
             width,
+            height,
             branch,
             color: this.neuron.color,
+            doRotation
         });
         branch.terminal = terminal;
         this.terminals.push(terminal);

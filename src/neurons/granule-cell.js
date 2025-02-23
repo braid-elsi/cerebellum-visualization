@@ -79,13 +79,19 @@ export default class GranuleCell extends Neuron {
 
         const currentBranchTerminal = new Branch({
             start: point,
-            end: { x: point.x, y: point.y + 3 },
+            end: { x: point.x, y: point.y },
             level: currentBranch.level + 1,
             parent: currentBranch,
         });
 
         // 2. Create the terminal
-        const terminal = this.axon.addTerminal(20, currentBranchTerminal);
+        const terminal = this.axon.addTerminal({
+            width: 7,
+            height: 7,
+            branch: currentBranchTerminal,
+            receptor: null,
+            doRotation: true,
+        });
 
         // 3. Update the current branch and its relationships
         secondHalf.updateLevelsRecursively(currentBranch.level + 1);

@@ -28,7 +28,7 @@ export default class PurkinjeNeuron extends Neuron {
             {
                 offsetX: this.x,
                 offsetY: this.y,
-                scale: 6,
+                scale: 7,
             },
         );
 
@@ -71,7 +71,7 @@ export default class PurkinjeNeuron extends Neuron {
 
         const currentBranchReceptor = new Branch({
             start: point,
-            end: { x: point.x, y: point.y - 2 },
+            end: { x: point.x, y: point.y },
             level: originalLevel + 1,
             parent: currentBranch,
             branches: null,
@@ -79,7 +79,9 @@ export default class PurkinjeNeuron extends Neuron {
 
         // 2. Create receptor:
         const receptor = new Receptor({
-            width: Math.max(this.width * 0.4, 20),
+            // width: Math.max(this.width * 0.4, 20),
+            width: 0,
+            height: 0,
             branch: currentBranchReceptor,
             color: this.color,
         });

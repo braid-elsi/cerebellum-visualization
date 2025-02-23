@@ -12,7 +12,8 @@ export default class Dendrites {
         this.receptors = receptorBranches.map(
             (branch) =>
                 new Receptor({
-                    width: Math.max(this.neuron.width * 0.4, 20),
+                    width: 15,
+                    height: 5,
                     branch,
                     color: this.neuron.color,
                 }),

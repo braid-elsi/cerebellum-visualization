@@ -83,11 +83,15 @@ export default class SpikeManager {
     spawnOutboundSpikes(spike, p5, color = [255, 0, 0]) {
         if (spike.branch.branches?.length) {
             const numBranches = spike.branch.branches.length;
-            const scaleFactor = numBranches === 1 ? 1 : 1 - numBranches * 0.03;
+            const baseReduction = Math.log(numBranches) * (spike.width / 32);
+            const scaleFactor = numBranches === 1 
+                ? 1 
+                : Math.max(0.85, 1 - baseReduction);
+            
             spike.branch.branches.forEach((b) =>
                 this.addSpike(
                     {
-                        width: Math.min(spike.width * scaleFactor, spike.width),
+                        width: Math.max(6, Math.min(spike.width * scaleFactor, spike.width)),
                         branch: b,
                         direction: "outbound",
                         color,

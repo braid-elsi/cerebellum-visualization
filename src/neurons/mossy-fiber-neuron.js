@@ -49,9 +49,9 @@ export default class MossyFiberNeuron extends Neuron {
     }
 
     createReceptorBranch(receptor, parentBranch, neuron, level) {
-        const synapseGapWidth = receptor.width / 3 - 1;
-        const terminalWidth = Math.max(neuron.width * 0.4, 20);
-
+        const terminalWidth = 15;
+        const terminalHeight = 5;
+        const synapseGapWidth = terminalHeight + 1;
         const branch = new Branch({
             start: parentBranch.end,
             end: {
@@ -63,7 +63,7 @@ export default class MossyFiberNeuron extends Neuron {
         });
 
         this.axon.tree.addBranch(branch, parentBranch);
-        this.axon.addTerminal(terminalWidth, branch, receptor);
+        this.axon.addTerminal({width: terminalWidth, height: terminalHeight, branch, receptor, doRotation: false});
         return branch;
     }
 

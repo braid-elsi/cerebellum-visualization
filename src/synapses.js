@@ -1,11 +1,12 @@
 class Endpoint {
-    constructor({ branch, width, color = [0, 0, 0] }) {
+    constructor({ branch, width, height,color = [0, 0, 0] }) {
         // console.log({ branch, width, color });
         this.branch = branch;
         this.x = Math.round(branch.end.x);
         this.y = Math.round(branch.end.y);
         this.angle = branch.angle;
         this.width = width;
+        this.height = height || width / 3;
         this.color = color;
         this.doRotation = false;
     }
@@ -21,7 +22,16 @@ class Endpoint {
             p5.push();
             p5.translate(this.x, this.y);
             p5.rotate(this.angle);
-            p5.ellipse(0, 0, this.width * 0.1, this.width * 0.8);
+            p5.rect(
+                this.x,
+                this.y,
+                this.width,
+                this.height,
+                radius,
+                radius,
+                radius,
+                radius,
+            );
             p5.pop();
         } else {
             p5.stroke(0);
@@ -30,8 +40,8 @@ class Endpoint {
             p5.rect(
                 this.x,
                 this.y,
-                this.width * 0.7,
-                this.width * 0.25,
+                this.width,
+                this.height,
                 radius,
                 radius,
                 radius,
@@ -42,8 +52,8 @@ class Endpoint {
 }
 
 export class Receptor extends Endpoint {
-    constructor({ branch, width, color = [0, 0, 0] }, terminal = null) {
-        super({ branch, width, color });
+    constructor({ branch, width, height, color = [0, 0, 0] }, terminal = null) {
+        super({ branch, width, height, color });
         this.type = "receptor";
         this.setTerminal(terminal);
     }
@@ -57,8 +67,8 @@ export class Receptor extends Endpoint {
 }
 
 export class Terminal extends Endpoint {
-    constructor({ branch, width, color = [0, 0, 0], receptor = null }) {
-        super({ branch, width, color });
+    constructor({ branch, width, height, color = [0, 0, 0], receptor = null }) {
+        super({ branch, width, height, color });
         this.receptor = receptor;
         this.type = "terminal";
         this.doRotation = false;

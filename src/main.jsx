@@ -4,8 +4,7 @@ import GranuleCell from "./neurons/granule-cell.js";
 import MossyFiberNeuron from "./neurons/mossy-fiber-neuron.js";
 import PurkinjeNeuron from "./neurons/purkinje-neuron.js";
 import { getRandomInt } from "./utils.js";
-// import Branch from "./branch.js";
-// import { Receptor } from "./synapses.js";
+
 
 const neurons = [];
 const spikeManager = new SpikeManager();
@@ -35,7 +34,7 @@ async function setup(p5) {
     for (let i = 0; i < 5; i++) {
         const gc = new GranuleCell({
             x: 125 * i + 50,
-            y: (screenH * 2) / 3,
+            y: screenH,
             width: getRandomInt(30, 50),
         });
         neurons.push(gc);
@@ -43,13 +42,13 @@ async function setup(p5) {
 
     mf1 = new MossyFiberNeuron({
         x: 425,
-        y: screenH + 200,
+        y: screenH + 500,
         width: 60,
     });
 
     mf2 = new MossyFiberNeuron({
         x: 175,
-        y: screenH + 200,
+        y: screenH + 500,
         width: 60,
     });
     mf2.connectTo(neurons[0], getRandomInt(2, 3));
@@ -57,8 +56,8 @@ async function setup(p5) {
     mf2.connectTo(neurons[2], getRandomInt(2, 4));
 
     pk1 = new PurkinjeNeuron({
-        x: 700,
-        y: screenH - 400,
+        x: 1000,
+        y: screenH - 300,
         width: 60,
         color: [200, 100, 100],
     });
@@ -75,7 +74,7 @@ async function setup(p5) {
     const shuffledNeurons = [...neurons].sort(() => Math.random() - 0.5);
     shuffledNeurons.forEach((gc) => {
         gc.generateAxon(10 + xOffset);
-        xOffset += getRandomInt(15, 40);
+        xOffset += getRandomInt(15, 80);
     });
     mf1.generateAxon();
     mf2.generateAxon();
@@ -133,10 +132,10 @@ async function setup(p5) {
 
 function draw(p5) {
     p5.background(255);
+    pk1.render(p5);
     neurons.forEach((neuron) => neuron.render(p5));
     mf1.render(p5);
     mf2.render(p5);
-    pk1.render(p5);
     spikeManager.render(p5);
     // periodicallyAddNewSpikesToGC(counter, p5);
     periodicallyAddNewSpikes(counter, p5);
