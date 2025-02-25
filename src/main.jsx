@@ -92,7 +92,6 @@ function draw(p5) {
     mf1.render(p5);
     mf2.render(p5);
     spikeManager.render(p5);
-    // periodicallyAddNewSpikesToGC(counter, p5);
     periodicallyAddNewSpikes(counter, p5);
     // periodicallyAddNewSpikesToPurkinje(counter, p5);
     ++counter;
@@ -133,7 +132,8 @@ function draw(p5) {
 // }
 
 function periodicallyAddNewSpikes(counter, p5) {
-    if (counter % randomInterval1 === 0) {
+    let cnt = counter - 10; // adds slight delay before spiking starts
+    if (cnt % randomInterval1 === 0) {
         for (const neuron of [mf1]) {
             if (!neuron.axon || !neuron.axon.tree) {
                 continue;
@@ -151,7 +151,7 @@ function periodicallyAddNewSpikes(counter, p5) {
         randomInterval1 = getRandomInt(100, 500);
     }
 
-    if (counter % randomInterval2 === 0) {
+    if (cnt % randomInterval2 === 0) {
         for (const neuron of [mf2]) {
             if (!neuron.axon || !neuron.axon.tree) {
                 continue;
