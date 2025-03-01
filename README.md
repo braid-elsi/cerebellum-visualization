@@ -34,3 +34,9 @@ The "inferior olive" refers to a specific brain structure called the "inferior o
   ```
   npx jsdoc ./src/neurons/neuron.js -c jsdoc.json
   ```
+
+
+# Places to Download swc files
+* [https://neuromorpho.org/KeywordBrowseView.jsp?count=1555&keywords=%22purkinje%22&browseBy=brainRegion](https://neuromorpho.org/KeywordBrowseView.jsp?count=1555&keywords=%22purkinje%22&browseBy=brainRegion)
+* Great video of how synapses work: [https://www.youtube.com/watch?v=hmtQPrH-gC4](https://www.youtube.com/watch?v=hmtQPrH-gC4)
+* Vis tips on using Blender to visualize flows: [https://www.youtube.com/watch?v=yaa13eehgzo](https://www.youtube.com/watch?v=yaa13eehgzo)

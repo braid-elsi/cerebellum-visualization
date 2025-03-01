@@ -3,8 +3,8 @@ import SpikeManager from "./spike-manager.js";
 import GranuleCell from "./neurons/granule-cell.js";
 import MossyFiberNeuron from "./neurons/mossy-fiber-neuron.js";
 import PurkinjeNeuron from "./neurons/purkinje-neuron.js";
+import DeepCerebellarNuclei from "./neurons/dcn.js";
 import { getRandomInt } from "./utils.js";
-
 
 const neurons = [];
 const spikeManager = new SpikeManager();
@@ -15,7 +15,7 @@ let randomInterval1 = 30;
 let randomInterval2 = 50;
 let mf1, mf2;
 let pk1;
-
+let dcn1;
 // Create a new p5 instance
 (function initializeApp() {
     new p5Lib(function (p5) {
@@ -56,10 +56,17 @@ async function setup(p5) {
     mf2.connectTo(neurons[2], getRandomInt(2, 4));
 
     pk1 = new PurkinjeNeuron({
-        x: 1000,
+        x: 800,
         y: screenH - 200,
         width: 60,
         color: [200, 100, 100],
+    });
+
+    dcn1 = new DeepCerebellarNuclei({
+        x: 800,
+        y: screenH + 450,
+        width: 130,
+        color: [233, 194, 194]
     });
 
     // order matters here: first make the connections, then generate all the dendrites,
@@ -91,6 +98,7 @@ function draw(p5) {
     neurons.forEach((neuron) => neuron.render(p5));
     mf1.render(p5);
     mf2.render(p5);
+    dcn1.render(p5);
     spikeManager.render(p5);
     periodicallyAddNewSpikes(counter, p5);
     // periodicallyAddNewSpikesToPurkinje(counter, p5);
@@ -166,6 +174,6 @@ function periodicallyAddNewSpikes(counter, p5) {
                 p5,
             );
         }
-        randomInterval2 = getRandomInt(400, 800);
+        randomInterval2 = getRandomInt(100, 300);
     }
 }

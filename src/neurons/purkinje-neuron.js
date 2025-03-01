@@ -49,7 +49,7 @@ export default class PurkinjeNeuron extends Neuron {
     generateAxon() {
         const vertical = new Branch({
             start: { x: this.x, y: this.y },
-            end: { x: this.x, y: this.y + 500 },
+            end: { x: this.x, y: this.y + 650 },
             level: 0,
             parent: null,
         });
