@@ -65,46 +65,27 @@ export default class GranuleCell extends Neuron {
     }
 
     addTerminalToBranch(currentBranch, point) {
-        // Debug output before modification
-
-        // 1. Create two new children:
-        const secondHalf = new Branch({
-            start: point,
-            end: { ...currentBranch.end },
-            level: currentBranch.level + 1,
-            parent: currentBranch,
-            branches: [...currentBranch.branches],
-        });
-        secondHalf.branches.forEach((b) => (b.parent = secondHalf));
-
-        const currentBranchTerminal = new Branch({
+        // Split the branch at the intersection point
+        const newBranch = new Branch({
             start: point,
             end: { x: point.x, y: point.y },
             level: currentBranch.level + 1,
             parent: currentBranch,
+            branches: null,
         });
+        currentBranch.attachBranchAtPoint(point, newBranch);
 
-        // 2. Create the terminal
+        // Create the terminal
         const terminal = this.axon.addTerminal({
             width: 9,
             height: 9,
-            branch: currentBranchTerminal,
+            branch: newBranch,
             receptor: null,
             doRotation: true,
         });
 
-        // 3. Update the current branch and its relationships
-        secondHalf.updateLevelsRecursively(currentBranch.level + 1);
-        currentBranch.update({
-            end: point,
-            branches: [secondHalf, currentBranchTerminal],
-        });
-
-        // Debug output after modification
         return terminal;
     }
-
-
 
     // render(p5) {}
 }

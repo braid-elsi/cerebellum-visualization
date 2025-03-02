@@ -58,62 +58,24 @@ export default class PurkinjeNeuron extends Neuron {
     }
 
     addReceptorToBranch(currentBranch, point) {
-        // Store the original children before we modify anything
-        const originalChildren = [...(currentBranch.branches || [])];
-        const originalLevel = currentBranch.level;
-
-        // Helper function to recursively increment levels of a branch and its children
-        const incrementLevels = (branch) => {
-            branch.level++;
-            (branch.branches || []).forEach(child => incrementLevels(child));
-        };
-
-        // Increment the level of the current branch and all its children
-        //incrementLevels(currentBranch);
-
-        // 1. Create two new children at the original level
-        const secondHalf = new Branch({
-            start: point,
-            end: { ...currentBranch.end },
-            level: originalLevel + 1,
-            parent: currentBranch,
-            branches: [], // Start with empty branches
-        });
-
-        const currentBranchReceptor = new Branch({
+        // Split the branch at the intersection point
+        const newBranch = new Branch({
             start: point,
             end: { x: point.x, y: point.y },
-            level: originalLevel + 1,
+            level: currentBranch.level + 1,
             parent: currentBranch,
             branches: null,
         });
+        currentBranch.attachBranchAtPoint(point, newBranch);
 
-        // 2. Create receptor (we don't want to show it so width and height are 0):
+        // Create receptor
         const receptor = new Receptor({
             width: 0,
             height: 0,
-            branch: currentBranchReceptor,
+            branch: newBranch,
             color: this.color,
         });
         this.dendrites.addReceptor(receptor);
-
-        // 3. Update the current branch to end at the intersection
-        currentBranch.update({
-            end: point,
-            branches: [secondHalf, currentBranchReceptor],
-        });
-
-        // 4. Move original children to secondHalf
-        if (originalChildren.length > 0) {
-            secondHalf.branches = originalChildren;
-            originalChildren.forEach(child => {
-                child.parent = secondHalf;
-                child.start = secondHalf.end;
-                child.updateGeometry();
-            });
-            // No need to update levels recursively since we're maintaining original levels
-        }
-        incrementLevels(secondHalf);
 
         return receptor;
     }

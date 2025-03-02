@@ -1,7 +1,6 @@
 import {
     getRandomFloat,
     getRandomInt,
-    dist1,
     weightedRandomInt,
     getRandomSign,
 } from "./utils";
@@ -140,6 +139,42 @@ export class Branch {
                 }
             });
         }
+    }
+
+    attachBranchAtPoint(point, newBranch) {
+        // Store the original children and level
+        const originalChildren = [...(this.branches || [])];
+        const originalLevel = this.level;
+
+        // Create the continuation branch at the original level
+        const continuationBranch = new Branch({
+            start: point,
+            end: { ...this.end },
+            level: originalLevel + 1,
+            parent: this,
+            branches: [], // Start with empty branches
+        });
+
+        // Update the current branch to end at the intersection
+        this.update({
+            end: point,
+            branches: [continuationBranch, newBranch],
+        });
+
+        // Move original children to continuationBranch
+        if (originalChildren.length > 0) {
+            continuationBranch.branches = originalChildren;
+            originalChildren.forEach(child => {
+                child.parent = continuationBranch;
+                child.start = continuationBranch.end;
+                child.updateGeometry();
+            });
+        }
+
+        // Increment levels for the continuation branch and its children
+        continuationBranch.traverse(branch => branch.level++);
+
+        return { continuationBranch, newBranch };
     }
 }
 

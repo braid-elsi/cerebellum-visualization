@@ -54,6 +54,15 @@ export default class Neuron {
         }
     }
 
+    findClosestReceptor(point) {
+        const receptors = this.dendrites.getAvailableReceptors();
+        return receptors.reduce((closest, receptor) => {
+            const distance = Math.sqrt((receptor.x - point.x) ** 2 + (receptor.y - point.y) ** 2);
+            return distance < closest.distance ? receptor : closest;
+        }, { distance: Infinity });
+    }
+    
+
     // Get all connected neurons with synapse counts
     getConnections() {
         return {

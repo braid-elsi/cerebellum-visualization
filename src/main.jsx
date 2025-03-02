@@ -41,19 +41,19 @@ async function setup(p5) {
     }
 
     mf1 = new MossyFiberNeuron({
-        x: 300,
+        x: 175,
         y: screenH + 500,
         width: 60,
     });
 
     mf2 = new MossyFiberNeuron({
-        x: 175,
+        x: 300,
         y: screenH + 500,
         width: 60,
     });
-    mf2.connectTo(neurons[0], getRandomInt(2, 3));
-    mf2.connectTo(neurons[1], getRandomInt(2, 4));
-    mf2.connectTo(neurons[2], getRandomInt(2, 4));
+    mf1.connectTo(neurons[0], getRandomInt(2, 3));
+    mf1.connectTo(neurons[1], getRandomInt(2, 4));
+    mf1.connectTo(neurons[2], getRandomInt(2, 4));
 
     pk1 = new PurkinjeNeuron({
         x: 800,
@@ -71,8 +71,12 @@ async function setup(p5) {
 
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
-    neurons.forEach((gc) => mf1.connectTo(gc, getRandomInt(1, 4)));
+    neurons.forEach((gc) => mf2.connectTo(gc, getRandomInt(1, 4)));
+    mf2.connectTo(dcn1, 1);
+    
+    
     neurons.forEach((gc) => gc.generateDendrites());
+    dcn1.generateDendrites()
     mf1.generateDendrites();
     mf2.generateDendrites();
     await pk1.generateDendrites();
@@ -83,6 +87,7 @@ async function setup(p5) {
         gc.generateAxon(10 + xOffset);
         xOffset += getRandomInt(15, 80);
     });
+    dcn1.generateAxon();
     mf1.generateAxon();
     mf2.generateAxon();
     pk1.generateAxon();

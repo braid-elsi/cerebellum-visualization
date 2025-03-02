@@ -2,31 +2,31 @@ import Neuron from "./base.js";
 import Axon from "./axon.js";
 import Dendrites from "./dendrites.js";
 import { Branch } from "../branch.js";
+import { Tree, JSONTreeLoader } from "../tree.js";
+import { getRandomInt } from "../utils.js";
 
 export default class DeepCerebellarNuclei extends Neuron {
     constructor({ x, y, width, color }) {
         super({ x, y, width, color });
+        this.height = this.width * 0.6
         this.type = "dcn";
     }
 
-    async generateDendrites(numBranches = 2, maxLevel = 9) {
-        // Generate a dendritic tree based on number of connections
-        const tree = PurkinjeTreeGenerator.generate({
-            x: this.x,
-            y: this.y,
-            numBranches,
-            maxLevel: 4,
-            numBranches: numBranches,
-            angle: -Math.PI / 2,
-            yMax: this.y,
-        });
+    async generateDendrites() {
+        const xDist = this.width / 2 + 5;
+        const yDist = this.height / 2 + 5;
+        const points = [
+            { start: { x: this.x, y: this.y }, end: { x: this.x - xDist, y: this.y }, level: 0 },
+            { start: { x: this.x, y: this.y }, end: { x: this.x, y: this.y - yDist }, level: 0 },
+            { start: { x: this.x, y: this.y }, end: { x: this.x + xDist, y: this.y }, level: 0 }
+        ];
 
         const dendriteOptions = {
             neuron: this,
-            tree,
+            tree: JSONTreeLoader.fromJSON(points),
             receptorOptions: {
-                width: 8,
-                height: 3,
+                width: 15,
+                height: 5,
                 doRotation: true,
                 color: this.color,
             },
@@ -34,30 +34,8 @@ export default class DeepCerebellarNuclei extends Neuron {
         this.dendrites = new Dendrites(dendriteOptions);
     }
 
-    generateAxon(topY) {
-        topY = topY || getRandomInt(5, 300);
-        const vertical = new Branch({
-            start: { x: this.x, y: this.y },
-            end: { x: this.x, y: topY },
-            level: 0,
-            parent: null,
-        });
-        const left = new Branch({
-            start: { x: this.x, y: topY },
-            end: { x: 0, y: topY },
-            level: 1,
-            parent: vertical,
-        });
-        const right = new Branch({
-            start: { x: this.x, y: topY },
-            end: { x: 2000, y: topY },
-            level: 1,
-            parent: vertical,
-        });
-
-        this.axon = new Axon({ neuron: this, tree: new Tree([vertical]) });
-        this.axon.tree.addBranch(left, vertical);
-        this.axon.tree.addBranch(right, vertical);
+    generateAxon() {
+        console.log("No axon!");
     }
 
     render(p5) {
@@ -70,19 +48,9 @@ export default class DeepCerebellarNuclei extends Neuron {
         if (this.dendrites) {
             this.dendrites.render(p5);
         }
-        const radius = this.width / 3;
         p5.fill(...this.color);
-        p5.rect(
-            this.x,
-            this.y,
-            this.width,
-            this.width * 0.6,
-            radius,
-            radius,
-            radius,
-            radius,
-        );
+        p5.ellipse(this.x, this.y, this.width, this.height);
         p5.fill(0, 200, 200);
-        p5.ellipse(this.x, this.y, this.charge, this.charge);
+        p5.ellipse(this.x, this.y, this.charge, this.charge * 0.6);
     }
 }
