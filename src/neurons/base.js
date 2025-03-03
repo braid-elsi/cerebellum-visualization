@@ -55,11 +55,20 @@ export default class Neuron {
     }
 
     findClosestReceptor(point) {
+        if (!this.dendrites) return null;
+        
         const receptors = this.dendrites.getAvailableReceptors();
-        return receptors.reduce((closest, receptor) => {
+        if (receptors.length === 0) return null;
+
+        const closest = receptors.reduce((closest, receptor) => {
             const distance = Math.sqrt((receptor.x - point.x) ** 2 + (receptor.y - point.y) ** 2);
-            return distance < closest.distance ? receptor : closest;
-        }, { distance: Infinity });
+            if (distance < closest.distance) {
+                return { receptor, distance };
+            }
+            return closest;
+        }, { receptor: receptors[0], distance: Infinity });
+        console.log("closest receptor:", closest);
+        return closest.receptor;
     }
     
 

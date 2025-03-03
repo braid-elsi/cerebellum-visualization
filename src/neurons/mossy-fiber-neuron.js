@@ -98,11 +98,13 @@ export default class MossyFiberNeuron extends Neuron {
             parent: currentBranch,
         });
         currentBranch.attachBranchAtPoint(start, newBranch);
+        const receptor = dcn.findClosestReceptor(end);
+        console.log("mf to dcn receptor:", receptor);
         this.axon.addTerminal({
             width: 15,
             height: 5,
             branch: newBranch,
-            receptor: dcn.findClosestReceptor(end),
+            receptor,
             doRotation: true
         });
     }
