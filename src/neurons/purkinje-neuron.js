@@ -47,14 +47,28 @@ export default class PurkinjeNeuron extends Neuron {
     }
 
     generateAxon() {
-        const vertical = new Branch({
-            start: { x: this.x, y: this.y },
-            end: { x: this.x, y: this.y + 650 },
-            level: 0,
-            parent: null,
-        });
-
-        this.axon = new Axon({ neuron: this, tree: new Tree([vertical]) });
+        const dcns = [...this.outputNeurons.keys()];
+        if (dcns.length > 1) {
+            throw new Error("Purkinje neuron can only connect to one DCN");
+        }
+        if (dcns.length === 1) {
+            const dcn = dcns[0];
+            const end = { x: dcn.x, y: dcn.y - dcn.height/2 - 11 };
+            const root = new Branch({
+                start: { x: this.x, y: this.y },
+                end,
+                level: 0,
+                parent: null,
+            });
+            this.axon = new Axon({ neuron: this, tree: new Tree([root]) });
+            this.axon.addTerminal({
+                width: 15,
+                height: 5,
+                branch: root,
+                receptor: dcn.findClosestReceptor(end),
+                doRotation: true
+            });
+        }
     }
 
     addReceptorToBranch(currentBranch, point) {

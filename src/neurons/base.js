@@ -18,7 +18,7 @@ export default class Neuron {
     }
 
     // Connect this neuron to another neuron
-    connectTo(neuron, numSynapses = 3) {
+    connectTo(neuron, numSynapses = 1) {
         if (neuron === this) {
             throw new Error("A neuron cannot connect to itself.");
         }
@@ -77,6 +77,14 @@ export default class Neuron {
                 }),
             ),
         };
+    }
+
+    hasOutputNeurons() {
+        return this.outputNeurons && this.outputNeurons.size > 0;
+    }
+
+    hasExistingAxon() {
+        return this.axon?.tree?.branches.length > 0;
     }
 
     generateAxon(maxLevel = 4, maxBranches = 1) {

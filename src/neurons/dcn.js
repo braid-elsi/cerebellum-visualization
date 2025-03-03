@@ -1,9 +1,6 @@
 import Neuron from "./base.js";
-import Axon from "./axon.js";
 import Dendrites from "./dendrites.js";
-import { Branch } from "../branch.js";
-import { Tree, JSONTreeLoader } from "../tree.js";
-import { getRandomInt } from "../utils.js";
+import { JSONTreeLoader } from "../tree.js";
 
 export default class DeepCerebellarNuclei extends Neuron {
     constructor({ x, y, width, color }) {
@@ -51,6 +48,6 @@ export default class DeepCerebellarNuclei extends Neuron {
         p5.fill(...this.color);
         p5.ellipse(this.x, this.y, this.width, this.height);
         p5.fill(0, 200, 200);
-        p5.ellipse(this.x, this.y, this.charge, this.charge * 0.6);
+        p5.ellipse(this.x, this.y, this.charge, this.charge * 0.575);
     }
 }

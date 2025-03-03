@@ -69,6 +69,8 @@ async function setup(p5) {
         color: [233, 194, 194]
     });
 
+    pk1.connectTo(dcn1, 1);
+
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
     neurons.forEach((gc) => mf2.connectTo(gc, getRandomInt(1, 4)));
@@ -179,6 +181,6 @@ function periodicallyAddNewSpikes(counter, p5) {
                 p5,
             );
         }
-        randomInterval2 = getRandomInt(100, 300);
+        randomInterval2 = getRandomInt(50, 100);
     }
 }

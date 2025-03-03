@@ -81,7 +81,6 @@ export default class MossyFiberNeuron extends Neuron {
             console.error("Insufficient available receptors");
             return;
         }
-
         
         receptors.forEach(receptor => 
             this.createReceptorBranch(receptor, parentBranch, level)
@@ -160,14 +159,6 @@ export default class MossyFiberNeuron extends Neuron {
             x: sumX / neurons.length,
             y: parentBranch.end.y - Math.abs((maxY - parentBranch.end.y) / 3),
         };
-    }
-
-    hasOutputNeurons() {
-        return this.outputNeurons && this.outputNeurons.size > 0;
-    }
-
-    hasExistingAxon() {
-        return this.axon?.tree?.branches.length > 0;
     }
     
 
