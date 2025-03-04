@@ -5,9 +5,10 @@ import {
     getRandomSign,
 } from "./utils";
 export class Branch {
-    constructor({ start, end, level, parent, branches = [] }) {
+    constructor({ start, end, level, parent, branches = [], curvy = false }) {
         Object.assign(this, { start, end, level, parent });
         this.branches = branches;
+        this.curvy = curvy;
         this.updateGeometry();
 
         // if we want to curve the lines:
@@ -63,11 +64,6 @@ export class Branch {
 
     addBranches(branches) {
         this.branches.push(...branches);
-    }
-
-    render(p5) {
-        this.drawStraightLine(p5);
-        // this.drawCurvedLine(p5);
     }
 
     drawStraightLine(p5) {
@@ -176,6 +172,67 @@ export class Branch {
 
         return { continuationBranch, newBranch };
     }
+
+    clone(maxLevel = Infinity) {
+        // Create a new branch with the same basic properties
+        const clonedBranch = new Branch({
+            start: { ...this.start },
+            end: { ...this.end },
+            level: this.level,
+            parent: this.parent,  // Note: parent reference remains the same
+            branches: []  // Start with empty branches, we'll populate them below
+        });
+
+        // Copy the control points for curved lines
+        clonedBranch.controlX = this.controlX;
+        clonedBranch.controlY = this.controlY;
+
+        // Recursively clone all child branches
+        if (clonedBranch.level < maxLevel) {
+            clonedBranch.branches = this.branches.map(branch => branch.clone(maxLevel));
+        }
+        // Update parent references for child branches
+        clonedBranch.branches.forEach(branch => {
+            branch.parent = clonedBranch;
+        });
+
+        return clonedBranch;
+    }
+
+    setCurvy(curvy = true) {
+        this.curvy = curvy;
+        // Recursively set curvy for all child branches
+        this.branches.forEach(branch => branch.setCurvy(curvy));
+    }
+
+    updateControlPoints() {
+        const randomRangeY = 15;
+        const randomRangeX = 30;
+        this.controlX = (this.start.x + this.end.x) / 2 + getRandomFloat(0, randomRangeX);
+        this.controlY = (this.start.y + this.end.y) / 2 - getRandomFloat(0, randomRangeY);
+    }
+
+    updateStartpoint(newStart) {
+        this.start = newStart;
+        this.updateGeometry();
+        this.updateControlPoints();
+    }
+
+    updateEndpoint(newEnd) {
+        this.end = newEnd;
+        this.updateGeometry();
+        this.updateControlPoints();
+    }
+
+    render(p5) {
+        if (this.curvy) {
+            this.drawCurvedLine(p5);
+        } else {
+            this.drawStraightLine(p5);
+        }
+    }
+
+    
 }
 
 export class BranchUtils {

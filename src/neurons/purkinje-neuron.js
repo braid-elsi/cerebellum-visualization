@@ -62,7 +62,6 @@ export default class PurkinjeNeuron extends Neuron {
             });
             this.axon = new Axon({ neuron: this, tree: new Tree([root]) });
             const receptor = dcn.findClosestReceptor(end);
-            console.log("pk to dcn receptor:", receptor);
             this.axon.addTerminal({
                 width: 15,
                 height: 5,

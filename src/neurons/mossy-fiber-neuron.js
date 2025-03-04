@@ -88,7 +88,6 @@ export default class MossyFiberNeuron extends Neuron {
     }
 
     createTerminalBranchesForDCNs(currentBranch, dcn) {
-        console.log("dcn", dcn);
         const start = { x: this.x, y: dcn.y };
         const end = { x: dcn.x - dcn.width/2 - 11, y: dcn.y }
         const newBranch = new Branch({
@@ -99,7 +98,6 @@ export default class MossyFiberNeuron extends Neuron {
         });
         currentBranch.attachBranchAtPoint(start, newBranch);
         const receptor = dcn.findClosestReceptor(end);
-        console.log("mf to dcn receptor:", receptor);
         this.axon.addTerminal({
             width: 15,
             height: 5,

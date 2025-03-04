@@ -44,35 +44,36 @@ async function setup(p5) {
 
     mf1 = new MossyFiberNeuron({
         x: 175,
-        y: screenH + 500,
-        width: 60,
+        y: screenH + 600,
+        width: 30,
     });
 
     mf2 = new MossyFiberNeuron({
         x: 300,
-        y: screenH + 500,
-        width: 60,
+        y: screenH + 600,
+        width: 30,
     });
+
+    io1 = new InferiorOlive({
+        x: 900,
+        y: screenH + 600,
+        width: 90,
+        color: [156, 166, 241],
+    });
+
     mf1.connectTo(neurons[0], getRandomInt(2, 3));
     mf1.connectTo(neurons[1], getRandomInt(2, 4));
     mf1.connectTo(neurons[2], getRandomInt(2, 4));
 
     pk1 = new PurkinjeNeuron({
-        x: 800,
+        x: 700,
         y: screenH - 200,
-        width: 60,
+        width: 40,
         color: [200, 100, 100],
     });
 
-    io1 = new InferiorOlive({
-        x: 1000,
-        y: screenH + 550,
-        width: 60,
-        color: [97, 111, 237],
-    });
-
     dcn1 = new DeepCerebellarNuclei({
-        x: 800,
+        x: 700,
         y: screenH + 450,
         width: 130,
         color: [233, 194, 194]
@@ -80,6 +81,7 @@ async function setup(p5) {
 
     pk1.connectTo(dcn1, 1);
     io1.connectTo(dcn1, 1);
+    io1.connectTo(pk1, 1);
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
     neurons.forEach((gc) => mf2.connectTo(gc, getRandomInt(1, 4)));
@@ -178,7 +180,7 @@ function periodicallyAddNewSpikes(counter, p5) {
     }
 
     if (cnt % randomInterval2 === 0) {
-        for (const neuron of [mf2]) {
+        for (const neuron of [io1]) {
             if (!neuron.axon || !neuron.axon.tree) {
                 continue;
             }

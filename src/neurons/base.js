@@ -8,6 +8,7 @@ export default class Neuron {
             throw new Error("x, y, and width are required parameters.");
         }
         Object.assign(this, { x, y, width, color, lineWidth });
+        this.height = this.width;
         this.charge = 0;
         this.threshold = width;
         this.inputNeurons = new Map(); // Neurons that connect to this neuron
@@ -15,6 +16,7 @@ export default class Neuron {
         this.dendrites = null;
         this.axon = null;
         this.type = "neuron";
+        this.labelText = "Neuron";
     }
 
     // Connect this neuron to another neuron
@@ -67,7 +69,7 @@ export default class Neuron {
             }
             return closest;
         }, { receptor: receptors[0], distance: Infinity });
-        console.log("closest receptor:", closest);
+        // console.log("closest receptor:", closest);
         return closest.receptor;
     }
     
@@ -134,8 +136,17 @@ export default class Neuron {
             this.dendrites.render(p5);
         }
         p5.fill(...this.color);
-        p5.ellipse(this.x, this.y, this.width, this.width);
+        p5.ellipse(this.x, this.y, this.width, this.height);
         p5.fill(0, 200, 200);
         p5.ellipse(this.x, this.y, this.charge, this.charge);
+    }
+
+    renderLabel(p5) {
+        p5.fill(0);
+        p5.textAlign(p5.CENTER, p5.CENTER);
+        p5.textSize(14);
+        p5.textStyle(p5.NORMAL);
+        p5.rectMode(p5.CENTER);
+        p5.text(this.labelText, this.x, this.y, this.width * 0.8);
     }
 }

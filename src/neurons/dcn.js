@@ -5,8 +5,9 @@ import { JSONTreeLoader } from "../tree.js";
 export default class DeepCerebellarNuclei extends Neuron {
     constructor({ x, y, width, color }) {
         super({ x, y, width, color });
-        this.height = this.width * 0.6
+        this.height = this.width * 0.6;
         this.type = "dcn";
+        this.labelText = "Cerebellar Nuclei"
     }
 
     async generateDendrites() {
@@ -49,5 +50,6 @@ export default class DeepCerebellarNuclei extends Neuron {
         p5.ellipse(this.x, this.y, this.width, this.height);
         p5.fill(0, 200, 200);
         p5.ellipse(this.x, this.y, this.charge, this.charge * 0.575);
+        this.renderLabel(p5);
     }
 }
