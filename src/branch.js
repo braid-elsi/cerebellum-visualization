@@ -102,18 +102,12 @@ export class Branch {
         p5.noFill();
         p5.strokeJoin(p5.ROUND);
         
-        // Calculate additional control point for smoother transition
-        const startControlX = this.start.x + (this.controlX - this.start.x) * 0.5;
-        const startControlY = this.start.y + (this.controlY - this.start.y) * 0.5;
-        const endControlX = this.end.x + (this.controlX - this.end.x) * 0.5;
-        const endControlY = this.end.y + (this.controlY - this.end.y) * 0.5;
-        
-        // Use bezierVertex instead of quadraticVertex for smoother curves
         p5.vertex(this.start.x, this.start.y);
-        p5.bezierVertex(
-            startControlX, startControlY,
-            endControlX, endControlY,
-            this.end.x, this.end.y
+        p5.quadraticVertex(
+            this.controlX,
+            this.controlY,
+            this.end.x,
+            this.end.y
         );
         p5.endShape();
     }
@@ -288,12 +282,10 @@ export class Branch {
             if (this.symmetricCurves) {
                 // Symmetric curving logic
                 const siblingIndex = this.parent.branches.indexOf(this);
-                const totalBranches = this.parent.branches.length;
-                const isEven = totalBranches % 2 === 0;
-                const middleIndex = Math.floor(totalBranches / 2);
+                const middleIndex = Math.floor(this.parent.branches.length / 2);
                 
-                if (!isEven && siblingIndex === middleIndex) {
-                    // Only keep middle branch straight for odd number of branches
+                if (siblingIndex === middleIndex) {
+                    // Middle branch stays straight
                     this.controlX = midX;
                     this.controlY = midY;
                     this.updateGeometry();

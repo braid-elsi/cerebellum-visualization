@@ -40,9 +40,7 @@ export default class Spike {
     move(p5) {
         const dir = this.isOutbound() ? 1 : -1;
         this.progress += dir * this.speed;
-        // Use arcLength if available (curved path), otherwise use straight length
-        const pathLength = this.branch.curvy ? this.branch.arcLength : this.branch.length;
-        const t = this.progress / pathLength;
+        const t = this.progress / this.branch.length;
 
         if (this.branch.curvy) {
             // Quadratic Bézier curve interpolation
