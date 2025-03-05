@@ -5,10 +5,11 @@ import {
     getRandomSign,
 } from "./utils";
 export class Branch {
-    constructor({ start, end, level, parent, branches = [], curvy = false }) {
+    constructor({ start, end, level, parent, branches = [], curvy = false, symmetricCurves = false }) {
         Object.assign(this, { start, end, level, parent });
         this.branches = branches;
         this.curvy = curvy;
+        this.symmetricCurves = symmetricCurves;
         this.updateGeometry();
 
         // if we want to curve the lines:
@@ -99,13 +100,20 @@ export class Branch {
         p5.strokeWeight(3);
         p5.beginShape();
         p5.noFill();
-        p5.strokeJoin(p5.ROUND); // Rounds the joins
+        p5.strokeJoin(p5.ROUND);
+        
+        // Calculate additional control point for smoother transition
+        const startControlX = this.start.x + (this.controlX - this.start.x) * 0.5;
+        const startControlY = this.start.y + (this.controlY - this.start.y) * 0.5;
+        const endControlX = this.end.x + (this.controlX - this.end.x) * 0.5;
+        const endControlY = this.end.y + (this.controlY - this.end.y) * 0.5;
+        
+        // Use bezierVertex instead of quadraticVertex for smoother curves
         p5.vertex(this.start.x, this.start.y);
-        p5.quadraticVertex(
-            this.controlX,
-            this.controlY,
-            this.end.x,
-            this.end.y,
+        p5.bezierVertex(
+            startControlX, startControlY,
+            endControlX, endControlY,
+            this.end.x, this.end.y
         );
         p5.endShape();
     }
@@ -203,8 +211,9 @@ export class Branch {
             start: { ...this.start },
             end: { ...this.end },
             level: this.level,
-            parent: this.parent,  // Note: parent reference remains the same
-            branches: []  // Start with empty branches, we'll populate them below
+            parent: this.parent,
+            branches: [],
+            symmetricCurves: this.symmetricCurves
         });
 
         // Copy the control points for curved lines
@@ -223,11 +232,12 @@ export class Branch {
         return clonedBranch;
     }
 
-    setCurvy(curvy = true) {
+    setCurvy(curvy = true, symmetricCurves = false) {
         this.curvy = curvy;
+        this.symmetricCurves = symmetricCurves;
         this.updateGeometry();
-        // Recursively set curvy for all child branches
-        this.branches.forEach(branch => branch.setCurvy(curvy));
+        // Recursively set curvy and symmetricCurves for all child branches
+        this.branches.forEach(branch => branch.setCurvy(curvy, symmetricCurves));
     }
 
     updateControlPoints() {
@@ -257,41 +267,56 @@ export class Branch {
         }
     }
 
-    generateSinusoidalControlPoints() {
+    generateAllControlPoints() {
+        // For root branch, keep it straight
         if (!this.parent) {
-            // For root branch, keep it straight
             this.controlX = (this.start.x + this.end.x) / 2;
             this.controlY = (this.start.y + this.end.y) / 2;
-            this.updateGeometry();
-            return;
+        } else {
+            // Get the midpoint
+            const midX = (this.start.x + this.end.x) / 2;
+            const midY = (this.start.y + this.end.y) / 2;
+
+            // Get and normalize the perpendicular vector
+            const dx = this.end.x - this.start.x;
+            const dy = this.end.y - this.start.y;
+            let perpX = dy;
+            let perpY = -dx;
+            
+            let direction;
+            
+            if (this.symmetricCurves) {
+                // Symmetric curving logic
+                const siblingIndex = this.parent.branches.indexOf(this);
+                const totalBranches = this.parent.branches.length;
+                const isEven = totalBranches % 2 === 0;
+                const middleIndex = Math.floor(totalBranches / 2);
+                
+                if (!isEven && siblingIndex === middleIndex) {
+                    // Only keep middle branch straight for odd number of branches
+                    this.controlX = midX;
+                    this.controlY = midY;
+                    this.updateGeometry();
+                    this.branches.forEach(branch => branch.generateAllControlPoints());
+                    return;
+                }
+                direction = siblingIndex < middleIndex ? 1 : -1;
+            } else {
+                // Original alternating by level logic
+                direction = this.level % 2 === 0 ? 1 : -1;
+            }
+            
+            // Normalize and apply offset
+            const length = Math.sqrt(perpX * perpX + perpY * perpY);
+            const offset = this.length / 5;
+            this.controlX = midX + (perpX / length) * offset * direction;
+            this.controlY = midY + (perpY / length) * offset * direction;
         }
 
-        // Get the midpoint
-        const midX = (this.start.x + this.end.x) / 2;
-        const midY = (this.start.y + this.end.y) / 2;
-
-        // Get the perpendicular vector to the branch
-        const dx = this.end.x - this.start.x;
-        const dy = this.end.y - this.start.y;
-        const perpX = -dy;
-        const perpY = dx;
-        
-        // Normalize the perpendicular vector
-        const length = Math.sqrt(perpX * perpX + perpY * perpY);
-        const normalizedPerpX = perpX / length;
-        const normalizedPerpY = perpY / length;
-
-        // Calculate a very subtle offset
-        const baseOffset = 3 * Math.sin(this.angle);
-        // Make the level factor decrease more quickly for higher levels
-        const levelFactor = Math.max(0.1, 1 - this.level / 5);
-        const offset = baseOffset * levelFactor;
-
-        // Set control point very close to midpoint
-        this.controlX = midX + normalizedPerpX * offset;
-        this.controlY = midY + normalizedPerpY * offset;
-
         this.updateGeometry();
+        
+        // Recursively generate control points for all child branches
+        this.branches.forEach(branch => branch.generateAllControlPoints());
     }
 }
 

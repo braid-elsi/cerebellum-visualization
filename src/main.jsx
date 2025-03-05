@@ -84,7 +84,7 @@ async function setup(p5) {
     io1.connectTo(pk1, 1);
     // order matters here: first make the connections, then generate all the dendrites,
     // then generate all the axon connections
-    neurons.forEach((gc) => mf2.connectTo(gc, getRandomInt(1, 4)));
+    neurons.forEach((gc) => mf2.connectTo(gc, getRandomInt(2, 4)));
     mf2.connectTo(dcn1, 1);
     
     
@@ -103,7 +103,13 @@ async function setup(p5) {
     dcn1.generateAxon();
     io1.generateAxon();
     mf1.generateAxon();
+    let b = mf1.axon.tree.branches[0];
+    b.setCurvy(true, true);
+    b.generateAllControlPoints();
     mf2.generateAxon();
+    b = mf2.axon.tree.branches[0];
+    b.setCurvy(true, true);
+    b.generateAllControlPoints();
     pk1.generateAxon();
 
     // find Purkinje dendrite intersections with Granule Cell axons:

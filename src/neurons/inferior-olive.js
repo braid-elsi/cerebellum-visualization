@@ -76,8 +76,8 @@ export default class InferiorOlive extends Neuron {
         const clonedPurkinjeBranch = purkinje.dendrites.tree.branches[0].clone(6);
         clonedPurkinjeBranch.updateStartpoint({...end})
         purkinjeBranch.attachBranchAtPoint(end, clonedPurkinjeBranch);
-        purkinjeBranch.setCurvy(true);
-        clonedPurkinjeBranch.generateSinusoidalControlPoints()
+        purkinjeBranch.setCurvy(true, false);
+        clonedPurkinjeBranch.generateAllControlPoints()
     }
 
     render(p5) {
