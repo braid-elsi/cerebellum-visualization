@@ -259,8 +259,10 @@ export class Branch {
 
     generateSinusoidalControlPoints() {
         if (!this.parent) {
-            // For root branch, keep it relatively straight
-            this.updateControlPoints();
+            // For root branch, keep it straight
+            this.controlX = (this.start.x + this.end.x) / 2;
+            this.controlY = (this.start.y + this.end.y) / 2;
+            this.updateGeometry();
             return;
         }
 
@@ -279,25 +281,17 @@ export class Branch {
         const normalizedPerpX = perpX / length;
         const normalizedPerpY = perpY / length;
 
-        // Calculate offset based on branch level and angle
-        const baseOffset = 30 * Math.sin(this.angle * 2);
-        const levelFactor = Math.max(0.5, 1 - this.level / 10);
+        // Calculate a very subtle offset
+        const baseOffset = 3 * Math.sin(this.angle);
+        // Make the level factor decrease more quickly for higher levels
+        const levelFactor = Math.max(0.1, 1 - this.level / 5);
         const offset = baseOffset * levelFactor;
 
-        // Set control point
+        // Set control point very close to midpoint
         this.controlX = midX + normalizedPerpX * offset;
         this.controlY = midY + normalizedPerpY * offset;
 
         this.updateGeometry();
-    }
-
-    generateAllControlPoints() {
-        // Traverse the tree and generate control points for all branches
-        this.traverse(branch => {
-            if (branch.curvy) {
-                branch.generateSinusoidalControlPoints();
-            }
-        });
     }
 }
 
