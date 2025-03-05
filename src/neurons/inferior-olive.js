@@ -77,6 +77,7 @@ export default class InferiorOlive extends Neuron {
         clonedPurkinjeBranch.updateStartpoint({...end})
         purkinjeBranch.attachBranchAtPoint(end, clonedPurkinjeBranch);
         clonedPurkinjeBranch.setCurvy(true);
+        clonedPurkinjeBranch.generateAllControlPoints()
     }
 
     render(p5) {

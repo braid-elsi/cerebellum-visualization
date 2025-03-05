@@ -40,12 +40,24 @@ export default class Spike {
     move(p5) {
         const dir = this.isOutbound() ? 1 : -1;
         this.progress += dir * this.speed;
-        const ratio = this.progress / this.branch.length;
+        // Use arcLength if available (curved path), otherwise use straight length
+        const pathLength = this.branch.curvy ? this.branch.arcLength : this.branch.length;
+        const t = this.progress / pathLength;
 
-        // Interpolate position using vector lerp
-        const vectorLerpFunction = p5.constructor.Vector.lerp;
-        this.pos = vectorLerpFunction(this.startVec, this.endVec, ratio);
-        // console.log(this.pos);
+        if (this.branch.curvy) {
+            // Quadratic Bézier curve interpolation
+            const x = Math.pow(1 - t, 2) * this.startVec.x + 
+                     2 * (1 - t) * t * this.branch.controlX + 
+                     Math.pow(t, 2) * this.endVec.x;
+            const y = Math.pow(1 - t, 2) * this.startVec.y + 
+                     2 * (1 - t) * t * this.branch.controlY + 
+                     Math.pow(t, 2) * this.endVec.y;
+            this.pos.set(x, y);
+        } else {
+            // Linear interpolation for straight lines
+            const vectorLerpFunction = p5.constructor.Vector.lerp;
+            this.pos = vectorLerpFunction(this.startVec, this.endVec, t);
+        }
     }
 
     render(p5) {

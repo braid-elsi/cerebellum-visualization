@@ -113,12 +113,12 @@ async function setup(p5) {
 
 function draw(p5) {
     p5.background(255);
+    io1.render(p5);
     pk1.render(p5);
     neurons.forEach((neuron) => neuron.render(p5));
     mf1.render(p5);
     mf2.render(p5);
     dcn1.render(p5);
-    io1.render(p5);
     spikeManager.render(p5);
     periodicallyAddNewSpikes(counter, p5);
     // periodicallyAddNewSpikesToPurkinje(counter, p5);

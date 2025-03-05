@@ -23,10 +23,34 @@ export class Branch {
     updateGeometry() {
         if (!this.start || !this.end) return;
         
+        // Straight-line length
         this.length = Math.hypot(
             this.end.x - this.start.x,
             this.end.y - this.start.y
         );
+        
+        // Approximate arc length for curved paths using several segments
+        if (this.curvy) {
+            const segments = 10;
+            let arcLength = 0;
+            let prevX = this.start.x;
+            let prevY = this.start.y;
+            
+            for (let i = 1; i <= segments; i++) {
+                const t = i / segments;
+                const x = Math.pow(1 - t, 2) * this.start.x + 
+                         2 * (1 - t) * t * this.controlX + 
+                         Math.pow(t, 2) * this.end.x;
+                const y = Math.pow(1 - t, 2) * this.start.y + 
+                         2 * (1 - t) * t * this.controlY + 
+                         Math.pow(t, 2) * this.end.y;
+                
+                arcLength += Math.hypot(x - prevX, y - prevY);
+                prevX = x;
+                prevY = y;
+            }
+            this.arcLength = arcLength;
+        }
         
         this.angle = Math.atan2(
             this.end.y - this.start.y,
@@ -201,6 +225,7 @@ export class Branch {
 
     setCurvy(curvy = true) {
         this.curvy = curvy;
+        this.updateGeometry();
         // Recursively set curvy for all child branches
         this.branches.forEach(branch => branch.setCurvy(curvy));
     }
@@ -232,7 +257,48 @@ export class Branch {
         }
     }
 
-    
+    generateSinusoidalControlPoints() {
+        if (!this.parent) {
+            // For root branch, keep it relatively straight
+            this.updateControlPoints();
+            return;
+        }
+
+        // Get the midpoint
+        const midX = (this.start.x + this.end.x) / 2;
+        const midY = (this.start.y + this.end.y) / 2;
+
+        // Get the perpendicular vector to the branch
+        const dx = this.end.x - this.start.x;
+        const dy = this.end.y - this.start.y;
+        const perpX = -dy;
+        const perpY = dx;
+        
+        // Normalize the perpendicular vector
+        const length = Math.sqrt(perpX * perpX + perpY * perpY);
+        const normalizedPerpX = perpX / length;
+        const normalizedPerpY = perpY / length;
+
+        // Calculate offset based on branch level and angle
+        const baseOffset = 30 * Math.sin(this.angle * 2);
+        const levelFactor = Math.max(0.5, 1 - this.level / 10);
+        const offset = baseOffset * levelFactor;
+
+        // Set control point
+        this.controlX = midX + normalizedPerpX * offset;
+        this.controlY = midY + normalizedPerpY * offset;
+
+        this.updateGeometry();
+    }
+
+    generateAllControlPoints() {
+        // Traverse the tree and generate control points for all branches
+        this.traverse(branch => {
+            if (branch.curvy) {
+                branch.generateSinusoidalControlPoints();
+            }
+        });
+    }
 }
 
 export class BranchUtils {
