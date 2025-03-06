@@ -4,11 +4,12 @@ export default class Dendrites {
     constructor({ 
             neuron, 
             tree, 
-            receptorOptions = { width: 15, height: 5, color: null, doRotation: false } 
+            receptorOptions = { width: 15, height: 5, color: null, doRotation: false },
+            strokeWidth = 3
         }) {
         this.tree = tree;
         this.neuron = neuron;
-
+        this.strokeWidth = strokeWidth;
         // Connect dendrite branches to the neuron
         this.tree.branches.forEach((branch) => (branch.neuron = neuron));
 
@@ -64,6 +65,7 @@ export default class Dendrites {
     }
 
     render(p5) {
+        p5.strokeWeight(this.strokeWidth)
         p5.stroke(...this.neuron.color);
         this.tree.render(p5);
         this.receptors.forEach((receptor) => receptor.render(p5));

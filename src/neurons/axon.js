@@ -2,10 +2,11 @@ import { Terminal } from "../synapses.js";
 import { logBase } from "../utils.js";
 
 export default class Axon {
-    constructor({ neuron, tree, terminals = null }) {
+    constructor({ neuron, tree, terminals = null, strokeWidth=3 }) {
         this.tree = tree;
         this.terminals = [];
         this.neuron = neuron;
+        this.strokeWidth = strokeWidth;
         // this.terminals = terminals || this.generateTerminals();
     }
 
@@ -39,6 +40,8 @@ export default class Axon {
     }
 
     render(p5) {
+        // console.log(this.strokeWidth);
+        p5.strokeWeight(this.strokeWidth)
         p5.stroke(...this.neuron.color);
         this.tree.render(p5);
         this.terminals.forEach((terminal) => terminal.render(p5));

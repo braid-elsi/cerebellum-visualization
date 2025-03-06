@@ -94,12 +94,12 @@ export class Branch {
     }
 
     drawStraightLine(p5) {
-        p5.strokeWeight(3);
+        // p5.strokeWeight(3);
         p5.line(this.start.x, this.start.y, this.end.x, this.end.y);
     }
 
     drawCurvedLine(p5) {
-        p5.strokeWeight(3);
+        // p5.strokeWeight(3);
         p5.beginShape();
         p5.noFill();
         p5.strokeJoin(p5.ROUND);

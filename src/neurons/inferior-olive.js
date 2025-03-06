@@ -20,7 +20,7 @@ export default class InferiorOlive extends Neuron {
             level: 0,
             parent: null,
         });
-        this.axon = new Axon({ neuron: this, tree: new Tree([root]) });
+        this.axon = new Axon({ neuron: this, tree: new Tree([root]), strokeWidth: 4 });
         return root;
     }
 
@@ -75,11 +75,12 @@ export default class InferiorOlive extends Neuron {
         root.addBranches([purkinjeBranch]);
         const clonedPurkinjeBranch = purkinje.dendrites.tree.branches[0].clone(6);
         clonedPurkinjeBranch.updateStartpoint({...end});
-        
-
-        clonedPurkinjeBranch.bisectBranchRecursively();
+        clonedPurkinjeBranch.branches.forEach(branch => {
+            branch.bisectBranchRecursively()
+            branch.setCurvy(true, false);
+        });
+        // clonedPurkinjeBranch.bisectBranchRecursively();
         purkinjeBranch.addBranches([clonedPurkinjeBranch]);
-        purkinjeBranch.setCurvy(true, false);
         purkinjeBranch.generateAllControlPoints();
     }
 
