@@ -74,11 +74,15 @@ export default class InferiorOlive extends Neuron {
         });
         root.addBranches([purkinjeBranch]);
         const clonedPurkinjeBranch = purkinje.dendrites.tree.branches[0].clone(6);
-        clonedPurkinjeBranch.updateStartpoint({...end})
-        purkinjeBranch.attachBranchAtPoint(end, clonedPurkinjeBranch);
-        clonedPurkinjeBranch.setCurvy(true, false);
-        clonedPurkinjeBranch.generateAllControlPoints()
+        clonedPurkinjeBranch.updateStartpoint({...end});
+        
+
+        clonedPurkinjeBranch.bisectBranchRecursively();
+        purkinjeBranch.addBranches([clonedPurkinjeBranch]);
+        purkinjeBranch.setCurvy(true, false);
+        purkinjeBranch.generateAllControlPoints();
     }
+
 
     render(p5) {
         super.render(p5);

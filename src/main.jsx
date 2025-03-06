@@ -88,7 +88,12 @@ async function setup(p5) {
     mf2.connectTo(dcn1, 1);
     
     
-    neurons.forEach((gc) => gc.generateDendrites());
+    neurons.forEach((gc) => {
+        gc.generateDendrites()
+        let b = gc.dendrites.tree.branches[0];
+        b.setCurvy(true, true);
+        b.generateAllControlPoints();
+    });
     dcn1.generateDendrites()
     mf1.generateDendrites();
     mf2.generateDendrites();
@@ -102,14 +107,19 @@ async function setup(p5) {
     });
     dcn1.generateAxon();
     io1.generateAxon();
+
     mf1.generateAxon();
+    // curve mf1 axon:
     let b = mf1.axon.tree.branches[0];
     b.setCurvy(true, true);
     b.generateAllControlPoints();
+
     mf2.generateAxon();
+    // curve mf2 axon:
     b = mf2.axon.tree.branches[0];
     b.setCurvy(true, true);
     b.generateAllControlPoints();
+    
     pk1.generateAxon();
 
     // find Purkinje dendrite intersections with Granule Cell axons:

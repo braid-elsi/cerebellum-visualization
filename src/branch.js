@@ -73,14 +73,16 @@ export class Branch {
         if (end) {
             this.end = end;
         }
-        if (level) {
-            this.level = level;
-        }
         if (parent) {
             this.parent = parent;
         }
         if (branches) {
             this.branches = branches;
+        }
+        // make sure this happens after branches are set
+        if (level) {
+            this.level = level;
+            this.updateLevelsRecursively(level)
         }
 
         // regenerate length and angle:
@@ -199,6 +201,40 @@ export class Branch {
         return { continuationBranch, newBranch };
     }
 
+    // The purpose of this function is to recursively bisect the 
+    // children of the branch so that we can create a "wrap around"
+    // effect for the mossy fibers around the Purkinje cell.
+    bisectBranchRecursively() {
+        const midPoint = {
+            x: (this.start.x + this.end.x) / 2,
+            y: (this.start.y + this.end.y) / 2
+        };
+        
+        // Create second half as a child branch
+        const secondHalf = new Branch({
+            start: { ...midPoint },
+            end: { ...this.end },
+            level: this.level + 1,
+            parent: this
+        });
+
+        // Store original children before modifying the branch
+        const originalChildren = [...this.branches] || [];
+        
+        // Modify the current branch to be the first half
+        this.update({end: midPoint, branches: [secondHalf]});  // Shorten the existing branch
+        
+        // Transfer original children to secondHalf
+        secondHalf.update({level: this.level + 1, branches: originalChildren});
+        
+        // Recursively split children
+        if (secondHalf.branches.length > 0) {
+            secondHalf.branches.forEach(childBranch => {
+                childBranch.bisectBranchRecursively();
+            });
+        }
+    }
+
     clone(maxLevel = Infinity) {
         // Create a new branch with the same basic properties
         const clonedBranch = new Branch({
@@ -282,10 +318,12 @@ export class Branch {
             if (this.symmetricCurves) {
                 // Symmetric curving logic
                 const siblingIndex = this.parent.branches.indexOf(this);
-                const middleIndex = Math.floor(this.parent.branches.length / 2);
+                const totalBranches = this.parent.branches.length;
+                const isEven = totalBranches % 2 === 0;
+                const middleIndex = Math.floor(totalBranches / 2);
                 
-                if (siblingIndex === middleIndex) {
-                    // Middle branch stays straight
+                if (!isEven && siblingIndex === middleIndex) {
+                    // Middle branch stays straight only for odd number of branches
                     this.controlX = midX;
                     this.controlY = midY;
                     this.updateGeometry();
