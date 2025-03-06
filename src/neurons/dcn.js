@@ -50,6 +50,6 @@ export default class DeepCerebellarNuclei extends Neuron {
         p5.ellipse(this.x, this.y, this.width, this.height);
         p5.fill(0, 200, 200);
         p5.ellipse(this.x, this.y, this.charge, this.charge * 0.575);
-        this.renderLabel(p5);
+        // this.renderLabel(p5);
     }
 }

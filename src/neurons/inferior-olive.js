@@ -73,7 +73,7 @@ export default class InferiorOlive extends Neuron {
             parent: root,
         });
         root.addBranches([purkinjeBranch]);
-        const clonedPurkinjeBranch = purkinje.dendrites.tree.branches[0].clone(6);
+        const clonedPurkinjeBranch = purkinje.dendrites.tree.branches[0].clone(4);
         clonedPurkinjeBranch.updateStartpoint({...end});
         clonedPurkinjeBranch.branches.forEach(branch => {
             branch.bisectBranchRecursively()
@@ -87,6 +87,5 @@ export default class InferiorOlive extends Neuron {
 
     render(p5) {
         super.render(p5);
-        this.renderLabel(p5);
     }
 }

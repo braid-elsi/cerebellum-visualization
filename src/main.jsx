@@ -6,6 +6,7 @@ import PurkinjeNeuron from "./neurons/purkinje-neuron.js";
 import DeepCerebellarNuclei from "./neurons/dcn.js";
 import InferiorOlive from "./neurons/inferior-olive.js";
 import { getRandomInt } from "./utils.js";
+import {getLabels, drawLabel} from "./labels.js";
 
 const neurons = [];
 const spikeManager = new SpikeManager();
@@ -71,7 +72,6 @@ async function setup(p5) {
         width: 40,
         color: [200, 100, 100],
     });
-
     dcn1 = new DeepCerebellarNuclei({
         x: 700,
         y: screenH + 450,
@@ -98,6 +98,10 @@ async function setup(p5) {
     mf1.generateDendrites();
     mf2.generateDendrites();
     await pk1.generateDendrites();
+
+    let n = pk1.dendrites.tree.branches[0];
+    n.setCurvy(true, true);
+    n.generateAllControlPoints();
 
     let xOffset = 40;
     const shuffledNeurons = [...neurons].sort(() => Math.random() - 0.5);
@@ -135,6 +139,7 @@ function draw(p5) {
     mf1.render(p5);
     mf2.render(p5);
     dcn1.render(p5);
+    getLabels({screenH}).forEach(label => drawLabel({p5, label}));
     spikeManager.render(p5);
     periodicallyAddNewSpikes(counter, p5);
     // periodicallyAddNewSpikesToPurkinje(counter, p5);
