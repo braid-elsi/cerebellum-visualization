@@ -91,7 +91,6 @@ async function setup(p5) {
     neurons.forEach((gc) => {
         gc.generateDendrites();
         let b = gc.dendrites.tree.branches[0];
-        b.setCurvy(true, true);
         b.generateAllControlPoints();
     });
     dcn1.generateDendrites();
@@ -100,7 +99,6 @@ async function setup(p5) {
     await pk1.generateDendrites();
 
     let n = pk1.dendrites.tree.branches[0];
-    n.setCurvy(true, true);
     n.generateAllControlPoints();
 
     let xOffset = 40;
@@ -113,15 +111,11 @@ async function setup(p5) {
     io1.generateAxon();
 
     mf1.generateAxon();
-    // curve mf1 axon:
     let b = mf1.axon.tree.branches[0];
-    b.setCurvy(true, true);
     b.generateAllControlPoints();
 
     mf2.generateAxon();
-    // curve mf2 axon:
     b = mf2.axon.tree.branches[0];
-    b.setCurvy(true, true);
     b.generateAllControlPoints();
 
     pk1.generateAxon();

@@ -33,17 +33,18 @@ export default class PurkinjeNeuron extends Neuron {
             },
         );
 
-        const dendriteOptions = { 
-            neuron: this, 
-            tree, 
+        const dendriteOptions = {
+            neuron: this,
+            tree,
             receptorOptions: {
-                width: 8, 
-                height: 3, 
+                width: 8,
+                height: 3,
                 doRotation: true,
-                color: this.color
-            } 
-        }
+                color: this.color,
+            },
+        };
         this.dendrites = new Dendrites(dendriteOptions);
+        tree.branches.forEach((branch) => branch.setCurvy(true, true));
     }
 
     generateAxon() {
@@ -53,7 +54,7 @@ export default class PurkinjeNeuron extends Neuron {
         }
         if (dcns.length === 1) {
             const dcn = dcns[0];
-            const end = { x: dcn.x, y: dcn.y - dcn.height/2 - 11 };
+            const end = { x: dcn.x, y: dcn.y - dcn.height / 2 - 11 };
             const root = new Branch({
                 start: { x: this.x, y: this.y },
                 end,
@@ -67,7 +68,7 @@ export default class PurkinjeNeuron extends Neuron {
                 height: 5,
                 branch: root,
                 receptor,
-                doRotation: true
+                doRotation: true,
             });
         }
     }
@@ -99,12 +100,17 @@ export default class PurkinjeNeuron extends Neuron {
     findAllIntersections(granuleCell) {
         const intersections = [];
         for (let gcBranch of granuleCell.axon.tree.getAllBranches()) {
-            const branchIntersections = this.dendrites.tree.findIntersectionsWithExternalBranch(gcBranch);
-            intersections.push(...branchIntersections.map(entry => ({
-                gcBranch,
-                pkBranch: entry.branch,
-                point: entry.intersectionPoint
-            })));
+            const branchIntersections =
+                this.dendrites.tree.findIntersectionsWithExternalBranch(
+                    gcBranch,
+                );
+            intersections.push(
+                ...branchIntersections.map((entry) => ({
+                    gcBranch,
+                    pkBranch: entry.branch,
+                    point: entry.intersectionPoint,
+                })),
+            );
         }
         return intersections;
     }
@@ -117,11 +123,11 @@ export default class PurkinjeNeuron extends Neuron {
         return intersections.sort((a, b) => {
             const aDistFromEnd = Math.hypot(
                 a.gcBranch.end.x - a.point.x,
-                a.gcBranch.end.y - a.point.y
+                a.gcBranch.end.y - a.point.y,
             );
             const bDistFromEnd = Math.hypot(
                 b.gcBranch.end.x - b.point.x,
-                b.gcBranch.end.y - b.point.y
+                b.gcBranch.end.y - b.point.y,
             );
             return aDistFromEnd - bDistFromEnd;
         });
@@ -135,7 +141,7 @@ export default class PurkinjeNeuron extends Neuron {
             const receptor = this.addReceptorToBranch(pkBranch, point);
 
             if (!terminal || !receptor) {
-                console.error('Failed to create terminal or receptor');
+                console.error("Failed to create terminal or receptor");
                 return false;
             }
 
@@ -143,18 +149,19 @@ export default class PurkinjeNeuron extends Neuron {
             terminal.setReceptor(receptor);
             return true;
         } catch (error) {
-            console.error('Error creating connection:', error);
+            console.error("Error creating connection:", error);
             return false;
         }
     }
 
     connectWithGranuleCells(granuleCells) {
         let totalConnections = 0;
-        
+
         for (const granuleCell of granuleCells) {
             // Find and sort all possible connection points
             const intersections = this.findAllIntersections(granuleCell);
-            const sortedIntersections = this.sortIntersectionsByDistance(intersections);
+            const sortedIntersections =
+                this.sortIntersectionsByDistance(intersections);
 
             // Create connections at each intersection point
             let connections = 0;
@@ -169,5 +176,4 @@ export default class PurkinjeNeuron extends Neuron {
         }
         return totalConnections;
     }
-
 }

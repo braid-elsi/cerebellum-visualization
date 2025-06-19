@@ -21,8 +21,8 @@ export default class MossyFiberNeuron extends Neuron {
     calculateAveragePosition(neurons) {
         // Reduce the neurons array to get sum of x coordinates and maximum y coordinate
         const sum = neurons.reduce((acc, n) => ({
-            x: acc.x + n.x,          // Sum up all x coordinates
-            y: Math.max(acc.y, n.y)  // Keep track of the highest y coordinate
+            x: acc.x + n.x, // Sum up all x coordinates
+            y: Math.max(acc.y, n.y), // Keep track of the highest y coordinate
         }));
 
         return { x: sum.x / neurons.length, y: sum.y };
@@ -35,7 +35,7 @@ export default class MossyFiberNeuron extends Neuron {
         // filter out the DCN neurons before creating the root branch.
         // DCNs are incorporated into the root branch later.
         const neurons = [...this.outputNeurons.keys()];
-        const gcNeurons = neurons.filter(neuron => neuron.type === "gc");
+        const gcNeurons = neurons.filter((neuron) => neuron.type === "gc");
         const targetPosition = this.calculateAveragePosition(gcNeurons);
         const branch = new Branch({
             start: { x: this.x, y: this.y },
@@ -69,27 +69,29 @@ export default class MossyFiberNeuron extends Neuron {
             height: terminal.height,
             branch,
             receptor,
-            doRotation: false
+            doRotation: false,
         });
         return branch;
     }
 
     connectNeuronReceptors({ neuron, numConnections, parentBranch, level }) {
-        const receptors = neuron.dendrites.getAvailableReceptors().slice(0, numConnections);
-        
+        const receptors = neuron.dendrites
+            .getAvailableReceptors()
+            .slice(0, numConnections);
+
         if (receptors.length < numConnections) {
             console.error("Insufficient available receptors");
             return;
         }
-        
-        receptors.forEach(receptor => 
-            this.createReceptorBranch(receptor, parentBranch, level)
+
+        receptors.forEach((receptor) =>
+            this.createReceptorBranch(receptor, parentBranch, level),
         );
     }
 
     createTerminalBranchesForDCNs(currentBranch, dcn) {
         const start = { x: this.x, y: dcn.y };
-        const end = { x: dcn.x - dcn.width/2 - 11, y: dcn.y }
+        const end = { x: dcn.x - dcn.width / 2 - 11, y: dcn.y };
         const newBranch = new Branch({
             start,
             end,
@@ -103,31 +105,43 @@ export default class MossyFiberNeuron extends Neuron {
             height: 5,
             branch: newBranch,
             receptor,
-            doRotation: true
+            doRotation: true,
         });
+        newBranch.setCurvy(false, false);
     }
 
     createTerminalBranchesForGCs(parentBranch, neurons, level) {
         if (neurons.length <= 2) {
             neurons.forEach(([neuron, numConnections]) => {
-                const receptors = neuron.dendrites.getAvailableReceptors().slice(0, numConnections);
-                const averageX = receptors.reduce((sum, r) => sum + r.x, 0) / numConnections;
-                
+                const receptors = neuron.dendrites
+                    .getAvailableReceptors()
+                    .slice(0, numConnections);
+                const averageX =
+                    receptors.reduce((sum, r) => sum + r.x, 0) / numConnections;
+
                 const terminalBranch = new Branch({
                     start: parentBranch.end,
-                    end: { x: averageX, y: Math.min(neuron.y + neuron.width * 3) },
+                    end: {
+                        x: averageX,
+                        y: Math.min(neuron.y + neuron.width * 3),
+                    },
                     level,
                     parent: parentBranch,
                 });
 
                 parentBranch.addBranches([terminalBranch]);
-                this.connectNeuronReceptors({ neuron, numConnections, parentBranch: terminalBranch, level });
+                this.connectNeuronReceptors({
+                    neuron,
+                    numConnections,
+                    parentBranch: terminalBranch,
+                    level,
+                });
             });
             return;
         }
 
         const mid = Math.floor(neurons.length / 2);
-        [neurons.slice(0, mid), neurons.slice(mid)].forEach(group => {
+        [neurons.slice(0, mid), neurons.slice(mid)].forEach((group) => {
             const branch = new Branch({
                 start: parentBranch.end,
                 end: this.calculateBranchEndpoint(parentBranch, group),
@@ -145,12 +159,16 @@ export default class MossyFiberNeuron extends Neuron {
             (acc, neuronMap) => {
                 const neuron = neuronMap[0];
                 // find the average x coordinate of the remaining receptors:
-                const receptorXs = neuron.dendrites.getAvailableReceptors().map(r => r.x);
-                const x = receptorXs.reduce((x1, x2) =>  x1 + x2, 0) / receptorXs.length;
+                const receptorXs = neuron.dendrites
+                    .getAvailableReceptors()
+                    .map((r) => r.x);
+                const x =
+                    receptorXs.reduce((x1, x2) => x1 + x2, 0) /
+                    receptorXs.length;
                 return {
                     sumX: acc.sumX + x,
                     maxY: Math.max(acc.maxY, neuron.y),
-                }
+                };
             },
             { sumX: 0, maxY: -Infinity },
         );
@@ -160,7 +178,6 @@ export default class MossyFiberNeuron extends Neuron {
             y: parentBranch.end.y - Math.abs((maxY - parentBranch.end.y) / 3),
         };
     }
-    
 
     generateAxon() {
         if (!this.hasOutputNeurons()) return;
@@ -170,11 +187,12 @@ export default class MossyFiberNeuron extends Neuron {
 
         const outputNeurons = Array.from(this.outputNeurons);
         // create MF-GC connections:
-        const gcNeurons = outputNeurons.filter(n => n[0].type === "gc");
+        const gcNeurons = outputNeurons.filter((n) => n[0].type === "gc");
         this.createTerminalBranchesForGCs(rootBranch, gcNeurons, 1);
-
+        rootBranch.setCurvy(true, true);
+        
         // create MF-DCN connections:
-        const dcnNeurons = outputNeurons.filter(n => n[0].type === "dcn");
+        const dcnNeurons = outputNeurons.filter((n) => n[0].type === "dcn");
         if (dcnNeurons.length > 1) {
             throw Error("There should only be one DCN neuron per MF");
         }
