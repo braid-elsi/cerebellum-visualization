@@ -6,7 +6,7 @@ import PurkinjeNeuron from "./neurons/purkinje-neuron.js";
 import DeepCerebellarNuclei from "./neurons/dcn.js";
 import InferiorOlive from "./neurons/inferior-olive.js";
 import { getRandomInt } from "./utils.js";
-import {getLabels, drawLabel} from "./labels.js";
+import { getLabels, drawLabel } from "./labels.js";
 
 const neurons = [];
 const spikeManager = new SpikeManager();
@@ -15,6 +15,7 @@ const screenH = document.documentElement.clientHeight - 20;
 let counter = 0;
 let randomInterval1 = 30;
 let randomInterval2 = 50;
+let randomInterval3 = 20;
 let mf1, mf2;
 let pk1;
 let dcn1;
@@ -76,7 +77,7 @@ async function setup(p5) {
         x: 700,
         y: screenH + 450,
         width: 130,
-        color: [233, 194, 194]
+        color: [233, 194, 194],
     });
 
     pk1.connectTo(dcn1, 1);
@@ -86,15 +87,14 @@ async function setup(p5) {
     // then generate all the axon connections
     neurons.forEach((gc) => mf2.connectTo(gc, getRandomInt(2, 4)));
     mf2.connectTo(dcn1, 1);
-    
-    
+
     neurons.forEach((gc) => {
-        gc.generateDendrites()
+        gc.generateDendrites();
         let b = gc.dendrites.tree.branches[0];
         b.setCurvy(true, true);
         b.generateAllControlPoints();
     });
-    dcn1.generateDendrites()
+    dcn1.generateDendrites();
     mf1.generateDendrites();
     mf2.generateDendrites();
     await pk1.generateDendrites();
@@ -123,7 +123,7 @@ async function setup(p5) {
     b = mf2.axon.tree.branches[0];
     b.setCurvy(true, true);
     b.generateAllControlPoints();
-    
+
     pk1.generateAxon();
 
     // find Purkinje dendrite intersections with Granule Cell axons:
@@ -139,82 +139,41 @@ function draw(p5) {
     mf1.render(p5);
     mf2.render(p5);
     dcn1.render(p5);
-    getLabels({screenH}).forEach(label => drawLabel({p5, label}));
+    getLabels({ screenH }).forEach((label) => drawLabel({ p5, label }));
     spikeManager.render(p5);
     periodicallyAddNewSpikes(counter, p5);
     // periodicallyAddNewSpikesToPurkinje(counter, p5);
     ++counter;
 }
 
-// function periodicallyAddNewSpikesToPurkinje(counter, p5) {
-//     if (counter % randomInterval1 === 0) {
-//         if (!pk1.dendrites) {
-//             return;
-//         }
-//         spikeManager.addRandomSpikes(
-//             {
-//                 tree: pk1.dendrites.tree,
-//                 direction: "inbound",
-//                 n: 1,
-//                 color: [0, 200, 200], // [200, 0, 200],
-//             },
-//             p5,
-//         );
-//         // randomInterval1 = getRandomInt(10, 80);
-//     }
-// }
-
-// function periodicallyAddNewSpikesToGC(counter, p5) {
-//     if (neurons.length < 5) {
-//         return;
-//     }
-//     if (counter % randomInterval1 === 0) {
-//         spikeManager.addSpike({
-//                 branch: neurons[4].axon.tree.branches[0],
-//                 direction: "outbound",
-//                 color: [0, 200, 200], // [200, 0, 200],
-//             },
-//             p5,
-//         );
-//         randomInterval1 = getRandomInt(200, 500);
-//     }
-// }
+function addSpike(neuron, p5, direction = "outbound", color = [0, 200, 200]) {
+    if (!neuron.axon || !neuron.axon.tree) {
+        return;
+    }
+    spikeManager.addRandomSpikes(
+        {
+            tree: neuron.axon.tree,
+            direction,
+            n: 1,
+            color,
+        },
+        p5,
+    );
+}
 
 function periodicallyAddNewSpikes(counter, p5) {
     let cnt = counter - 10; // adds slight delay before spiking starts
     if (cnt % randomInterval1 === 0) {
-        for (const neuron of [mf1]) {
-            if (!neuron.axon || !neuron.axon.tree) {
-                continue;
-            }
-            spikeManager.addRandomSpikes(
-                {
-                    tree: neuron.axon.tree,
-                    direction: "outbound",
-                    n: 1,
-                    color: [0, 200, 200], // [200, 0, 200],
-                },
-                p5,
-            );
-        }
-        randomInterval1 = getRandomInt(100, 500);
+        addSpike(mf1, p5);
+        randomInterval1 = getRandomInt(10, 50);
+    }
+    if (cnt % randomInterval2 === 0) {
+        addSpike(mf2, p5);
+        randomInterval2 = getRandomInt(10, 50);
     }
 
-    if (cnt % randomInterval2 === 0) {
-        for (const neuron of [io1]) {
-            if (!neuron.axon || !neuron.axon.tree) {
-                continue;
-            }
-            spikeManager.addRandomSpikes(
-                {
-                    tree: neuron.axon.tree,
-                    direction: "outbound",
-                    n: 1,
-                    color: [0, 200, 200],
-                },
-                p5,
-            );
-        }
-        randomInterval2 = getRandomInt(50, 100);
+    if (cnt % randomInterval3 === 0) {
+        addSpike(io1, p5, "outbound", [200, 0, 200]);
+        randomInterval3 = getRandomInt(20, 60);
     }
 }

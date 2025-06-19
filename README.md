@@ -40,3 +40,78 @@ The "inferior olive" refers to a specific brain structure called the "inferior o
 * [https://neuromorpho.org/KeywordBrowseView.jsp?count=1555&keywords=%22purkinje%22&browseBy=brainRegion](https://neuromorpho.org/KeywordBrowseView.jsp?count=1555&keywords=%22purkinje%22&browseBy=brainRegion)
 * Great video of how synapses work: [https://www.youtube.com/watch?v=hmtQPrH-gC4](https://www.youtube.com/watch?v=hmtQPrH-gC4)
 * Vis tips on using Blender to visualize flows: [https://www.youtube.com/watch?v=yaa13eehgzo](https://www.youtube.com/watch?v=yaa13eehgzo)
+
+
+
+
+## How the Architecture Works
+For a cerebellar-style spiking model, here's how to structure the initial synapse setup in a way that reflects biology and supports learning:
+
+### 1. Network Architecture
+A simplified cerebellar network has these parts:
+| Layer          | Role                                   | How many?    |
+| -------------- | -------------------------------------- | ------------ |
+| Input neurons  | Motor command / sensory input          | 10–100       |
+| Granule cells  | Expand inputs into sparse combinations | 1,000–10,000 |
+| Purkinje cells | Main output neurons (inhibitory)       | 10–100       |
+| DCN neuron(s)  | Deep cerebellar nucleus (final output) | 1            |
+
+
+### 2. Synapse Types and Initial Connectivity
+You should define synapses between layers like this:
+
+#### A. Input → Granule Cells
+Randomly connect each input neuron to 10–50 granule cells.
+
+This makes a sparse random projection, which helps diversify signals.
+
+Synapses can be fixed (no learning) or very weakly plastic.
+
+
+#### B. Granule Cells → Purkinje Cells (Plastic Synapses!)
+Fully connect or randomly connect granule cells to Purkinje cells.
+
+These are the plastic synapses — the ones that change during learning.
+
+Start with small random weights, centered around 0.5 or 0.
+
+#### C. Climbing Fiber → Purkinje Cells (Error signal)
+Each Purkinje cell gets one climbing fiber input.
+
+Climbing fiber fires only when there's a motor error.
+
+This acts as the "teaching signal".
+
+You don’t need a weight for this — it just triggers plasticity at the right time.
+
+#### D. Purkinje Cells → DCN Neuron(s)
+Purkinje cells inhibit the DCN (which outputs to motor).
+
+You can make this a fixed inhibitory connection (weight = -1).
+
+#### E. DCN Neuron → Motor
+DCN activity becomes the motor command — this is your output.
+
+### 3. Initial Weights for Plastic Synapses
+For Granule → Purkinje (plastic) synapses:
+
+Use small random weights. If all weights are the same, learning takes longer.
+
+If weights are too big/small, the system saturates or does nothing.
+
+### 4. Learning Rule Hooks
+Only Granule → Purkinje synapses update, and only if:
+
+* The granule cell recently fired.
+* The Purkinje cell fired.
+* An error signal (climbing fiber) occurred within a short window.
+
+That’s what triggers STDP-like plasticity:
+
+### Summary
+| From → To           | Type       | Plastic? | Initial Weights        | Notes                                 |
+| ------------------- | ---------- | -------- | ---------------------- | ------------------------------------- |
+| Input → Granule     | Random     | No       | Fixed = 1.0            | Spread input into combinations        |
+| Granule → Purkinje  | Random     | Yes      | Random (e.g., 0.3–0.7) | Learning happens here                 |
+| Climbing → Purkinje | One-to-one | —        | —                      | Triggers plasticity when error occurs |
+| Purkinje → DCN      | Full       | No       | Fixed = -1.0           | Inhibitory output                     |

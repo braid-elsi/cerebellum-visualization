@@ -8,43 +8,55 @@ export default class InferiorOlive extends Neuron {
         super({ x, y, width, color });
         this.height = this.width * 0.6;
         this.type = "inferior-olive";
-        this.labelText = "Inferior Olive"
+        this.labelText = "Inferior Olive";
     }
 
     generateRootBranch(dcn) {
         const start = { x: this.x, y: this.y };
-        const end = { x: this.x, y: dcn.y }
+        const end = { x: this.x, y: dcn.y };
         const root = new Branch({
             start,
             end,
             level: 0,
             parent: null,
+            curvy: false,
+            symmetricCurves: false,
         });
-        this.axon = new Axon({ neuron: this, tree: new Tree([root]), strokeWidth: 4 });
+        this.axon = new Axon({
+            neuron: this,
+            tree: new Tree([root]),
+            strokeWidth: 4,
+        });
         return root;
     }
 
     generateAxon() {
         const neurons = [...this.outputNeurons.keys()];
-        const dcns = neurons.filter(neuron => neuron.type === "dcn");
-        
+        const dcns = neurons.filter((neuron) => neuron.type === "dcn");
+
         if (dcns.length > 1) {
-            throw new Error("Inferior Olive neuron can only connect to one DCN (for now)");
+            throw new Error(
+                "Inferior Olive neuron can only connect to one DCN (for now)",
+            );
         }
         if (dcns.length === 0) {
-            throw new Error("This function needs a DCN connection, but none found.");
+            throw new Error(
+                "This function needs a DCN connection, but none found.",
+            );
         }
 
         // connect w/DCN:
         const dcn = dcns[0];
         const root = this.generateRootBranch(dcn);
         let start = { x: this.x, y: dcn.y };
-        let end = { x: dcn.x + dcn.width/2 + 11, y: dcn.y }
+        let end = { x: dcn.x + dcn.width / 2 + 11, y: dcn.y };
         const dcnBranch = new Branch({
             start,
             end,
             level: 1,
             parent: root,
+            curvy: false,
+            symmetricCurves: false,
         });
         root.addBranches([dcnBranch]);
         let receptor = dcn.findClosestReceptor(end);
@@ -53,16 +65,22 @@ export default class InferiorOlive extends Neuron {
             height: 5,
             branch: dcnBranch,
             receptor,
-            doRotation: true
+            doRotation: true,
         });
 
         // connect w/Purkinje neuron:
-        const purkinjeNeurons = neurons.filter(neuron => neuron.type === "purkinje");
+        const purkinjeNeurons = neurons.filter(
+            (neuron) => neuron.type === "purkinje",
+        );
         if (dcns.length > 1) {
-            throw new Error("Inferior Olive neuron can only connect to one Purkinje (for now)");
+            throw new Error(
+                "Inferior Olive neuron can only connect to one Purkinje (for now)",
+            );
         }
         if (purkinjeNeurons.length === 0) {
-            throw new Error("This function needs a Purkinje neuron connection, but none found.");
+            throw new Error(
+                "This function needs a Purkinje neuron connection, but none found.",
+            );
         }
         const purkinje = purkinjeNeurons[0];
         end = { x: root.end.x, y: purkinje.y + 200 };
@@ -73,17 +91,26 @@ export default class InferiorOlive extends Neuron {
             parent: root,
         });
         root.addBranches([purkinjeBranch]);
-        const clonedPurkinjeBranch = purkinje.dendrites.tree.branches[0].clone(4);
-        clonedPurkinjeBranch.updateStartpoint({...end});
-        clonedPurkinjeBranch.branches.forEach(branch => {
-            branch.bisectBranchRecursively()
-            branch.setCurvy(true, false);
+        const clonedPurkinjeBranch =
+            purkinje.dendrites.tree.branches[0].clone(4);
+        clonedPurkinjeBranch.updateStartpoint({ ...end });
+        clonedPurkinjeBranch.branches.forEach((branch) => {
+            // branch.bisectBranchRecursively()
+            branch.setCurvy(true, true);
+            branch.setWrap(true);
         });
-        // clonedPurkinjeBranch.bisectBranchRecursively();
         purkinjeBranch.addBranches([clonedPurkinjeBranch]);
         purkinjeBranch.generateAllControlPoints();
     }
 
+    renderAxon(p5) {
+        if (this.axon) {
+            p5.strokeWeight(this.axon.strokeWidth);
+            p5.stroke(...this.color);
+            this.axon.tree.render(p5); //, true);
+            this.axon.terminals.forEach((terminal) => terminal.render(p5));
+        }
+    }
 
     render(p5) {
         super.render(p5);

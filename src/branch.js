@@ -5,11 +5,21 @@ import {
     getRandomSign,
 } from "./utils";
 export class Branch {
-    constructor({ start, end, level, parent, branches = [], curvy = false, symmetricCurves = false }) {
+    constructor({
+        start,
+        end,
+        level,
+        parent,
+        branches = [],
+        curvy = false,
+        symmetricCurves = false,
+        wrap = false,
+    }) {
         Object.assign(this, { start, end, level, parent });
         this.branches = branches;
         this.curvy = curvy;
         this.symmetricCurves = symmetricCurves;
+        this.wrap = wrap;
         this.updateGeometry();
 
         // if we want to curve the lines:
@@ -23,39 +33,41 @@ export class Branch {
 
     updateGeometry() {
         if (!this.start || !this.end) return;
-        
+
         // Straight-line length
         this.length = Math.hypot(
             this.end.x - this.start.x,
-            this.end.y - this.start.y
+            this.end.y - this.start.y,
         );
-        
+
         // Approximate arc length for curved paths using several segments
         if (this.curvy) {
             const segments = 10;
             let arcLength = 0;
             let prevX = this.start.x;
             let prevY = this.start.y;
-            
+
             for (let i = 1; i <= segments; i++) {
                 const t = i / segments;
-                const x = Math.pow(1 - t, 2) * this.start.x + 
-                         2 * (1 - t) * t * this.controlX + 
-                         Math.pow(t, 2) * this.end.x;
-                const y = Math.pow(1 - t, 2) * this.start.y + 
-                         2 * (1 - t) * t * this.controlY + 
-                         Math.pow(t, 2) * this.end.y;
-                
+                const x =
+                    Math.pow(1 - t, 2) * this.start.x +
+                    2 * (1 - t) * t * this.controlX +
+                    Math.pow(t, 2) * this.end.x;
+                const y =
+                    Math.pow(1 - t, 2) * this.start.y +
+                    2 * (1 - t) * t * this.controlY +
+                    Math.pow(t, 2) * this.end.y;
+
                 arcLength += Math.hypot(x - prevX, y - prevY);
                 prevX = x;
                 prevY = y;
             }
             this.arcLength = arcLength;
         }
-        
+
         this.angle = Math.atan2(
             this.end.y - this.start.y,
-            this.end.x - this.start.x
+            this.end.x - this.start.x,
         );
     }
 
@@ -82,7 +94,7 @@ export class Branch {
         // make sure this happens after branches are set
         if (level) {
             this.level = level;
-            this.updateLevelsRecursively(level)
+            this.updateLevelsRecursively(level);
         }
 
         // regenerate length and angle:
@@ -103,14 +115,72 @@ export class Branch {
         p5.beginShape();
         p5.noFill();
         p5.strokeJoin(p5.ROUND);
-        
+
         p5.vertex(this.start.x, this.start.y);
         p5.quadraticVertex(
             this.controlX,
             this.controlY,
             this.end.x,
-            this.end.y
+            this.end.y,
         );
+        p5.endShape();
+    }
+
+    drawWrappedLine({
+        p5,
+        segments = 50,
+        amplitude = 3,
+        frequency = 2,
+        strokeWidth = 3,
+    }) {
+        frequency = this.length / 50;
+        const { x: startX, y: startY } = this.start;
+        const { x: endX, y: endY } = this.end;
+        const controlX = this.controlX;
+        const controlY = this.controlY;
+        p5.noFill();
+        p5.beginShape();
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+
+            // Calculate base position along the quadratic curve
+            const baseX =
+                Math.pow(1 - t, 2) * startX +
+                2 * (1 - t) * t * controlX +
+                Math.pow(t, 2) * endX;
+            const baseY =
+                Math.pow(1 - t, 2) * startY +
+                2 * (1 - t) * t * controlY +
+                Math.pow(t, 2) * endY;
+
+            // Calculate tangent angle at this point
+            const tangentX =
+                2 * (1 - t) * (controlX - startX) + 2 * t * (endX - controlX);
+            const tangentY =
+                2 * (1 - t) * (controlY - startY) + 2 * t * (endY - controlY);
+            const lineAngle = p5.atan2(tangentY, tangentX);
+
+            const angle = t * p5.TWO_PI * frequency;
+
+            // Draw when moving right, plus a little extra at the ends
+            // if (p5.cos(angle) > -0.9 ||
+            //    (p5.cos(angle) > -0.7 && p5.sin(angle) > 0.9)) {
+
+            // Calculate offset perpendicular to the curve
+            const perpX = p5.cos(lineAngle + p5.PI / 2);
+            const perpY = p5.sin(lineAngle + p5.PI / 2);
+
+            // Apply sine wave offset
+            const offset = p5.sin(angle) * amplitude;
+            const x = baseX + perpX * offset;
+            const y = baseY + perpY * offset;
+
+            p5.vertex(x, y);
+            // } else {
+            //     p5.endShape();
+            //     p5.beginShape();
+            // }
+        }
         p5.endShape();
     }
 
@@ -135,7 +205,7 @@ export class Branch {
         for (let i = this.branches.length - 1; i >= 0; i--) {
             const child = this.branches[i];
             if (!child?.branches) continue;
-            
+
             if (child.branches.length === 1) {
                 const grandchild = child.branches[0];
                 if (!grandchild) continue;
@@ -153,11 +223,11 @@ export class Branch {
 
     traverse(callback) {
         if (!this) return;
-        
+
         callback(this);
-        
+
         if (this.branches) {
-            this.branches.forEach(child => {
+            this.branches.forEach((child) => {
                 if (child) {
                     child.traverse(callback);
                 }
@@ -188,7 +258,7 @@ export class Branch {
         // Move original children to continuationBranch
         if (originalChildren.length > 0) {
             continuationBranch.branches = originalChildren;
-            originalChildren.forEach(child => {
+            originalChildren.forEach((child) => {
                 child.parent = continuationBranch;
                 child.start = continuationBranch.end;
                 child.updateGeometry();
@@ -196,40 +266,43 @@ export class Branch {
         }
 
         // Increment levels for the continuation branch and its children
-        continuationBranch.traverse(branch => branch.level++);
+        continuationBranch.traverse((branch) => branch.level++);
 
         return { continuationBranch, newBranch };
     }
 
-    // The purpose of this function is to recursively bisect the 
+    // The purpose of this function is to recursively bisect the
     // children of the branch so that we can create a "wrap around"
     // effect for the mossy fibers around the Purkinje cell.
     bisectBranchRecursively() {
         const midPoint = {
             x: (this.start.x + this.end.x) / 2,
-            y: (this.start.y + this.end.y) / 2
+            y: (this.start.y + this.end.y) / 2,
         };
-        
+
         // Create second half as a child branch
         const secondHalf = new Branch({
             start: { ...midPoint },
             end: { ...this.end },
             level: this.level + 1,
-            parent: this
+            parent: this,
         });
 
         // Store original children before modifying the branch
         const originalChildren = [...this.branches] || [];
-        
+
         // Modify the current branch to be the first half
-        this.update({end: midPoint, branches: [secondHalf]});  // Shorten the existing branch
-        
+        this.update({ end: midPoint, branches: [secondHalf] }); // Shorten the existing branch
+
         // Transfer original children to secondHalf
-        secondHalf.update({level: this.level + 1, branches: originalChildren});
-        
+        secondHalf.update({
+            level: this.level + 1,
+            branches: originalChildren,
+        });
+
         // Recursively split children
         if (secondHalf.branches.length > 0) {
-            secondHalf.branches.forEach(childBranch => {
+            secondHalf.branches.forEach((childBranch) => {
                 childBranch.bisectBranchRecursively();
             });
         }
@@ -243,7 +316,7 @@ export class Branch {
             level: this.level,
             parent: this.parent,
             branches: [],
-            symmetricCurves: this.symmetricCurves
+            symmetricCurves: this.symmetricCurves,
         });
 
         // Copy the control points for curved lines
@@ -252,10 +325,12 @@ export class Branch {
 
         // Recursively clone all child branches
         if (clonedBranch.level < maxLevel) {
-            clonedBranch.branches = this.branches.map(branch => branch.clone(maxLevel));
+            clonedBranch.branches = this.branches.map((branch) =>
+                branch.clone(maxLevel),
+            );
         }
         // Update parent references for child branches
-        clonedBranch.branches.forEach(branch => {
+        clonedBranch.branches.forEach((branch) => {
             branch.parent = clonedBranch;
         });
 
@@ -267,14 +342,24 @@ export class Branch {
         this.symmetricCurves = symmetricCurves;
         this.updateGeometry();
         // Recursively set curvy and symmetricCurves for all child branches
-        this.branches.forEach(branch => branch.setCurvy(curvy, symmetricCurves));
+        this.branches.forEach((branch) =>
+            branch.setCurvy(curvy, symmetricCurves),
+        );
+    }
+    setWrap(wrap = true) {
+        this.wrap = wrap;
+        this.updateGeometry();
+        // Recursively set wrap for all child branches
+        this.branches.forEach((branch) => branch.setWrap(wrap));
     }
 
     updateControlPoints() {
         const randomRangeY = 15;
         const randomRangeX = 30;
-        this.controlX = (this.start.x + this.end.x) / 2 + getRandomFloat(0, randomRangeX);
-        this.controlY = (this.start.y + this.end.y) / 2 - getRandomFloat(0, randomRangeY);
+        this.controlX =
+            (this.start.x + this.end.x) / 2 + getRandomFloat(0, randomRangeX);
+        this.controlY =
+            (this.start.y + this.end.y) / 2 - getRandomFloat(0, randomRangeY);
     }
 
     updateStartpoint(newStart) {
@@ -290,7 +375,10 @@ export class Branch {
     }
 
     render(p5) {
-        if (this.curvy) {
+        if (this.wrap) {
+            // this.drawStraightLine(p5);
+            this.drawWrappedLine({ p5 });
+        } else if (this.curvy) {
             this.drawCurvedLine(p5);
         } else {
             this.drawStraightLine(p5);
@@ -312,22 +400,24 @@ export class Branch {
             const dy = this.end.y - this.start.y;
             let perpX = dy;
             let perpY = -dx;
-            
+
             let direction;
-            
+
             if (this.symmetricCurves) {
                 // Symmetric curving logic
                 const siblingIndex = this.parent.branches.indexOf(this);
                 const totalBranches = this.parent.branches.length;
                 const isEven = totalBranches % 2 === 0;
                 const middleIndex = Math.floor(totalBranches / 2);
-                
+
                 if (!isEven && siblingIndex === middleIndex) {
                     // Middle branch stays straight only for odd number of branches
                     this.controlX = midX;
                     this.controlY = midY;
                     this.updateGeometry();
-                    this.branches.forEach(branch => branch.generateAllControlPoints());
+                    this.branches.forEach((branch) =>
+                        branch.generateAllControlPoints(),
+                    );
                     return;
                 }
                 direction = siblingIndex < middleIndex ? 1 : -1;
@@ -335,7 +425,7 @@ export class Branch {
                 // Original alternating by level logic
                 direction = this.level % 2 === 0 ? 1 : -1;
             }
-            
+
             // Normalize and apply offset
             const length = Math.sqrt(perpX * perpX + perpY * perpY);
             const offset = this.length / 5;
@@ -344,9 +434,9 @@ export class Branch {
         }
 
         this.updateGeometry();
-        
+
         // Recursively generate control points for all child branches
-        this.branches.forEach(branch => branch.generateAllControlPoints());
+        this.branches.forEach((branch) => branch.generateAllControlPoints());
     }
 }
 

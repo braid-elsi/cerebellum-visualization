@@ -49,7 +49,7 @@ export class Tree {
     }
 
     traverse(callback) {
-        this.branches.forEach(root => root.traverse(callback));
+        this.branches.forEach((root) => root.traverse(callback));
     }
 
     countBranches() {
@@ -69,7 +69,10 @@ export class Tree {
     getLevelDistribution() {
         const levelCounts = new Map();
         this.traverse((branch) => {
-            levelCounts.set(branch.level, (levelCounts.get(branch.level) || 0) + 1);
+            levelCounts.set(
+                branch.level,
+                (levelCounts.get(branch.level) || 0) + 1,
+            );
         });
         return levelCounts;
     }
@@ -422,22 +425,19 @@ export class PurkinjeTreeLoader {
     }
 
     static simplifyTree(tree, options) {
-        const {
-            minEdgeLength = 4,
-            simplifyThreshold = 0.3
-        } = options;
+        const { minEdgeLength = 4, simplifyThreshold = 0.3 } = options;
 
         if (!tree || !tree.branches || tree.branches.length === 0) {
             return;
         }
 
         // Apply simplification
-        tree.branches.forEach(root => {
+        tree.branches.forEach((root) => {
             root.simplify(minEdgeLength);
         });
 
         // Recalculate levels
-        tree.branches.forEach(root => {
+        tree.branches.forEach((root) => {
             root.level = 0;
             this.recalculateLevels(root, 0);
         });
@@ -448,10 +448,10 @@ export class PurkinjeTreeLoader {
 
     static recalculateLevels(branch, level = 0) {
         if (!branch) return;
-        
+
         branch.level = level;
         if (branch.branches) {
-            branch.branches.forEach(child => {
+            branch.branches.forEach((child) => {
                 if (child) {
                     this.recalculateLevels(child, level + 1);
                 }
@@ -461,17 +461,19 @@ export class PurkinjeTreeLoader {
 
     static validateLevels(branch) {
         if (!branch) return true;
-        
+
         if (branch.branches) {
             for (const child of branch.branches) {
                 if (!child) continue;
-                
+
                 // Check if child's level is exactly one more than parent's
                 if (child.level !== branch.level + 1) {
-                    console.error(`Invalid level: parent=${branch.level}, child=${child.level}`);
+                    console.error(
+                        `Invalid level: parent=${branch.level}, child=${child.level}`,
+                    );
                     return false;
                 }
-                
+
                 // Recursively validate children
                 if (!this.validateLevels(child)) {
                     return false;
@@ -483,8 +485,10 @@ export class PurkinjeTreeLoader {
 
     static logTreeStatistics(tree) {
         // Validate levels
-        const isValid = tree.branches.every(root => this.validateLevels(root));
-        console.log(`Level validation: ${isValid ? 'passed' : 'failed'}`);
+        const isValid = tree.branches.every((root) =>
+            this.validateLevels(root),
+        );
+        console.log(`Level validation: ${isValid ? "passed" : "failed"}`);
 
         // Log tree height
         const treeHeight = tree.getHeight();
@@ -496,11 +500,12 @@ export class PurkinjeTreeLoader {
 
         // Log level distribution
         const levelCounts = tree.getLevelDistribution();
-        console.log('Level distribution:', 
+        console.log(
+            "Level distribution:",
             Array.from(levelCounts.entries())
                 .sort(([a], [b]) => a - b)
                 .map(([level, count]) => `${level}: ${count}`)
-                .join(', ')
+                .join(", "),
         );
 
         return { isValid, height: treeHeight, totalBranches, levelCounts };

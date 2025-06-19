@@ -127,16 +127,39 @@ export default class Neuron {
 
     render(p5) {
         this.charge = Math.max(0, this.charge - 0.015);
-
         p5.strokeWeight(this.lineWidth);
+        
+        // render axon:
+        this.renderAxon(p5);
+
+        // render dendrites:
+        this.renderDendrites(p5);
+
+        // render soma:
+        this.renderSoma(p5);
+
+        // render soma charge:
+        this.renderCharge(p5);
+    }
+
+    renderAxon(p5) {
         if (this.axon) {
             this.axon.render(p5);
         }
+    }
+
+    renderDendrites(p5) {
         if (this.dendrites) {
             this.dendrites.render(p5);
         }
+    }
+
+    renderSoma(p5) {
         p5.fill(...this.color);
         p5.ellipse(this.x, this.y, this.width, this.height);
+    }
+
+    renderCharge(p5) {
         p5.fill(0, 200, 200);
         p5.ellipse(this.x, this.y, this.charge, this.charge);
     }
